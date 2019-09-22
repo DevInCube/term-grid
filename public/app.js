@@ -159,7 +159,19 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
         for (let i = 0; i < text.length; i++) {
             drawCell(new Cell(text[i]), 2 + i, 2);
         }
+        // hero
         drawCell(new Cell('🐱', 'yellow', 'darkgreen'), heroLeft, heroTop);
+        // hero shadow behind objects
+        for (let object of sceneObjects) {
+            if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
+                ctx.fillStyle = 'black';
+                const left = heroLeft * cellStyle.size;
+                const top = heroTop * cellStyle.size;
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
+                break;
+            }
+        }
         for (let object of sceneObjects) {
             drawObject(object);
         }
