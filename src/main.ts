@@ -42,7 +42,7 @@ function drawCell(
     ctx.textBaseline = "middle";
     // ctx.globalAlpha = 1;
     ctx.fillStyle = cell.textColor;
-    ctx.fillText(cell.character, left + cellStyle.size / 2, top + cellStyle.size / 2);
+    ctx.fillText(cell.character, left + cellStyle.size / 2, top + cellStyle.size / 2 + 2);
     if (cellStyle.borderWidth > 0) {
         ctx.lineWidth = cellStyle.borderWidth;
         // palette borders
@@ -101,13 +101,14 @@ let weatherType = 'normal';
 let timePeriod = 'day';
 // createTextObject("Term Adventures!", 2, 2)
 const sceneObjects = [house, chest, tree, ...trees];
+let lightLayer: number[][] = [];
 let weatherLayer: Cell[][] = [];
 
 function drawScene() {
     // bedrock
     for (let y = 0; y < viewHeight; y++) {
         for (let x = 0; x < viewWidth; x++) {
-            drawCell(new Cell(), x, y);
+            drawCell(new Cell(' ', 'transparent', '#331'), x, y);
         }
     }
 
@@ -134,6 +135,18 @@ function drawScene() {
         drawHeroCursor();
     }
 
+    updateLights();
+
+    function updateLights() {
+        lightLayer = [];
+        for (let y = 0; y < viewHeight; y++) {
+            for (let x = 0; x < viewWidth; x++) {
+                if (!lightLayer[y]) lightLayer[y] = [];
+                if (Math.abs(x - heroLeft) + Math.abs(y - heroTop) <= 2)
+                    lightLayer[y][x] = 2;
+            }
+        }
+    }
     drawWeather();
 
     function drawHeroCursor() {
@@ -159,7 +172,10 @@ function drawScene() {
         if (timePeriod === 'night') {
             for (let y = 0; y < viewHeight; y++) {
                 for (let x = 0; x < viewWidth; x++) {
-                    drawCell(new Cell(' ', 'transparent', '#0006'), x, y);
+                    const lightLevel = lightLayer[y] && lightLayer[y][x]
+                        ? lightLayer[y][x]
+                        : 6;
+                    drawCell(new Cell(' ', 'transparent', `#000${lightLevel}`), x, y);
                 }
             }
         }
@@ -266,19 +282,22 @@ document.addEventListener("keypress", function (code) {
         }
         drawScene();
         return;
-    } else if (raw_key === '1') {  // debug
-        weatherType = 'normal';
-    } else if (raw_key === '2') {  // debug
-        weatherType = 'rain';
-    } else if (raw_key === '3') {  // debug
-        weatherType = 'snow';
-    } else if (raw_key === '4') {  // debug
-        weatherType = 'rain_and_snow';
-    } else if (raw_key === '5') {  // debug
-        weatherType = 'mist';
-    } else if (raw_key === 'q') {  // debug
-        timePeriod = timePeriod === 'day' ? 'night' : 'day';
     } else {
+        // debug keys
+        if (raw_key === '1') {  // debug
+            weatherType = 'normal';
+        } else if (raw_key === '2') {  // debug
+            weatherType = 'rain';
+        } else if (raw_key === '3') {  // debug
+            weatherType = 'snow';
+        } else if (raw_key === '4') {  // debug
+            weatherType = 'rain_and_snow';
+        } else if (raw_key === '5') {  // debug
+            weatherType = 'mist';
+        } else if (raw_key === 'q') {  // debug
+            timePeriod = timePeriod === 'day' ? 'night' : 'day';
+        }
+        console.log(weatherType, timePeriod);
         return;  // skip
     }
     if (!code.shiftKey) {

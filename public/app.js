@@ -95,7 +95,7 @@ System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], fun
         execute: function () {
             exports_4("house", house = new StaticGameObject_2.StaticGameObject(` /^\\ 
 ==*==
- [ ] `, new Skin_3.Skin(` BBB
+ ▓ ▓ `, new Skin_3.Skin(` BBB
 BBSBB
  WDW`, {
                 B: [undefined, 'black'],
@@ -147,7 +147,7 @@ o01
     };
 });
 System.register("main", ["utils/misc", "world/objects"], function (exports_5, context_5) {
-    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, weatherLayer, emptyCollisionChar;
+    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, lightLayer, weatherLayer, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size;
@@ -162,7 +162,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         ctx.textBaseline = "middle";
         // ctx.globalAlpha = 1;
         ctx.fillStyle = cell.textColor;
-        ctx.fillText(cell.character, left + cellStyle.size / 2, top + cellStyle.size / 2);
+        ctx.fillText(cell.character, left + cellStyle.size / 2, top + cellStyle.size / 2 + 2);
         if (cellStyle.borderWidth > 0) {
             ctx.lineWidth = cellStyle.borderWidth;
             // palette borders
@@ -213,7 +213,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         // bedrock
         for (let y = 0; y < viewHeight; y++) {
             for (let x = 0; x < viewWidth; x++) {
-                drawCell(new Cell(), x, y);
+                drawCell(new Cell(' ', 'transparent', '#331'), x, y);
             }
         }
         // hero
@@ -240,6 +240,18 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         if (heroDir[0] || heroDir[1]) {
             drawHeroCursor();
         }
+        updateLights();
+        function updateLights() {
+            lightLayer = [];
+            for (let y = 0; y < viewHeight; y++) {
+                for (let x = 0; x < viewWidth; x++) {
+                    if (!lightLayer[y])
+                        lightLayer[y] = [];
+                    if (Math.abs(x - heroLeft) + Math.abs(y - heroTop) <= 2)
+                        lightLayer[y][x] = 2;
+                }
+            }
+        }
         drawWeather();
         function drawHeroCursor() {
             const leftPos = heroLeft + heroDir[0];
@@ -263,7 +275,10 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             if (timePeriod === 'night') {
                 for (let y = 0; y < viewHeight; y++) {
                     for (let x = 0; x < viewWidth; x++) {
-                        drawCell(new Cell(' ', 'transparent', '#0006'), x, y);
+                        const lightLevel = lightLayer[y] && lightLayer[y][x]
+                            ? lightLayer[y][x]
+                            : 6;
+                        drawCell(new Cell(' ', 'transparent', `#000${lightLevel}`), x, y);
                     }
                 }
             }
@@ -400,6 +415,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             timePeriod = 'day';
             // createTextObject("Term Adventures!", 2, 2)
             sceneObjects = [objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees];
+            lightLayer = [];
             weatherLayer = [];
             onInterval(); // initial run
             setInterval(onInterval, 500);
@@ -428,25 +444,27 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                     drawScene();
                     return;
                 }
-                else if (raw_key === '1') { // debug
-                    weatherType = 'normal';
-                }
-                else if (raw_key === '2') { // debug
-                    weatherType = 'rain';
-                }
-                else if (raw_key === '3') { // debug
-                    weatherType = 'snow';
-                }
-                else if (raw_key === '4') { // debug
-                    weatherType = 'rain_and_snow';
-                }
-                else if (raw_key === '5') { // debug
-                    weatherType = 'mist';
-                }
-                else if (raw_key === 'q') { // debug
-                    timePeriod = timePeriod === 'day' ? 'night' : 'day';
-                }
                 else {
+                    // debug keys
+                    if (raw_key === '1') { // debug
+                        weatherType = 'normal';
+                    }
+                    else if (raw_key === '2') { // debug
+                        weatherType = 'rain';
+                    }
+                    else if (raw_key === '3') { // debug
+                        weatherType = 'snow';
+                    }
+                    else if (raw_key === '4') { // debug
+                        weatherType = 'rain_and_snow';
+                    }
+                    else if (raw_key === '5') { // debug
+                        weatherType = 'mist';
+                    }
+                    else if (raw_key === 'q') { // debug
+                        timePeriod = timePeriod === 'day' ? 'night' : 'day';
+                    }
+                    console.log(weatherType, timePeriod);
                     return; // skip
                 }
                 if (!code.shiftKey) {

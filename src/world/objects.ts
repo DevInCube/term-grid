@@ -3,7 +3,7 @@ import { Skin } from "./../engine/Skin";
 
 export const house = new StaticGameObject(` /^\\ 
 ==*==
- [ ] `, new Skin(` BBB
+ ▓ ▓ `, new Skin(` BBB
 BBSBB
  WDW`, {
       B: [undefined, 'black'],
