@@ -1,7 +1,11 @@
 export class Skin {
-    constructor(public mask: string, public colors: {
+
+    constructor(
+        public mask: string = '', 
+        public colors: {
         [key: string]: (string | undefined)[];
-    }) { }
+    } = {}) { }
+
     getRawColors() {
         let raw_colors: (string | undefined)[][][] = [];
         const lines = this.mask.split('\n');

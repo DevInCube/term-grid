@@ -10,7 +10,7 @@ BBSBB
       S: [undefined, '#004'],
       W: ["black", "darkred"],
       D: ["black", "saddlebrown"]
-  }).getRawColors(), `
+  }), `
  ... 
  . .`, [5, 10]);
 
@@ -27,7 +27,7 @@ o01
       '1': [undefined, '#060'],
       'S': [undefined, '#040'],
       'H': [undefined, 'sienna'],
-  }).getRawColors(), `
+  }), `
 
 
  .`, [1, 9]);
@@ -54,4 +54,4 @@ if (true) {  // random trees
 
 export const chest = new StaticGameObject(`S`, new Skin(`V`, {
     V: ['yellow', 'violet'],
-}).getRawColors(), `.`, [2, 10]);
+}), `.`, [2, 10]);
