@@ -1,7 +1,7 @@
 import { StaticGameObject } from "./../engine/StaticGameObject";
 import { Skin } from "./../engine/Skin";
 
-export const house = new StaticGameObject(` /^\\ 
+export const house = new StaticGameObject([2, 2], ` /^\\ 
 ==*==
  ▓ ▓ `, new Skin(` BBB
 BBSBB
@@ -12,10 +12,10 @@ BBSBB
       D: ["black", "saddlebrown"]
   }), `
  ... 
- . .`, [5, 10]);
+ . .`, '', [5, 10]);
 
 
- export const tree = new StaticGameObject(`   
+ export const tree = new StaticGameObject([1, 3], `   
    
    
   `, new Skin(` o 
@@ -30,28 +30,66 @@ o01
   }), `
 
 
- .`, [1, 9]);
+ .`, '', [2, 12]);
 
-export let trees: StaticGameObject[] = [
+export const trees: StaticGameObject[] = [
     //{...tree, position: [5, 11]} as StaticGameObject,
     //{...tree, position: [11, 8]} as StaticGameObject,
     //{...tree, position: [10, 10]} as StaticGameObject,
 ];
+
+
+const bamboo = new StaticGameObject([0, 4], `▁
+▔
+▁
+▔
+▁
+▔`, new Skin(`T
+H
+L
+H
+L
+D`, {
+      // https://colorpalettes.net/color-palette-412/
+      'T': ['#8f7f53', '#99bc20'],
+      'L': ['#8f7f53', '#517201'],
+      'H': ['#392b04', '#394902'],
+      'D': ['#392b04', '#574512'],
+  }), ` 
+ 
+ 
+ 
+ 
+.`, ``, []);
 if (true) {  // random trees
-    for (let y = 4; y < 16; y++) {
+    for (let y = 6; y < 18; y++) {
         const x = (Math.random() * 8 + 1) | 0;
-        trees.push(Object.assign(StaticGameObject.createEmpty(), tree, {position: [x, y]}));
+        trees.push(Object.assign(StaticGameObject.createEmpty(), bamboo, {position: [x, y]}));
         const x2 = (Math.random() * 8 + 8) | 0;
-        trees.push(Object.assign(StaticGameObject.createEmpty(), tree, {position: [x2, y]}));
+        trees.push(Object.assign(StaticGameObject.createEmpty(), bamboo, {position: [x2, y]}));
     }
     for (let tree of trees) {
-        tree.setAction(1, 3, (obj) => { 
+        tree.setAction(0, 5, (obj) => { 
             obj.enabled = false; 
             console.log("Cut tree");
         });
     }
 }
 
-export const chest = new StaticGameObject(`S`, new Skin(`V`, {
+const lamp = new StaticGameObject([0, 2], ` 
+ 
+ `, new Skin(`L
+H
+H`, {
+      'L': [undefined, 'yellow'],
+      'H': [undefined, '#333'],
+  }), ` 
+ 
+. `, `B`, []);
+export const lamps: StaticGameObject[] = [
+    StaticGameObject.clone(lamp, { position: [2, 5]}),
+];
+
+export const chest = new StaticGameObject([0, 0], `S`, new Skin(`V`, {
     V: ['yellow', 'violet'],
-}), `.`, [2, 10]);
+}), `.`, '', [2, 10]);

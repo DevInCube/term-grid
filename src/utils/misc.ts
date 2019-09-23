@@ -5,6 +5,6 @@ export function createTextObject(text: string, x: number, y: number) {
     const colors = new Skin(
         ''.padEnd(text.length, '.'), 
         {'.': [undefined, undefined]});
-    const t = new StaticGameObject(text, colors, '', [x, y]);
+    const t = new StaticGameObject([0, 0], text, colors, '', '', [x, y]);
     return t;
 }

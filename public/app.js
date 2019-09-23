@@ -37,12 +37,15 @@ System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_2,
         ],
         execute: function () {
             StaticGameObject = class StaticGameObject {
-                constructor(charSkin, colorSkin, collisionsMask, position) {
+                constructor(originPoint, charSkin, colorSkin, collisionsMask, lightMask, position) {
+                    this.originPoint = originPoint;
                     this.position = position;
+                    // @todo add origin point
                     this.enabled = true;
                     this.characters = charSkin.split('\n');
                     this.colors = colorSkin.getRawColors();
                     this.collisions = collisionsMask.split('\n');
+                    this.lights = lightMask.split('\n');
                     //
                     this.actions = [];
                 }
@@ -51,7 +54,10 @@ System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_2,
                     this.actions.push([[left, top], action]);
                 }
                 static createEmpty() {
-                    return new StaticGameObject('', new Skin_1.Skin(), '', []);
+                    return new StaticGameObject([0, 0], '', new Skin_1.Skin(), '', '', [0, 0]);
+                }
+                static clone(o, params) {
+                    return Object.assign(this.createEmpty(), o, params);
                 }
             };
             exports_2("StaticGameObject", StaticGameObject);
@@ -63,7 +69,7 @@ System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], functi
     var __moduleName = context_3 && context_3.id;
     function createTextObject(text, x, y) {
         const colors = new Skin_2.Skin(''.padEnd(text.length, '.'), { '.': [undefined, undefined] });
-        const t = new StaticGameObject_1.StaticGameObject(text, colors, '', [x, y]);
+        const t = new StaticGameObject_1.StaticGameObject([0, 0], text, colors, '', '', [x, y]);
         return t;
     }
     exports_3("createTextObject", createTextObject);
@@ -81,7 +87,7 @@ System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], functi
     };
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], function (exports_4, context_4) {
-    var StaticGameObject_2, Skin_3, house, tree, trees, chest;
+    var StaticGameObject_2, Skin_3, house, tree, trees, bamboo, lamp, lamps, chest;
     var __moduleName = context_4 && context_4.id;
     return {
         setters: [
@@ -93,7 +99,7 @@ System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], fun
             }
         ],
         execute: function () {
-            exports_4("house", house = new StaticGameObject_2.StaticGameObject(` /^\\ 
+            exports_4("house", house = new StaticGameObject_2.StaticGameObject([2, 2], ` /^\\ 
 ==*==
  ▓ ▓ `, new Skin_3.Skin(` BBB
 BBSBB
@@ -104,8 +110,8 @@ BBSBB
                 D: ["black", "saddlebrown"]
             }), `
  ... 
- . .`, [5, 10]));
-            exports_4("tree", tree = new StaticGameObject_2.StaticGameObject(`   
+ . .`, '', [5, 10]));
+            exports_4("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], `   
    
    
   `, new Skin_3.Skin(` o 
@@ -120,34 +126,69 @@ o01
             }), `
 
 
- .`, [1, 9]));
+ .`, '', [2, 12]));
             exports_4("trees", trees = [
             //{...tree, position: [5, 11]} as StaticGameObject,
             //{...tree, position: [11, 8]} as StaticGameObject,
             //{...tree, position: [10, 10]} as StaticGameObject,
             ]);
+            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], `▁
+▔
+▁
+▔
+▁
+▔`, new Skin_3.Skin(`T
+H
+L
+H
+L
+D`, {
+                // https://colorpalettes.net/color-palette-412/
+                'T': ['#8f7f53', '#99bc20'],
+                'L': ['#8f7f53', '#517201'],
+                'H': ['#392b04', '#394902'],
+                'D': ['#392b04', '#574512'],
+            }), ` 
+ 
+ 
+ 
+ 
+.`, ``, []);
             if (true) { // random trees
-                for (let y = 4; y < 16; y++) {
+                for (let y = 6; y < 18; y++) {
                     const x = (Math.random() * 8 + 1) | 0;
-                    trees.push(Object.assign(StaticGameObject_2.StaticGameObject.createEmpty(), tree, { position: [x, y] }));
+                    trees.push(Object.assign(StaticGameObject_2.StaticGameObject.createEmpty(), bamboo, { position: [x, y] }));
                     const x2 = (Math.random() * 8 + 8) | 0;
-                    trees.push(Object.assign(StaticGameObject_2.StaticGameObject.createEmpty(), tree, { position: [x2, y] }));
+                    trees.push(Object.assign(StaticGameObject_2.StaticGameObject.createEmpty(), bamboo, { position: [x2, y] }));
                 }
                 for (let tree of trees) {
-                    tree.setAction(1, 3, (obj) => {
+                    tree.setAction(0, 5, (obj) => {
                         obj.enabled = false;
                         console.log("Cut tree");
                     });
                 }
             }
-            exports_4("chest", chest = new StaticGameObject_2.StaticGameObject(`S`, new Skin_3.Skin(`V`, {
+            lamp = new StaticGameObject_2.StaticGameObject([0, 2], ` 
+ 
+ `, new Skin_3.Skin(`L
+H
+H`, {
+                'L': [undefined, 'yellow'],
+                'H': [undefined, '#333'],
+            }), ` 
+ 
+. `, `B`, []);
+            exports_4("lamps", lamps = [
+                StaticGameObject_2.StaticGameObject.clone(lamp, { position: [2, 5] }),
+            ]);
+            exports_4("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], `S`, new Skin_3.Skin(`V`, {
                 V: ['yellow', 'violet'],
-            }), `.`, [2, 10]));
+            }), `.`, '', [2, 10]));
         }
     };
 });
 System.register("main", ["utils/misc", "world/objects"], function (exports_5, context_5) {
-    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, lightLayer, weatherLayer, emptyCollisionChar;
+    var misc_1, objects_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, lightLayer, weatherLayer, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size;
@@ -157,7 +198,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         ctx.strokeStyle = cellStyle.borderColor;
         ctx.fillStyle = cell.backgroundColor;
         ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
-        ctx.font = "24px Mono";
+        ctx.font = "26px Mono";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         // ctx.globalAlpha = 1;
@@ -193,7 +234,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                 const cell = new Cell(char, cellColor[0], cellColor[1]);
                 const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
                 if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
-                    drawCell(cell, obj.position[0] + x, obj.position[1] + y, transparent, [
+                    drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, [
                         isEmptyCell(obj, x + 0, y - 1),
                         isEmptyCell(obj, x + 1, y + 0),
                         isEmptyCell(obj, x + 0, y + 1),
@@ -210,6 +251,8 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         return cellColor[0] === '' && cellColor[1] === '';
     }
     function drawScene() {
+        // sort objects by origin point
+        sceneObjects.sort((a, b) => a.position[1] - b.position[1]);
         // bedrock
         for (let y = 0; y < viewHeight; y++) {
             for (let x = 0; x < viewWidth; x++) {
@@ -242,13 +285,41 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         }
         updateLights();
         function updateLights() {
+            // clear
             lightLayer = [];
             for (let y = 0; y < viewHeight; y++) {
                 for (let x = 0; x < viewWidth; x++) {
                     if (!lightLayer[y])
                         lightLayer[y] = [];
+                    if (!lightLayer[y][x])
+                        lightLayer[y][x] = 0;
+                    // hero
                     if (Math.abs(x - heroLeft) + Math.abs(y - heroTop) <= 2)
-                        lightLayer[y][x] = 2;
+                        lightLayer[y][x] = 15;
+                }
+            }
+            for (let obj of sceneObjects) {
+                for (let line of obj.lights.entries()) {
+                    for (let left = 0; left < line[1].length; left++) {
+                        const char = line[1][left];
+                        const lightLevel = Number.parseInt(char, 16);
+                        console.log('lightLevel', lightLevel);
+                        const aleft = obj.position[0] - obj.originPoint[0] + left;
+                        const atop = obj.position[1] - obj.originPoint[1] + line[0];
+                        lightLayer[atop][aleft] += lightLevel;
+                        // halo light
+                        const newLightLevel = lightLevel - 1;
+                        if (newLightLevel > 0) {
+                            if (atop - 1 >= 0)
+                                lightLayer[atop - 1][aleft] += newLightLevel;
+                            if (atop + 1 < viewHeight)
+                                lightLayer[atop + 1][aleft] += newLightLevel;
+                            if (aleft - 1 >= 0)
+                                lightLayer[atop][aleft - 1] += newLightLevel;
+                            if (aleft + 1 < viewWidth)
+                                lightLayer[atop][aleft + 1] += newLightLevel;
+                        }
+                    }
                 }
             }
         }
@@ -275,10 +346,10 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             if (timePeriod === 'night') {
                 for (let y = 0; y < viewHeight; y++) {
                     for (let x = 0; x < viewWidth; x++) {
-                        const lightLevel = lightLayer[y] && lightLayer[y][x]
+                        const lightLevel = (lightLayer[y] && lightLayer[y][x])
                             ? lightLayer[y][x]
-                            : 6;
-                        drawCell(new Cell(' ', 'transparent', `#000${lightLevel}`), x, y);
+                            : defaultLightLevelAtNight;
+                        drawCell(new Cell(' ', 'transparent', `#000${(15 - lightLevel).toString(16)}`), x, y);
                     }
                 }
             }
@@ -335,8 +406,8 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         for (let object of sceneObjects) {
             if (!object.enabled)
                 continue;
-            const pleft = left - object.position[0];
-            const ptop = top - object.position[1];
+            const pleft = left - object.position[0] + object.originPoint[0];
+            const ptop = top - object.position[1] + object.originPoint[1];
             if (isCollision(object, pleft, ptop)) {
                 return true;
             }
@@ -344,8 +415,8 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         return false;
     }
     function isPositionBehindTheObject(object, left, top) {
-        const pleft = left - object.position[0];
-        const ptop = top - object.position[1];
+        const pleft = left - object.position[0] + object.originPoint[0];
+        const ptop = top - object.position[1] + object.originPoint[1];
         // check collisions
         if (isCollision(object, ptop, pleft))
             return false;
@@ -364,8 +435,8 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             const left = heroLeft + heroDir[0];
             const top = heroTop + heroDir[1];
             //
-            const pleft = left - object.position[0];
-            const ptop = top - object.position[1];
+            const pleft = left - object.position[0] + object.originPoint[0];
+            const ptop = top - object.position[1] + object.originPoint[1];
             for (let action of object.actions) {
                 if (action[0][0] === pleft && action[0][1] === ptop) {
                     const actionFunc = action[1];
@@ -398,6 +469,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                 },
                 size: 32,
             };
+            defaultLightLevelAtNight = 4;
             Cell = class Cell {
                 constructor(character = ' ', textColor = cellStyle.default.textColor, backgroundColor = cellStyle.default.backgroundColor) {
                     this.character = character;
@@ -414,7 +486,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             weatherType = 'normal';
             timePeriod = 'day';
             // createTextObject("Term Adventures!", 2, 2)
-            sceneObjects = [objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees];
+            sceneObjects = [objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps]; // @todo sort by origin point
             lightLayer = [];
             weatherLayer = [];
             onInterval(); // initial run

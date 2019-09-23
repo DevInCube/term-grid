@@ -1,6 +1,6 @@
 import { createTextObject } from "./utils/misc";
 import { StaticGameObject, GameObjectAction } from "./engine/StaticGameObject";
-import { house, chest, tree, trees } from "./world/objects";
+import { house, chest, tree, trees, lamps } from "./world/objects";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -16,6 +16,8 @@ const cellStyle = {
     },
     size: 32,
 };
+
+const defaultLightLevelAtNight = 4;
 
 class Cell {
     constructor(public character: string = ' ',
@@ -37,7 +39,7 @@ function drawCell(
     ctx.strokeStyle = cellStyle.borderColor;
     ctx.fillStyle = cell.backgroundColor;
     ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
-    ctx.font = "24px Mono";
+    ctx.font = "26px Mono";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     // ctx.globalAlpha = 1;
@@ -78,7 +80,7 @@ function drawObject(obj: StaticGameObject) {
             const cell = new Cell(char, cellColor[0], cellColor[1]);
             const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
             if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
-                drawCell(cell, obj.position[0] + x, obj.position[1] + y, transparent, [
+                drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, [
                     isEmptyCell(obj, x + 0, y - 1),  // top
                     isEmptyCell(obj, x + 1, y + 0),
                     isEmptyCell(obj, x + 0, y + 1),
@@ -100,11 +102,13 @@ function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
 let weatherType = 'normal';
 let timePeriod = 'day';
 // createTextObject("Term Adventures!", 2, 2)
-const sceneObjects = [house, chest, tree, ...trees];
+const sceneObjects = [house, chest, tree, ...trees, ...lamps];  // @todo sort by origin point
 let lightLayer: number[][] = [];
 let weatherLayer: Cell[][] = [];
 
 function drawScene() {
+    // sort objects by origin point
+    sceneObjects.sort((a: StaticGameObject, b: StaticGameObject) => a.position[1]  - b.position[1]);
     // bedrock
     for (let y = 0; y < viewHeight; y++) {
         for (let x = 0; x < viewWidth; x++) {
@@ -138,12 +142,36 @@ function drawScene() {
     updateLights();
 
     function updateLights() {
+        // clear
         lightLayer = [];
         for (let y = 0; y < viewHeight; y++) {
             for (let x = 0; x < viewWidth; x++) {
                 if (!lightLayer[y]) lightLayer[y] = [];
+                if (!lightLayer[y][x]) lightLayer[y][x] = 0;
+                // hero
                 if (Math.abs(x - heroLeft) + Math.abs(y - heroTop) <= 2)
-                    lightLayer[y][x] = 2;
+                    lightLayer[y][x] = 15;
+            }
+        }
+        for (let obj of sceneObjects) {
+            for (let line of obj.lights.entries()) {
+                for (let left = 0; left < line[1].length; left++)
+                {
+                    const char = line[1][left];
+                    const lightLevel = Number.parseInt(char, 16);
+                    console.log('lightLevel', lightLevel);
+                    const aleft = obj.position[0] - obj.originPoint[0] + left;
+                    const atop = obj.position[1] - obj.originPoint[1] + line[0];
+                    lightLayer[atop][aleft] += lightLevel;
+                    // halo light
+                    const newLightLevel = lightLevel - 1;
+                    if (newLightLevel > 0) {
+                        if (atop - 1 >= 0) lightLayer[atop - 1][aleft] += newLightLevel;
+                        if (atop + 1 < viewHeight) lightLayer[atop + 1][aleft] += newLightLevel;
+                        if (aleft - 1 >= 0) lightLayer[atop][aleft - 1] += newLightLevel;
+                        if (aleft + 1 < viewWidth) lightLayer[atop][aleft + 1] += newLightLevel;
+                    }
+                }
             }
         }
     }
@@ -172,10 +200,10 @@ function drawScene() {
         if (timePeriod === 'night') {
             for (let y = 0; y < viewHeight; y++) {
                 for (let x = 0; x < viewWidth; x++) {
-                    const lightLevel = lightLayer[y] && lightLayer[y][x]
+                    const lightLevel = (lightLayer[y] && lightLayer[y][x])
                         ? lightLayer[y][x]
-                        : 6;
-                    drawCell(new Cell(' ', 'transparent', `#000${lightLevel}`), x, y);
+                        : defaultLightLevelAtNight;
+                    drawCell(new Cell(' ', 'transparent', `#000${(15 - lightLevel).toString(16)}`), x, y);
                 }
             }
         }
@@ -238,8 +266,8 @@ function isCollision(object: StaticGameObject, left: number, top: number) {
 function isPositionBlocked(left: number, top: number) {
     for (let object of sceneObjects) {
         if (!object.enabled) continue;
-        const pleft = left - object.position[0];
-        const ptop = top - object.position[1];
+        const pleft = left - object.position[0] + object.originPoint[0];
+        const ptop = top - object.position[1] + object.originPoint[1];
         if (isCollision(object, pleft, ptop)) { 
             return true;
         }
@@ -248,8 +276,8 @@ function isPositionBlocked(left: number, top: number) {
 }
 
 function isPositionBehindTheObject(object: StaticGameObject, left: number, top: number): boolean {
-    const pleft = left - object.position[0];
-    const ptop = top - object.position[1];
+    const pleft = left - object.position[0] + object.originPoint[0];
+    const ptop = top - object.position[1] + object.originPoint[1];
     // check collisions
     if (isCollision(object, ptop, pleft)) return false;
     // check characters skin
@@ -316,8 +344,8 @@ function getActionUnderCursor(): {object: StaticGameObject, action: GameObjectAc
         const left = heroLeft + heroDir[0];
         const top = heroTop + heroDir[1];
         //
-        const pleft = left - object.position[0];
-        const ptop = top - object.position[1];
+        const pleft = left - object.position[0] + object.originPoint[0];
+        const ptop = top - object.position[1] + object.originPoint[1];
         for (let action of object.actions) {
             if (action[0][0] === pleft && action[0][1] === ptop) {
                 const actionFunc = action[1];
