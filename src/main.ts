@@ -97,6 +97,7 @@ function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
     return cellColor[0] === '' && cellColor[1] === '';
 }
 
+let weatherType = 'mist';
 const sceneObjects = [createTextObject("Term Adventures!", 2, 2), house, chest, tree, ...trees];
 
 function drawScene() {
@@ -130,6 +131,8 @@ function drawScene() {
         drawHeroCursor();
     }
 
+    drawWeather();
+
     function drawHeroCursor() {
         const leftPos = heroLeft + heroDir[0];
         const topPos = heroTop + heroDir[1];
@@ -141,6 +144,22 @@ function drawScene() {
         ctx.strokeStyle = 'yellow';
         ctx.lineWidth = 2;
         ctx.strokeRect(left, top, cellStyle.size, cellStyle.size);
+    }
+
+    function drawWeather() {
+        for (let y = 0; y < viewHeight; y++) {
+            for (let x = 0; x < viewWidth; x++) {
+                if ((Math.random() * 2 | 0) === 1) {
+                    if (weatherType === 'rain') {
+                        drawCell(new Cell('`', 'cyan', 'transparent'), x, y);
+                    } else if (weatherType === 'snow') {
+                        drawCell(new Cell('*', 'white', 'transparent'), x, y);
+                    } else if (weatherType === 'mist') {
+                        drawCell(new Cell('*', 'transparent', '#fff2'), x, y);
+                    }
+                }
+            }
+        }
     }
 }
 

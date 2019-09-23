@@ -147,7 +147,7 @@ o01
     };
 });
 System.register("main", ["utils/misc", "world/objects"], function (exports_5, context_5) {
-    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, sceneObjects, emptyCollisionChar;
+    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, sceneObjects, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size;
@@ -240,6 +240,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         if (heroDir[0] || heroDir[1]) {
             drawHeroCursor();
         }
+        drawWeather();
         function drawHeroCursor() {
             const leftPos = heroLeft + heroDir[0];
             const topPos = heroTop + heroDir[1];
@@ -251,6 +252,23 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             ctx.strokeStyle = 'yellow';
             ctx.lineWidth = 2;
             ctx.strokeRect(left, top, cellStyle.size, cellStyle.size);
+        }
+        function drawWeather() {
+            for (let y = 0; y < viewHeight; y++) {
+                for (let x = 0; x < viewWidth; x++) {
+                    if ((Math.random() * 2 | 0) === 1) {
+                        if (weatherType === 'rain') {
+                            drawCell(new Cell('`', 'cyan', 'transparent'), x, y);
+                        }
+                        else if (weatherType === 'snow') {
+                            drawCell(new Cell('*', 'white', 'transparent'), x, y);
+                        }
+                        else if (weatherType === 'mist') {
+                            drawCell(new Cell('*', 'transparent', '#fff2'), x, y);
+                        }
+                    }
+                }
+            }
         }
     }
     function isCollision(object, left, top) {
@@ -339,6 +357,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             heroTop = 9;
             heroDir = [0, 0];
             heroActionEnabled = false;
+            weatherType = 'mist';
             sceneObjects = [misc_1.createTextObject("Term Adventures!", 2, 2), objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees];
             drawScene(); // initial draw
             emptyCollisionChar = ' ';
