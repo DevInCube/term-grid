@@ -386,8 +386,13 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                     addCell(new Cell(sym, 'cyan', '#0003'), x, y);
                 }
                 else if (weatherType === 'snow') {
-                    if ((Math.random() * 2 | 0) === 1)
+                    const r = (Math.random() * 6 | 0);
+                    if (r === 0)
                         addCell(new Cell('❄', 'white', 'transparent'), x, y);
+                    else if (r === 1)
+                        addCell(new Cell('❅', 'white', 'transparent'), x, y);
+                    else if (r === 2)
+                        addCell(new Cell('❆', 'white', 'transparent'), x, y);
                 }
                 else if (weatherType === 'rain_and_snow') {
                     const r = Math.random() * 3 | 0;
