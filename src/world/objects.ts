@@ -34,6 +34,18 @@ o01
 tree.addEventHandler((o, ev) => {
     if (ev.type === 'wind_changed') {
         o.parameters["animate"] = ev.args["to"];
+    } else if (ev.type === 'weather_changed') {
+        if (ev.args.to === 'snow') {
+            o.colors[0][1][1] = 'white';
+            o.colors[1][0][1] = 'white';
+            o.colors[1][1][1] = '#ccc';
+            o.colors[1][2][1] = '#ccc';
+        } else {
+            o.colors[0][1][1] = '#0a0';
+            o.colors[1][0][1] = '#0a0';
+            o.colors[1][1][1] = '#080';
+            o.colors[1][2][1] = '#080';
+        }
     }
 });
 tree.onUpdate((o) => {

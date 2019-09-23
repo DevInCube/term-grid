@@ -13,7 +13,8 @@ export class Skin {
             raw_colors.push([]);
             for (let x = 0; x < lines[y].length; x++) {
                 const cellColor = lines[y][x] || ' ';
-                raw_colors[y].push(this.colors[cellColor]);
+                const color = this.colors[cellColor];
+                raw_colors[y].push(color ? [...color] : ['', '']);
             }
         }
         return raw_colors;
