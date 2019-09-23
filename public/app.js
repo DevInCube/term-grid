@@ -42,6 +42,8 @@ System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_2,
                     this.position = position;
                     // @todo add origin point
                     this.enabled = true;
+                    // 
+                    this.parameters = {};
                     this.characters = charSkin.split('\n');
                     this.colors = colorSkin.getRawColors();
                     this.collisions = collisionsMask.split('\n');
@@ -178,6 +180,12 @@ H`, {
             }), ` 
  
 . `, `B`, []);
+            lamp.parameters["is_on"] = true;
+            lamp.setAction(0, 2, (o) => {
+                o.parameters["is_on"] = !o.parameters["is_on"];
+                o.colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
+                o.lights[0] = o.parameters["is_on"] ? 'F' : '0';
+            });
             exports_4("lamps", lamps = [
                 StaticGameObject_2.StaticGameObject.clone(lamp, { position: [2, 5] }),
             ]);

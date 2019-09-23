@@ -86,6 +86,12 @@ H`, {
   }), ` 
  
 . `, `B`, []);
+lamp.parameters["is_on"] = true;
+lamp.setAction(0, 2, (o) => {
+    o.parameters["is_on"] = !o.parameters["is_on"];
+    o.colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
+    o.lights[0] = o.parameters["is_on"] ? 'F' : '0';
+});
 export const lamps: StaticGameObject[] = [
     StaticGameObject.clone(lamp, { position: [2, 5]}),
 ];

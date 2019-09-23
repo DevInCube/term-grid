@@ -12,6 +12,8 @@ export class StaticGameObject {
     public colors: (string | undefined)[][][];
     public collisions: (string)[];
     public lights: (string)[];
+    // 
+    public parameters: {[key: string]: any} = {};
 
     constructor(
         public originPoint: [number, number],
