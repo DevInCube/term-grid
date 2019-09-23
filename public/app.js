@@ -111,18 +111,18 @@ BBSBB
             }), `
  ... 
  . .`, '', [5, 10]));
-            exports_4("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], `   
-   
-   
-  `, new Skin_3.Skin(` o 
+            exports_4("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], ` ░ 
+░░░
+░░░
+ █`, new Skin_3.Skin(` o 
 o01
 01S
  H`, {
-                'o': [undefined, '#0a0'],
-                '0': [undefined, '#080'],
-                '1': [undefined, '#060'],
-                'S': [undefined, '#040'],
-                'H': [undefined, 'sienna'],
+                'o': ['#0c0', '#0a0'],
+                '0': ['#0a0', '#080'],
+                '1': ['#080', '#060'],
+                'S': ['#060', '#040'],
+                'H': ['sienna', 'transparent'],
             }), `
 
 
@@ -132,22 +132,22 @@ o01
             //{...tree, position: [11, 8]} as StaticGameObject,
             //{...tree, position: [10, 10]} as StaticGameObject,
             ]);
-            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], `▁
-▔
-▁
-▔
-▁
-▔`, new Skin_3.Skin(`T
+            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], `▄
+█
+█
+█
+█
+█`, new Skin_3.Skin(`T
 H
 L
 H
 L
 D`, {
                 // https://colorpalettes.net/color-palette-412/
-                'T': ['#8f7f53', '#99bc20'],
-                'L': ['#8f7f53', '#517201'],
-                'H': ['#392b04', '#394902'],
-                'D': ['#392b04', '#574512'],
+                'T': ['#99bc20', 'transparent'],
+                'L': ['#517201', 'transparent'],
+                'H': ['#394902', 'transparent'],
+                'D': ['#574512', 'transparent'],
             }), ` 
  
  
@@ -168,13 +168,13 @@ D`, {
                     });
                 }
             }
-            lamp = new StaticGameObject_2.StaticGameObject([0, 2], ` 
- 
- `, new Skin_3.Skin(`L
+            lamp = new StaticGameObject_2.StaticGameObject([0, 2], `⬤
+█
+█`, new Skin_3.Skin(`L
 H
 H`, {
-                'L': [undefined, 'yellow'],
-                'H': [undefined, '#333'],
+                'L': ['yellow', 'transparent'],
+                'H': ['#666', 'transparent'],
             }), ` 
  
 . `, `B`, []);
@@ -191,36 +191,39 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
     var misc_1, objects_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, lightLayer, weatherLayer, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
-        const left = leftPos * cellStyle.size;
-        const top = topPos * cellStyle.size;
+        const left = leftPos * cellStyle.size.width;
+        const top = topPos * cellStyle.size.height;
         //
         ctx.globalAlpha = transparent ? 0.2 : 1;
         ctx.strokeStyle = cellStyle.borderColor;
         ctx.fillStyle = cell.backgroundColor;
-        ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
-        ctx.font = "26px Mono";
+        ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
+        ctx.font = "26px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         // ctx.globalAlpha = 1;
         ctx.fillStyle = cell.textColor;
-        ctx.fillText(cell.character, left + cellStyle.size / 2, top + cellStyle.size / 2 + 2);
+        ctx.fillText(cell.character, left + cellStyle.size.width / 2, top + cellStyle.size.height / 2 + 2);
         if (cellStyle.borderWidth > 0) {
             ctx.lineWidth = cellStyle.borderWidth;
             // palette borders
-            ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size, cellStyle.size);
+            ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size.width, cellStyle.size.height);
         }
         // cell borders
-        const borderWidth = 1.5;
-        ctx.lineWidth = borderWidth;
-        ctx.globalAlpha = transparent ? 0.4 : 0.7;
-        if (border[0])
-            ctx.strokeRect(left, top, cellStyle.size, borderWidth);
-        if (border[1])
-            ctx.strokeRect(left + cellStyle.size, top, borderWidth, cellStyle.size);
-        if (border[2])
-            ctx.strokeRect(left, top + cellStyle.size, cellStyle.size, borderWidth);
-        if (border[3])
-            ctx.strokeRect(left, top, borderWidth, cellStyle.size);
+        // addObjectBorders();
+        function addObjectBorders() {
+            const borderWidth = 1.5;
+            ctx.lineWidth = borderWidth;
+            ctx.globalAlpha = transparent ? 0.4 : 0.7;
+            if (border[0])
+                ctx.strokeRect(left, top, cellStyle.size.width, borderWidth);
+            if (border[1])
+                ctx.strokeRect(left + cellStyle.size.width, top, borderWidth, cellStyle.size.height);
+            if (border[2])
+                ctx.strokeRect(left, top + cellStyle.size.height, cellStyle.size.width, borderWidth);
+            if (border[3])
+                ctx.strokeRect(left, top, borderWidth, cellStyle.size.height);
+        }
     }
     function drawObject(obj) {
         let showOnlyCollisions = isPositionBehindTheObject(obj, heroLeft, heroTop);
@@ -267,10 +270,10 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                 continue;
             if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
                 ctx.fillStyle = 'black';
-                const left = heroLeft * cellStyle.size;
-                const top = heroTop * cellStyle.size;
+                const left = heroLeft * cellStyle.size.width;
+                const top = heroTop * cellStyle.size.height;
                 ctx.globalAlpha = 0.5;
-                ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
+                ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
                 break;
             }
         }
@@ -329,12 +332,12 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             const topPos = heroTop + heroDir[1];
             drawCell(new Cell('.', 'black', 'yellow'), leftPos, topPos, true);
             // palette borders
-            const left = leftPos * cellStyle.size;
-            const top = topPos * cellStyle.size;
+            const left = leftPos * cellStyle.size.width;
+            const top = topPos * cellStyle.size.height;
             ctx.globalAlpha = 1;
             ctx.strokeStyle = 'yellow';
             ctx.lineWidth = 2;
-            ctx.strokeRect(left, top, cellStyle.size, cellStyle.size);
+            ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
         }
         function drawWeather() {
             for (let y = 0; y < viewHeight; y++) {
@@ -467,7 +470,10 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                     textColor: '#fff',
                     backgroundColor: '#335'
                 },
-                size: 32,
+                size: {
+                    width: 32,
+                    height: 32,
+                },
             };
             defaultLightLevelAtNight = 4;
             Cell = class Cell {

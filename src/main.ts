@@ -14,7 +14,10 @@ const cellStyle = {
         textColor: '#fff',
         backgroundColor: '#335'
     },
-    size: 32,
+    size: {
+        width: 32,
+        height: 32,
+    },
 };
 
 const defaultLightLevelAtNight = 4;
@@ -32,32 +35,36 @@ function drawCell(
     transparent: boolean = false,
     border: boolean[] = [false, false, false, false]) { 
         
-    const left = leftPos * cellStyle.size;
-    const top = topPos * cellStyle.size;
+    const left = leftPos * cellStyle.size.width;
+    const top = topPos * cellStyle.size.height;
     //
     ctx.globalAlpha = transparent ? 0.2 : 1;
     ctx.strokeStyle = cellStyle.borderColor;
     ctx.fillStyle = cell.backgroundColor;
-    ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
-    ctx.font = "26px Mono";
+    ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
+    ctx.font = "26px monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     // ctx.globalAlpha = 1;
     ctx.fillStyle = cell.textColor;
-    ctx.fillText(cell.character, left + cellStyle.size / 2, top + cellStyle.size / 2 + 2);
+    ctx.fillText(cell.character, left + cellStyle.size.width / 2, top + cellStyle.size.height / 2 + 2);
     if (cellStyle.borderWidth > 0) {
         ctx.lineWidth = cellStyle.borderWidth;
         // palette borders
-        ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size, cellStyle.size);
+        ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size.width, cellStyle.size.height);
     }
     // cell borders
-    const borderWidth = 1.5;
-    ctx.lineWidth = borderWidth;
-    ctx.globalAlpha = transparent ? 0.4 : 0.7;
-    if (border[0]) ctx.strokeRect(left, top, cellStyle.size, borderWidth);
-    if (border[1]) ctx.strokeRect(left + cellStyle.size, top, borderWidth, cellStyle.size);
-    if (border[2]) ctx.strokeRect(left, top + cellStyle.size, cellStyle.size, borderWidth);
-    if (border[3]) ctx.strokeRect(left, top, borderWidth, cellStyle.size);
+    // addObjectBorders();
+
+    function addObjectBorders() {
+        const borderWidth = 1.5;
+        ctx.lineWidth = borderWidth;
+        ctx.globalAlpha = transparent ? 0.4 : 0.7;
+        if (border[0]) ctx.strokeRect(left, top, cellStyle.size.width, borderWidth);
+        if (border[1]) ctx.strokeRect(left + cellStyle.size.width, top, borderWidth, cellStyle.size.height);
+        if (border[2]) ctx.strokeRect(left, top + cellStyle.size.height, cellStyle.size.width, borderWidth);
+        if (border[3]) ctx.strokeRect(left, top, borderWidth, cellStyle.size.height);
+    }
 }
 
 const viewWidth = 20;
@@ -123,10 +130,10 @@ function drawScene() {
         if (!object.enabled) continue;
         if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
             ctx.fillStyle = 'black';
-            const left = heroLeft * cellStyle.size;
-            const top = heroTop * cellStyle.size;
+            const left = heroLeft * cellStyle.size.width;
+            const top = heroTop * cellStyle.size.height;
             ctx.globalAlpha = 0.5;
-            ctx.fillRect(left, top, cellStyle.size, cellStyle.size);
+            ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
             break;
         } 
     }
@@ -182,12 +189,12 @@ function drawScene() {
         const topPos = heroTop + heroDir[1];
         drawCell(new Cell('.', 'black', 'yellow'), leftPos, topPos, true);
         // palette borders
-        const left = leftPos * cellStyle.size;
-        const top = topPos * cellStyle.size;
+        const left = leftPos * cellStyle.size.width;
+        const top = topPos * cellStyle.size.height;
         ctx.globalAlpha = 1;
         ctx.strokeStyle = 'yellow';
         ctx.lineWidth = 2;
-        ctx.strokeRect(left, top, cellStyle.size, cellStyle.size);
+        ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
     }
 
     function drawWeather() {

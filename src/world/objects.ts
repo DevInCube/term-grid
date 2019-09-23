@@ -15,18 +15,18 @@ BBSBB
  . .`, '', [5, 10]);
 
 
- export const tree = new StaticGameObject([1, 3], `   
-   
-   
-  `, new Skin(` o 
+ export const tree = new StaticGameObject([1, 3], ` ░ 
+░░░
+░░░
+ █`, new Skin(` o 
 o01
 01S
  H`, {
-      'o': [undefined, '#0a0'],
-      '0': [undefined, '#080'],
-      '1': [undefined, '#060'],
-      'S': [undefined, '#040'],
-      'H': [undefined, 'sienna'],
+      'o': ['#0c0', '#0a0'],
+      '0': ['#0a0', '#080'],
+      '1': ['#080', '#060'],
+      'S': ['#060', '#040'],
+      'H': ['sienna', 'transparent'],
   }), `
 
 
@@ -39,22 +39,22 @@ export const trees: StaticGameObject[] = [
 ];
 
 
-const bamboo = new StaticGameObject([0, 4], `▁
-▔
-▁
-▔
-▁
-▔`, new Skin(`T
+const bamboo = new StaticGameObject([0, 4], `▄
+█
+█
+█
+█
+█`, new Skin(`T
 H
 L
 H
 L
 D`, {
       // https://colorpalettes.net/color-palette-412/
-      'T': ['#8f7f53', '#99bc20'],
-      'L': ['#8f7f53', '#517201'],
-      'H': ['#392b04', '#394902'],
-      'D': ['#392b04', '#574512'],
+      'T': ['#99bc20', 'transparent'],
+      'L': ['#517201', 'transparent'],
+      'H': ['#394902', 'transparent'],
+      'D': ['#574512', 'transparent'],
   }), ` 
  
  
@@ -76,13 +76,13 @@ if (true) {  // random trees
     }
 }
 
-const lamp = new StaticGameObject([0, 2], ` 
- 
- `, new Skin(`L
+const lamp = new StaticGameObject([0, 2], `⬤
+█
+█`, new Skin(`L
 H
 H`, {
-      'L': [undefined, 'yellow'],
-      'H': [undefined, '#333'],
+      'L': ['yellow', 'transparent'],
+      'H': ['#666', 'transparent'],
   }), ` 
  
 . `, `B`, []);
