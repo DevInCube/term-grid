@@ -147,7 +147,7 @@ o01
     };
 });
 System.register("main", ["utils/misc", "world/objects"], function (exports_5, context_5) {
-    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, sceneObjects, emptyCollisionChar;
+    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, sceneObjects, weatherLayer, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size;
@@ -217,7 +217,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             }
         }
         // hero
-        drawCell(new Cell('🐱', 'yellow', 'darkgreen'), heroLeft, heroTop);
+        drawCell(new Cell('🐱', 'yellow', 'transparent'), heroLeft, heroTop);
         // hero shadow behind objects
         for (let object of sceneObjects) {
             if (!object.enabled)
@@ -256,20 +256,44 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         function drawWeather() {
             for (let y = 0; y < viewHeight; y++) {
                 for (let x = 0; x < viewWidth; x++) {
-                    if ((Math.random() * 2 | 0) === 1) {
-                        if (weatherType === 'rain') {
-                            drawCell(new Cell('`', 'cyan', 'transparent'), x, y);
-                        }
-                        else if (weatherType === 'snow') {
-                            drawCell(new Cell('*', 'white', 'transparent'), x, y);
-                        }
-                        else if (weatherType === 'mist') {
-                            drawCell(new Cell('*', 'transparent', '#fff2'), x, y);
-                        }
+                    if (weatherLayer[y] && weatherLayer[y][x])
+                        drawCell(weatherLayer[y][x], x, y);
+                }
+            }
+        }
+    }
+    function update() {
+        updateWeather();
+        function updateWeather() {
+            weatherLayer = [];
+            for (let y = 0; y < viewHeight; y++) {
+                for (let x = 0; x < viewWidth; x++) {
+                    createCell(x, y);
+                }
+            }
+            function addCell(cell, x, y) {
+                if (!weatherLayer[y])
+                    weatherLayer[y] = [];
+                weatherLayer[y][x] = cell;
+            }
+            function createCell(x, y) {
+                if ((Math.random() * 2 | 0) === 1) {
+                    if (weatherType === 'rain') {
+                        addCell(new Cell('`', 'cyan', 'transparent'), x, y);
+                    }
+                    else if (weatherType === 'snow') {
+                        addCell(new Cell('*', 'white', 'transparent'), x, y);
+                    }
+                    else if (weatherType === 'mist') {
+                        addCell(new Cell('*', 'transparent', '#fff2'), x, y);
                     }
                 }
             }
         }
+    }
+    function onInterval() {
+        update();
+        drawScene();
     }
     function isCollision(object, left, top) {
         const cchar = object.collisions[top] && object.collisions[top][left]
@@ -357,9 +381,11 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             heroTop = 9;
             heroDir = [0, 0];
             heroActionEnabled = false;
-            weatherType = 'mist';
+            weatherType = 'rain';
             sceneObjects = [misc_1.createTextObject("Term Adventures!", 2, 2), objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees];
-            drawScene(); // initial draw
+            weatherLayer = [];
+            onInterval(); // initial run
+            setInterval(onInterval, 500);
             emptyCollisionChar = ' ';
             document.addEventListener("keypress", function (code) {
                 heroActionEnabled = false;

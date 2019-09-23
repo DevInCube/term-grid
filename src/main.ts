@@ -97,8 +97,9 @@ function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
     return cellColor[0] === '' && cellColor[1] === '';
 }
 
-let weatherType = 'mist';
+let weatherType = 'rain';
 const sceneObjects = [createTextObject("Term Adventures!", 2, 2), house, chest, tree, ...trees];
+let weatherLayer: Cell[][] = [];
 
 function drawScene() {
     // bedrock
@@ -109,7 +110,7 @@ function drawScene() {
     }
 
     // hero
-    drawCell(new Cell('🐱', 'yellow', 'darkgreen'), heroLeft, heroTop);
+    drawCell(new Cell('🐱', 'yellow', 'transparent'), heroLeft, heroTop);
     // hero shadow behind objects
     for (let object of sceneObjects) {
         if (!object.enabled) continue;
@@ -149,21 +150,49 @@ function drawScene() {
     function drawWeather() {
         for (let y = 0; y < viewHeight; y++) {
             for (let x = 0; x < viewWidth; x++) {
-                if ((Math.random() * 2 | 0) === 1) {
-                    if (weatherType === 'rain') {
-                        drawCell(new Cell('`', 'cyan', 'transparent'), x, y);
-                    } else if (weatherType === 'snow') {
-                        drawCell(new Cell('*', 'white', 'transparent'), x, y);
-                    } else if (weatherType === 'mist') {
-                        drawCell(new Cell('*', 'transparent', '#fff2'), x, y);
-                    }
+                if (weatherLayer[y] && weatherLayer[y][x])
+                    drawCell(weatherLayer[y][x], x, y);
+            }
+        }
+    }
+}
+
+function update() {
+    updateWeather();
+
+    function updateWeather() {
+        weatherLayer = [];
+        for (let y = 0; y < viewHeight; y++) {
+            for (let x = 0; x < viewWidth; x++) {
+                createCell(x, y);
+            }
+        }
+
+        function addCell(cell: Cell, x: number, y: number) {
+            if (!weatherLayer[y]) weatherLayer[y] = [];
+            weatherLayer[y][x] = cell;
+        }
+        
+        function createCell(x: number, y: number) {
+            if ((Math.random() * 2 | 0) === 1) {
+                if (weatherType === 'rain') {
+                    addCell(new Cell('`', 'cyan', 'transparent'), x, y);
+                } else if (weatherType === 'snow') {
+                    addCell(new Cell('*', 'white', 'transparent'), x, y);
+                } else if (weatherType === 'mist') {
+                    addCell(new Cell('*', 'transparent', '#fff2'), x, y);
                 }
             }
         }
     }
 }
 
-drawScene();  // initial draw
+function onInterval() {
+    update();
+    drawScene();
+}
+onInterval(); // initial run
+setInterval(onInterval, 500);
 
 const emptyCollisionChar = ' ';
 
