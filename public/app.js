@@ -147,7 +147,7 @@ o01
     };
 });
 System.register("main", ["utils/misc", "world/objects"], function (exports_5, context_5) {
-    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, sceneObjects, weatherLayer, emptyCollisionChar;
+    var misc_1, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, weatherLayer, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size;
@@ -260,6 +260,13 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                         drawCell(weatherLayer[y][x], x, y);
                 }
             }
+            if (timePeriod === 'night') {
+                for (let y = 0; y < viewHeight; y++) {
+                    for (let x = 0; x < viewWidth; x++) {
+                        drawCell(new Cell(' ', 'transparent', '#0006'), x, y);
+                    }
+                }
+            }
         }
     }
     function update() {
@@ -277,16 +284,24 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                 weatherLayer[y][x] = cell;
             }
             function createCell(x, y) {
-                if ((Math.random() * 2 | 0) === 1) {
-                    if (weatherType === 'rain') {
+                if (weatherType === 'rain') {
+                    const sym = ((Math.random() * 2 | 0) === 1) ? '`' : ' ';
+                    addCell(new Cell(sym, 'cyan', '#0003'), x, y);
+                }
+                else if (weatherType === 'snow') {
+                    if ((Math.random() * 2 | 0) === 1)
+                        addCell(new Cell('❄', 'white', 'transparent'), x, y);
+                }
+                else if (weatherType === 'rain_and_snow') {
+                    const r = Math.random() * 3 | 0;
+                    if (r === 1)
+                        addCell(new Cell('❄', 'white', 'transparent'), x, y);
+                    else if (r === 2)
                         addCell(new Cell('`', 'cyan', 'transparent'), x, y);
-                    }
-                    else if (weatherType === 'snow') {
-                        addCell(new Cell('*', 'white', 'transparent'), x, y);
-                    }
-                    else if (weatherType === 'mist') {
+                }
+                else if (weatherType === 'mist') {
+                    if ((Math.random() * 2 | 0) === 1)
                         addCell(new Cell('*', 'transparent', '#fff2'), x, y);
-                    }
                 }
             }
         }
@@ -381,8 +396,10 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             heroTop = 9;
             heroDir = [0, 0];
             heroActionEnabled = false;
-            weatherType = 'rain';
-            sceneObjects = [misc_1.createTextObject("Term Adventures!", 2, 2), objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees];
+            weatherType = 'normal';
+            timePeriod = 'day';
+            // createTextObject("Term Adventures!", 2, 2)
+            sceneObjects = [objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees];
             weatherLayer = [];
             onInterval(); // initial run
             setInterval(onInterval, 500);
@@ -410,6 +427,24 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                     }
                     drawScene();
                     return;
+                }
+                else if (raw_key === '1') { // debug
+                    weatherType = 'normal';
+                }
+                else if (raw_key === '2') { // debug
+                    weatherType = 'rain';
+                }
+                else if (raw_key === '3') { // debug
+                    weatherType = 'snow';
+                }
+                else if (raw_key === '4') { // debug
+                    weatherType = 'rain_and_snow';
+                }
+                else if (raw_key === '5') { // debug
+                    weatherType = 'mist';
+                }
+                else if (raw_key === 'q') { // debug
+                    timePeriod = timePeriod === 'day' ? 'night' : 'day';
                 }
                 else {
                     return; // skip

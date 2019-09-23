@@ -97,8 +97,10 @@ function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
     return cellColor[0] === '' && cellColor[1] === '';
 }
 
-let weatherType = 'rain';
-const sceneObjects = [createTextObject("Term Adventures!", 2, 2), house, chest, tree, ...trees];
+let weatherType = 'normal';
+let timePeriod = 'day';
+// createTextObject("Term Adventures!", 2, 2)
+const sceneObjects = [house, chest, tree, ...trees];
 let weatherLayer: Cell[][] = [];
 
 function drawScene() {
@@ -154,6 +156,13 @@ function drawScene() {
                     drawCell(weatherLayer[y][x], x, y);
             }
         }
+        if (timePeriod === 'night') {
+            for (let y = 0; y < viewHeight; y++) {
+                for (let x = 0; x < viewWidth; x++) {
+                    drawCell(new Cell(' ', 'transparent', '#0006'), x, y);
+                }
+            }
+        }
     }
 }
 
@@ -174,14 +183,21 @@ function update() {
         }
         
         function createCell(x: number, y: number) {
-            if ((Math.random() * 2 | 0) === 1) {
-                if (weatherType === 'rain') {
+            if (weatherType === 'rain') {
+                const sym = ((Math.random() * 2 | 0) === 1) ? '`' : ' ';
+                addCell(new Cell(sym, 'cyan', '#0003'), x, y);
+            } else if (weatherType === 'snow') {
+                if ((Math.random() * 2 | 0) === 1)
+                    addCell(new Cell('❄', 'white', 'transparent'), x, y);
+            } else if (weatherType === 'rain_and_snow') {
+                const r = Math.random() * 3 | 0;
+                if (r === 1)
+                    addCell(new Cell('❄', 'white', 'transparent'), x, y);
+                else if (r === 2)
                     addCell(new Cell('`', 'cyan', 'transparent'), x, y);
-                } else if (weatherType === 'snow') {
-                    addCell(new Cell('*', 'white', 'transparent'), x, y);
-                } else if (weatherType === 'mist') {
+            } else if (weatherType === 'mist') {
+                if ((Math.random() * 2 | 0) === 1)
                     addCell(new Cell('*', 'transparent', '#fff2'), x, y);
-                }
             }
         }
     }
@@ -250,6 +266,18 @@ document.addEventListener("keypress", function (code) {
         }
         drawScene();
         return;
+    } else if (raw_key === '1') {  // debug
+        weatherType = 'normal';
+    } else if (raw_key === '2') {  // debug
+        weatherType = 'rain';
+    } else if (raw_key === '3') {  // debug
+        weatherType = 'snow';
+    } else if (raw_key === '4') {  // debug
+        weatherType = 'rain_and_snow';
+    } else if (raw_key === '5') {  // debug
+        weatherType = 'mist';
+    } else if (raw_key === 'q') {  // debug
+        timePeriod = timePeriod === 'day' ? 'night' : 'day';
     } else {
         return;  // skip
     }
