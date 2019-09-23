@@ -31,6 +31,19 @@ o01
 
 
  .`, '', [2, 12]);
+tree.addEventHandler((o, ev) => {
+    if (ev.type === 'wind_changed') {
+        o.parameters["animate"] = ev.args["to"];
+    }
+});
+tree.onUpdate((o) => {
+    if (o.parameters["animate"]) {
+        o.parameters["tick"] = !o.parameters["tick"];
+        o.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+        o.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+        o.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+    }
+});
 
 export const trees: StaticGameObject[] = [
     //{...tree, position: [5, 11]} as StaticGameObject,

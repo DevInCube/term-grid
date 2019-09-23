@@ -1,6 +1,7 @@
 import { createTextObject } from "./utils/misc";
 import { StaticGameObject, GameObjectAction } from "./engine/StaticGameObject";
 import { house, chest, tree, trees, lamps } from "./world/objects";
+import { GameEvent } from "./engine/GameEvent";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -107,6 +108,7 @@ function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
 }
 
 let weatherType = 'normal';
+let isWindy = true;
 let timePeriod = 'day';
 // createTextObject("Term Adventures!", 2, 2)
 const sceneObjects = [house, chest, tree, ...trees, ...lamps];  // @todo sort by origin point
@@ -166,7 +168,6 @@ function drawScene() {
                 {
                     const char = line[1][left];
                     const lightLevel = Number.parseInt(char, 16);
-                    console.log('lightLevel', lightLevel);
                     const aleft = obj.position[0] - obj.originPoint[0] + left;
                     const atop = obj.position[1] - obj.originPoint[1] + line[0];
                     lightLayer[atop][aleft] += lightLevel;
@@ -218,6 +219,11 @@ function drawScene() {
 }
 
 function update() {
+    for (const obj of sceneObjects) {
+        if (obj.updateHandler) {
+            obj.updateHandler(obj);
+        }
+    }
     updateWeather();
 
     function updateWeather() {
@@ -259,12 +265,33 @@ function update() {
     }
 }
 
+const events: GameEvent[] = [];
 function onInterval() {
     update();
+
+    while (events.length > 0) {
+        const ev = events.shift();
+        if (ev) {
+            for (const obj of sceneObjects) {
+                obj.handleEvent(ev);
+            }
+        }
+    }
     drawScene();
 }
+
+// initial events
+emitEvent(new GameEvent("system", "weather_changed", {from: weatherType, to: weatherType}));
+emitEvent(new GameEvent("system", "wind_changed", {from: isWindy, to: isWindy}));
+emitEvent(new GameEvent("system", "time_changed", {from: timePeriod, to: timePeriod}));
+//
 onInterval(); // initial run
 setInterval(onInterval, 500);
+
+function emitEvent(ev: GameEvent) {
+    events.push(ev);
+    console.log("event: ", ev);
+}
 
 const emptyCollisionChar = ' ';
 
@@ -324,6 +351,7 @@ document.addEventListener("keypress", function (code) {
         return;
     } else {
         // debug keys
+        const oldWeatherType = weatherType;
         if (raw_key === '1') {  // debug
             weatherType = 'normal';
         } else if (raw_key === '2') {  // debug
@@ -334,8 +362,38 @@ document.addEventListener("keypress", function (code) {
             weatherType = 'rain_and_snow';
         } else if (raw_key === '5') {  // debug
             weatherType = 'mist';
-        } else if (raw_key === 'q') {  // debug
+        } 
+        if (oldWeatherType !== weatherType) {
+            emitEvent(new GameEvent(
+                "system", 
+                "weather_changed", 
+                {
+                    from: oldWeatherType,
+                    to: weatherType,
+                }));
+        }
+        // wind
+        if (raw_key === 'e') {
+            isWindy = !isWindy;
+            emitEvent(new GameEvent(
+                "system", 
+                "wind_changed", 
+                {
+                    from: !isWindy,
+                    to: isWindy,
+                }));
+        }
+        //
+        if (raw_key === 'q') {  // debug
             timePeriod = timePeriod === 'day' ? 'night' : 'day';
+            //
+            emitEvent(new GameEvent(
+                "system", 
+                "time_changed", 
+                {
+                    from: timePeriod === 'day' ? 'night' : 'day',
+                    to: timePeriod,
+                }));
         }
         console.log(weatherType, timePeriod);
         return;  // skip

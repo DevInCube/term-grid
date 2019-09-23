@@ -1,12 +1,14 @@
 import { Skin } from "./Skin";
+import { GameEvent } from "./GameEvent";
 
 export type GameObjectAction = (obj: StaticGameObject) => void;
+export type GameObjectEventHandler = (obj: StaticGameObject, ev: GameEvent) => void;
 
 export class StaticGameObject {
-
-    // @todo add origin point
     public enabled = true;
-    public actions: [[number, number], GameObjectAction][];
+    public actions: [[number, number], GameObjectAction][] = [];
+    public eventHandlers: GameObjectEventHandler[] = [];
+    public updateHandler: GameObjectAction;
     //
     public characters: (string)[];
     public colors: (string | undefined)[][][];
@@ -27,12 +29,24 @@ export class StaticGameObject {
         this.colors = colorSkin.getRawColors();
         this.collisions = collisionsMask.split('\n');
         this.lights = lightMask.split('\n');
-        //
-        this.actions = [];
     }
     // add cb params
     setAction(left: number, top: number, action: GameObjectAction) {
         this.actions.push([[left, top], action]);
+    }
+
+    addEventHandler(handler: GameObjectEventHandler) {
+        this.eventHandlers.push(handler);
+    }
+
+    handleEvent(ev: GameEvent) {
+        for (const eh of this.eventHandlers) {
+            eh(this, ev);
+        }
+    }
+
+    onUpdate(handler: GameObjectAction) {
+        this.updateHandler = handler;
     }
 
     static createEmpty() { 

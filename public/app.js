@@ -26,9 +26,26 @@ System.register("engine/Skin", [], function (exports_1, context_1) {
         }
     };
 });
-System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_2, context_2) {
-    var Skin_1, StaticGameObject;
+System.register("engine/GameEvent", [], function (exports_2, context_2) {
+    var GameEvent;
     var __moduleName = context_2 && context_2.id;
+    return {
+        setters: [],
+        execute: function () {
+            GameEvent = class GameEvent {
+                constructor(sender, type, args) {
+                    this.sender = sender;
+                    this.type = type;
+                    this.args = args;
+                }
+            };
+            exports_2("GameEvent", GameEvent);
+        }
+    };
+});
+System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_3, context_3) {
+    var Skin_1, StaticGameObject;
+    var __moduleName = context_3 && context_3.id;
     return {
         setters: [
             function (Skin_1_1) {
@@ -40,20 +57,30 @@ System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_2,
                 constructor(originPoint, charSkin, colorSkin, collisionsMask, lightMask, position) {
                     this.originPoint = originPoint;
                     this.position = position;
-                    // @todo add origin point
                     this.enabled = true;
+                    this.actions = [];
+                    this.eventHandlers = [];
                     // 
                     this.parameters = {};
                     this.characters = charSkin.split('\n');
                     this.colors = colorSkin.getRawColors();
                     this.collisions = collisionsMask.split('\n');
                     this.lights = lightMask.split('\n');
-                    //
-                    this.actions = [];
                 }
                 // add cb params
                 setAction(left, top, action) {
                     this.actions.push([[left, top], action]);
+                }
+                addEventHandler(handler) {
+                    this.eventHandlers.push(handler);
+                }
+                handleEvent(ev) {
+                    for (const eh of this.eventHandlers) {
+                        eh(this, ev);
+                    }
+                }
+                onUpdate(handler) {
+                    this.updateHandler = handler;
                 }
                 static createEmpty() {
                     return new StaticGameObject([0, 0], '', new Skin_1.Skin(), '', '', [0, 0]);
@@ -62,19 +89,19 @@ System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_2,
                     return Object.assign(this.createEmpty(), o, params);
                 }
             };
-            exports_2("StaticGameObject", StaticGameObject);
+            exports_3("StaticGameObject", StaticGameObject);
         }
     };
 });
-System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], function (exports_3, context_3) {
+System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], function (exports_4, context_4) {
     var Skin_2, StaticGameObject_1;
-    var __moduleName = context_3 && context_3.id;
+    var __moduleName = context_4 && context_4.id;
     function createTextObject(text, x, y) {
         const colors = new Skin_2.Skin(''.padEnd(text.length, '.'), { '.': [undefined, undefined] });
         const t = new StaticGameObject_1.StaticGameObject([0, 0], text, colors, '', '', [x, y]);
         return t;
     }
-    exports_3("createTextObject", createTextObject);
+    exports_4("createTextObject", createTextObject);
     return {
         setters: [
             function (Skin_2_1) {
@@ -88,9 +115,9 @@ System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], functi
         }
     };
 });
-System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], function (exports_4, context_4) {
+System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], function (exports_5, context_5) {
     var StaticGameObject_2, Skin_3, house, tree, trees, bamboo, lamp, lamps, chest;
-    var __moduleName = context_4 && context_4.id;
+    var __moduleName = context_5 && context_5.id;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -101,7 +128,7 @@ System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], fun
             }
         ],
         execute: function () {
-            exports_4("house", house = new StaticGameObject_2.StaticGameObject([2, 2], ` /^\\ 
+            exports_5("house", house = new StaticGameObject_2.StaticGameObject([2, 2], ` /^\\ 
 ==*==
  ▓ ▓ `, new Skin_3.Skin(` BBB
 BBSBB
@@ -113,7 +140,7 @@ BBSBB
             }), `
  ... 
  . .`, '', [5, 10]));
-            exports_4("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], ` ░ 
+            exports_5("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], ` ░ 
 ░░░
 ░░░
  █`, new Skin_3.Skin(` o 
@@ -129,7 +156,20 @@ o01
 
 
  .`, '', [2, 12]));
-            exports_4("trees", trees = [
+            tree.addEventHandler((o, ev) => {
+                if (ev.type === 'wind_changed') {
+                    o.parameters["animate"] = ev.args["to"];
+                }
+            });
+            tree.onUpdate((o) => {
+                if (o.parameters["animate"]) {
+                    o.parameters["tick"] = !o.parameters["tick"];
+                    o.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+                    o.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+                    o.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+                }
+            });
+            exports_5("trees", trees = [
             //{...tree, position: [5, 11]} as StaticGameObject,
             //{...tree, position: [11, 8]} as StaticGameObject,
             //{...tree, position: [10, 10]} as StaticGameObject,
@@ -186,18 +226,18 @@ H`, {
                 o.colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
                 o.lights[0] = o.parameters["is_on"] ? 'F' : '0';
             });
-            exports_4("lamps", lamps = [
+            exports_5("lamps", lamps = [
                 StaticGameObject_2.StaticGameObject.clone(lamp, { position: [2, 5] }),
             ]);
-            exports_4("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], `S`, new Skin_3.Skin(`V`, {
+            exports_5("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], `S`, new Skin_3.Skin(`V`, {
                 V: ['yellow', 'violet'],
             }), `.`, '', [2, 10]));
         }
     };
 });
-System.register("main", ["utils/misc", "world/objects"], function (exports_5, context_5) {
-    var misc_1, objects_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, timePeriod, sceneObjects, lightLayer, weatherLayer, emptyCollisionChar;
-    var __moduleName = context_5 && context_5.id;
+System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], function (exports_6, context_6) {
+    var misc_1, objects_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
+    var __moduleName = context_6 && context_6.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size.width;
         const top = topPos * cellStyle.size.height;
@@ -314,7 +354,6 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                     for (let left = 0; left < line[1].length; left++) {
                         const char = line[1][left];
                         const lightLevel = Number.parseInt(char, 16);
-                        console.log('lightLevel', lightLevel);
                         const aleft = obj.position[0] - obj.originPoint[0] + left;
                         const atop = obj.position[1] - obj.originPoint[1] + line[0];
                         lightLayer[atop][aleft] += lightLevel;
@@ -367,6 +406,11 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
         }
     }
     function update() {
+        for (const obj of sceneObjects) {
+            if (obj.updateHandler) {
+                obj.updateHandler(obj);
+            }
+        }
         updateWeather();
         function updateWeather() {
             weatherLayer = [];
@@ -410,7 +454,19 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
     }
     function onInterval() {
         update();
+        while (events.length > 0) {
+            const ev = events.shift();
+            if (ev) {
+                for (const obj of sceneObjects) {
+                    obj.handleEvent(ev);
+                }
+            }
+        }
         drawScene();
+    }
+    function emitEvent(ev) {
+        events.push(ev);
+        console.log("event: ", ev);
     }
     function isCollision(object, left, top) {
         const cchar = object.collisions[top] && object.collisions[top][left]
@@ -469,6 +525,9 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             },
             function (objects_1_1) {
                 objects_1 = objects_1_1;
+            },
+            function (GameEvent_1_1) {
+                GameEvent_1 = GameEvent_1_1;
             }
         ],
         execute: function () {
@@ -503,11 +562,18 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
             heroDir = [0, 0];
             heroActionEnabled = false;
             weatherType = 'normal';
+            isWindy = true;
             timePeriod = 'day';
             // createTextObject("Term Adventures!", 2, 2)
             sceneObjects = [objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps]; // @todo sort by origin point
             lightLayer = [];
             weatherLayer = [];
+            events = [];
+            // initial events
+            emitEvent(new GameEvent_1.GameEvent("system", "weather_changed", { from: weatherType, to: weatherType }));
+            emitEvent(new GameEvent_1.GameEvent("system", "wind_changed", { from: isWindy, to: isWindy }));
+            emitEvent(new GameEvent_1.GameEvent("system", "time_changed", { from: timePeriod, to: timePeriod }));
+            //
             onInterval(); // initial run
             setInterval(onInterval, 500);
             emptyCollisionChar = ' ';
@@ -537,6 +603,7 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                 }
                 else {
                     // debug keys
+                    const oldWeatherType = weatherType;
                     if (raw_key === '1') { // debug
                         weatherType = 'normal';
                     }
@@ -552,8 +619,28 @@ System.register("main", ["utils/misc", "world/objects"], function (exports_5, co
                     else if (raw_key === '5') { // debug
                         weatherType = 'mist';
                     }
-                    else if (raw_key === 'q') { // debug
+                    if (oldWeatherType !== weatherType) {
+                        emitEvent(new GameEvent_1.GameEvent("system", "weather_changed", {
+                            from: oldWeatherType,
+                            to: weatherType,
+                        }));
+                    }
+                    // wind
+                    if (raw_key === 'e') {
+                        isWindy = !isWindy;
+                        emitEvent(new GameEvent_1.GameEvent("system", "wind_changed", {
+                            from: !isWindy,
+                            to: isWindy,
+                        }));
+                    }
+                    //
+                    if (raw_key === 'q') { // debug
                         timePeriod = timePeriod === 'day' ? 'night' : 'day';
+                        //
+                        emitEvent(new GameEvent_1.GameEvent("system", "time_changed", {
+                            from: timePeriod === 'day' ? 'night' : 'day',
+                            to: timePeriod,
+                        }));
                     }
                     console.log(weatherType, timePeriod);
                     return; // skip
