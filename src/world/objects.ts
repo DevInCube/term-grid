@@ -124,3 +124,19 @@ export const lamps: StaticGameObject[] = [
 export const chest = new StaticGameObject([0, 0], `S`, new Skin(`V`, {
     V: ['yellow', 'violet'],
 }), `.`, '', [2, 10]);
+
+const flower = new StaticGameObject([0, 0], `❁`, new Skin(`V`, {
+    V: ['red', 'transparent'],
+}), ` `, 'F', [2, 10]);
+
+export const flowers: StaticGameObject[] = [];
+for (let i = 0; i < 20; i++) {
+    const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
+    flowers.push(fl);
+    fl.onUpdate((o) => {
+        if (!o.parameters["inited"]) { 
+            o.parameters["inited"] = true;
+            o.colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]
+        }
+    })
+}

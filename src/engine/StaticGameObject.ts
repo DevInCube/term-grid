@@ -1,5 +1,6 @@
 import { Skin } from "./Skin";
 import { GameEvent } from "./GameEvent";
+import { deepCopy } from "../utils/misc";
 
 export type GameObjectAction = (obj: StaticGameObject) => void;
 export type GameObjectEventHandler = (obj: StaticGameObject, ev: GameEvent) => void;
@@ -54,6 +55,6 @@ export class StaticGameObject {
     }
 
     static clone(o: StaticGameObject, params: {}): StaticGameObject {
-        return Object.assign(this.createEmpty(), o, params);
+        return Object.assign(this.createEmpty(), deepCopy(o), params);
     }
 }

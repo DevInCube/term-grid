@@ -1,6 +1,6 @@
 import { createTextObject } from "./utils/misc";
 import { StaticGameObject, GameObjectAction } from "./engine/StaticGameObject";
-import { house, chest, tree, trees, lamps } from "./world/objects";
+import { house, chest, tree, trees, lamps, flowers } from "./world/objects";
 import { GameEvent } from "./engine/GameEvent";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -108,10 +108,11 @@ function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
 }
 
 let weatherType = 'normal';
+let temperature = 7;  // 0-15 @todo add effects
 let isWindy = true;
 let timePeriod = 'day';
 // createTextObject("Term Adventures!", 2, 2)
-const sceneObjects = [house, chest, tree, ...trees, ...lamps];  // @todo sort by origin point
+const sceneObjects = [...flowers, house, chest, tree, ...trees, ...lamps];  // @todo sort by origin point
 let lightLayer: number[][] = [];
 let weatherLayer: Cell[][] = [];
 

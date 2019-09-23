@@ -44,13 +44,16 @@ System.register("engine/GameEvent", [], function (exports_2, context_2) {
         }
     };
 });
-System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_3, context_3) {
-    var Skin_1, StaticGameObject;
+System.register("engine/StaticGameObject", ["engine/Skin", "utils/misc"], function (exports_3, context_3) {
+    var Skin_1, misc_1, StaticGameObject;
     var __moduleName = context_3 && context_3.id;
     return {
         setters: [
             function (Skin_1_1) {
                 Skin_1 = Skin_1_1;
+            },
+            function (misc_1_1) {
+                misc_1 = misc_1_1;
             }
         ],
         execute: function () {
@@ -87,7 +90,7 @@ System.register("engine/StaticGameObject", ["engine/Skin"], function (exports_3,
                     return new StaticGameObject([0, 0], '', new Skin_1.Skin(), '', '', [0, 0]);
                 }
                 static clone(o, params) {
-                    return Object.assign(this.createEmpty(), o, params);
+                    return Object.assign(this.createEmpty(), misc_1.deepCopy(o), params);
                 }
             };
             exports_3("StaticGameObject", StaticGameObject);
@@ -103,6 +106,37 @@ System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], functi
         return t;
     }
     exports_4("createTextObject", createTextObject);
+    function deepCopy(obj) {
+        let copy;
+        // Handle the 3 simple types, and null or undefined
+        if (null == obj || "object" != typeof obj)
+            return obj;
+        // Handle Date
+        if (obj instanceof Date) {
+            copy = new Date();
+            copy.setTime(obj.getTime());
+            return copy;
+        }
+        // Handle Array
+        if (obj instanceof Array) {
+            copy = [];
+            for (var i = 0, len = obj.length; i < len; i++) {
+                copy[i] = deepCopy(obj[i]);
+            }
+            return copy;
+        }
+        // Handle Object
+        if (obj instanceof Object) {
+            copy = {};
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr))
+                    copy[attr] = deepCopy(obj[attr]);
+            }
+            return copy;
+        }
+        throw new Error("Unable to copy obj! Its type isn't supported.");
+    }
+    exports_4("deepCopy", deepCopy);
     return {
         setters: [
             function (Skin_2_1) {
@@ -117,7 +151,7 @@ System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], functi
     };
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], function (exports_5, context_5) {
-    var StaticGameObject_2, Skin_3, house, tree, trees, bamboo, lamp, lamps, chest;
+    var StaticGameObject_2, Skin_3, house, tree, trees, bamboo, lamp, lamps, chest, flower, flowers;
     var __moduleName = context_5 && context_5.id;
     return {
         setters: [
@@ -247,11 +281,25 @@ H`, {
             exports_5("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], `S`, new Skin_3.Skin(`V`, {
                 V: ['yellow', 'violet'],
             }), `.`, '', [2, 10]));
+            flower = new StaticGameObject_2.StaticGameObject([0, 0], `❁`, new Skin_3.Skin(`V`, {
+                V: ['red', 'transparent'],
+            }), ` `, 'F', [2, 10]);
+            exports_5("flowers", flowers = []);
+            for (let i = 0; i < 20; i++) {
+                const fl = StaticGameObject_2.StaticGameObject.clone(flower, { position: [Math.random() * 20 | 0, Math.random() * 20 | 0] });
+                flowers.push(fl);
+                fl.onUpdate((o) => {
+                    if (!o.parameters["inited"]) {
+                        o.parameters["inited"] = true;
+                        o.colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0];
+                    }
+                });
+            }
         }
     };
 });
 System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], function (exports_6, context_6) {
-    var misc_1, objects_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
+    var misc_2, objects_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, temperature, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
     var __moduleName = context_6 && context_6.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size.width;
@@ -535,8 +583,8 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
     }
     return {
         setters: [
-            function (misc_1_1) {
-                misc_1 = misc_1_1;
+            function (misc_2_1) {
+                misc_2 = misc_2_1;
             },
             function (objects_1_1) {
                 objects_1 = objects_1_1;
@@ -577,10 +625,11 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
             heroDir = [0, 0];
             heroActionEnabled = false;
             weatherType = 'normal';
+            temperature = 7; // 0-15 @todo add effects
             isWindy = true;
             timePeriod = 'day';
             // createTextObject("Term Adventures!", 2, 2)
-            sceneObjects = [objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps]; // @todo sort by origin point
+            sceneObjects = [...objects_1.flowers, objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps]; // @todo sort by origin point
             lightLayer = [];
             weatherLayer = [];
             events = [];
@@ -670,7 +719,7 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
             });
             // scripts
             objects_1.chest.setAction(0, 0, function () {
-                sceneObjects.push(misc_1.createTextObject(`VICTORY!`, 6, 6));
+                sceneObjects.push(misc_2.createTextObject(`VICTORY!`, 6, 6));
                 drawScene();
             });
         }
