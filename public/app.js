@@ -20,11 +20,15 @@ System.register("engine/StaticGameObject", [], function (exports_2, context_2) {
                     this.colors = colors;
                     this.collisions = collisions;
                     this.position = position;
+                    this.enabled = true;
                     this.actions = [];
                 }
                 // add cb params
                 setAction(left, top, action) {
                     this.actions.push([[left, top], action]);
+                }
+                static createEmpty() {
+                    return new StaticGameObject('', [[[]]], '', []);
                 }
             };
             exports_2("StaticGameObject", StaticGameObject);
@@ -74,34 +78,51 @@ System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], fun
         execute: function () {
             exports_4("house", house = new StaticGameObject_1.StaticGameObject(` /^\\ 
 ==*==
- [#] `, new Skin_1.Skin(` BBB
+ [ ] `, new Skin_1.Skin(` BBB
 BBSBB
  WDW`, {
                 B: [undefined, 'black'],
-                S: [undefined, 'darkblue'],
+                S: [undefined, '#004'],
                 W: ["black", "darkred"],
                 D: ["black", "saddlebrown"]
             }).getRawColors(), `
  ... 
  . .`, [5, 10]));
-            exports_4("tree", tree = new StaticGameObject_1.StaticGameObject(` o 
-  o
-o  
-  `, new Skin_1.Skin(` 0 
-0H0
-0H0
+            exports_4("tree", tree = new StaticGameObject_1.StaticGameObject(`   
+   
+   
+  `, new Skin_1.Skin(` o 
+o01
+01S
  H`, {
-                '0': [undefined, 'green'],
+                'o': [undefined, '#0a0'],
+                '0': [undefined, '#080'],
+                '1': [undefined, '#060'],
+                'S': [undefined, '#040'],
                 'H': [undefined, 'sienna'],
             }).getRawColors(), `
 
 
  .`, [1, 9]));
             exports_4("trees", trees = [
-                Object.assign({}, tree, { position: [5, 11] }),
-                Object.assign({}, tree, { position: [11, 8] }),
-                Object.assign({}, tree, { position: [10, 10] }),
+            //{...tree, position: [5, 11]} as StaticGameObject,
+            //{...tree, position: [11, 8]} as StaticGameObject,
+            //{...tree, position: [10, 10]} as StaticGameObject,
             ]);
+            if (true) { // random trees
+                for (let y = 4; y < 16; y++) {
+                    const x = (Math.random() * 8 + 1) | 0;
+                    trees.push(Object.assign(StaticGameObject_1.StaticGameObject.createEmpty(), tree, { position: [x, y] }));
+                    const x2 = (Math.random() * 8 + 8) | 0;
+                    trees.push(Object.assign(StaticGameObject_1.StaticGameObject.createEmpty(), tree, { position: [x2, y] }));
+                }
+                for (let tree of trees) {
+                    tree.setAction(1, 3, (obj) => {
+                        obj.enabled = false;
+                        console.log("Cut tree");
+                    });
+                }
+            }
             exports_4("chest", chest = new StaticGameObject_1.StaticGameObject(`S`, new Skin_1.Skin(`V`, {
                 V: ['yellow', 'violet'],
             }).getRawColors(), `.`, [2, 10]));
@@ -111,7 +132,7 @@ o
 System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/objects"], function (exports_5, context_5) {
     var StaticGameObject_2, Skin_2, objects_1, canvas, ctx, cellStyle, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, sceneObjects, emptyCollisionChar;
     var __moduleName = context_5 && context_5.id;
-    function drawCell(cell, leftPos, topPos, transparent = false, border = false) {
+    function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size;
         const top = topPos * cellStyle.size;
         //
@@ -128,13 +149,27 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
             ctx.strokeStyle = cellStyle.borderColor;
             ctx.lineWidth = cellStyle.borderWidth;
             // palette borders
-            ctx.strokeRect(left, top, cellStyle.size, cellStyle.size);
+            ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size, cellStyle.size);
+        }
+        // border 'shadow'
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = transparent ? 0.4 : 0.7;
+        if (border[0]) {
+            ctx.strokeRect(left, top, cellStyle.size, 2);
+        }
+        if (border[1]) {
+            ctx.strokeRect(left + cellStyle.size, top, 2, cellStyle.size);
+        }
+        if (border[2]) {
+            ctx.strokeRect(left, top + cellStyle.size, cellStyle.size, 2);
+        }
+        if (border[3]) {
+            ctx.strokeRect(left, top, 2, cellStyle.size);
         }
     }
     function drawObject(obj) {
         const lines = obj.skin.split('\n');
         let showOnlyCollisions = isPositionBehindTheObject(obj, heroLeft, heroTop);
-        console.log(heroActionEnabled);
         if (heroActionEnabled && isPositionBehindTheObject(obj, heroLeft + heroDir[0], heroTop + heroDir[1])) {
             showOnlyCollisions = true;
         }
@@ -144,10 +179,26 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
                 const char = lines[y][x] || ' ';
                 const cell = new Cell(char, cellColor[0], cellColor[1]);
                 const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
-                if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '')
-                    drawCell(cell, obj.position[0] + x, obj.position[1] + y, transparent, true);
+                if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
+                    drawCell(cell, obj.position[0] + x, obj.position[1] + y, transparent, [
+                        isEmptyCell(obj, x + 0, y - 1),
+                        isEmptyCell(obj, x + 1, y + 0),
+                        isEmptyCell(obj, x + 0, y + 1),
+                        isEmptyCell(obj, x - 1, y + 0),
+                    ]);
+                }
             }
         }
+    }
+    function isEmptyCell(obj, x, y) {
+        const cellColor = (obj.colors[y] && obj.colors[y][x])
+            ? obj.colors[y][x]
+            : ['', ''];
+        const lines = obj.skin.split('\n');
+        const char = (lines[y] && lines[y][x])
+            ? lines[y][x]
+            : ' ';
+        return cellColor[0] === '' && cellColor[1] === '';
     }
     function drawScene() {
         for (let y = 0; y < viewHeight; y++) {
@@ -163,6 +214,8 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
         drawCell(new Cell('🐱', 'yellow', 'darkgreen'), heroLeft, heroTop);
         // hero shadow behind objects
         for (let object of sceneObjects) {
+            if (!object.enabled)
+                continue;
             if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
                 ctx.fillStyle = 'black';
                 const left = heroLeft * cellStyle.size;
@@ -173,6 +226,8 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
             }
         }
         for (let object of sceneObjects) {
+            if (!object.enabled)
+                continue;
             drawObject(object);
         }
         // hero direction (cursor)
@@ -196,6 +251,8 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
     }
     function isPositionBlocked(left, top) {
         for (let object of sceneObjects) {
+            if (!object.enabled)
+                continue;
             const pleft = left - object.position[0];
             const ptop = top - object.position[1];
             if (isCollision(object, pleft, ptop)) {
@@ -286,7 +343,7 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
                         const ptop = top - object.position[1];
                         for (let action of object.actions) {
                             if (action[0][0] === pleft && action[0][1] === ptop) {
-                                action[1](); // pass action args
+                                action[1](object); // pass action args
                             }
                         }
                     }
@@ -307,7 +364,6 @@ System.register("main", ["engine/StaticGameObject", "engine/Skin", "world/object
             // scripts
             objects_1.chest.setAction(0, 0, function () {
                 const colors = new Skin_2.Skin('........', { '.': [undefined, undefined] }).getRawColors();
-                console.log(colors);
                 const victory = new StaticGameObject_2.StaticGameObject(`VICTORY!`, colors, '', [6, 6]);
                 sceneObjects.push(victory);
                 drawScene();

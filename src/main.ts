@@ -29,7 +29,7 @@ function drawCell(
     leftPos: number, 
     topPos: number, 
     transparent: boolean = false,
-    border: boolean = false) { 
+    border: boolean[] = [false, false, false, false]) { 
         
     const left = leftPos * cellStyle.size;
     const top = topPos * cellStyle.size;
@@ -47,7 +47,22 @@ function drawCell(
         ctx.strokeStyle = cellStyle.borderColor;
         ctx.lineWidth = cellStyle.borderWidth;
         // palette borders
-        ctx.strokeRect(left, top, cellStyle.size, cellStyle.size);
+        ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size, cellStyle.size);
+    }
+    // border 'shadow'
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = transparent ? 0.4 : 0.7;
+    if (border[0]) {
+        ctx.strokeRect(left, top, cellStyle.size, 2) 
+    }
+    if (border[1]) {
+        ctx.strokeRect(left + cellStyle.size, top, 2, cellStyle.size) 
+    }
+    if (border[2]) {
+        ctx.strokeRect(left, top + cellStyle.size, cellStyle.size, 2) 
+    }
+    if (border[3]) {
+        ctx.strokeRect(left, top, 2, cellStyle.size) 
     }
 }
 
@@ -62,7 +77,6 @@ let heroActionEnabled = false;
 function drawObject(obj: StaticGameObject) {
     const lines = obj.skin.split('\n');
     let showOnlyCollisions: boolean = isPositionBehindTheObject(obj, heroLeft, heroTop);
-    console.log(heroActionEnabled);
     if (heroActionEnabled && isPositionBehindTheObject(obj, heroLeft + heroDir[0], heroTop + heroDir[1])) {
         showOnlyCollisions = true;
     }
@@ -72,10 +86,28 @@ function drawObject(obj: StaticGameObject) {
             const char = lines[y][x] || ' ';
             const cell = new Cell(char, cellColor[0], cellColor[1]);
             const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
-            if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '')
-                drawCell(cell, obj.position[0] + x, obj.position[1] + y, transparent, true);
+            if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
+                drawCell(cell, obj.position[0] + x, obj.position[1] + y, transparent, [
+                    isEmptyCell(obj, x + 0, y - 1),  // top
+                    isEmptyCell(obj, x + 1, y + 0),
+                    isEmptyCell(obj, x + 0, y + 1),
+                    isEmptyCell(obj, x - 1, y + 0),
+                ]);
+            }
+                
         }
     }
+}
+
+function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
+    const cellColor = (obj.colors[y] && obj.colors[y][x]) 
+        ? obj.colors[y][x] 
+        : ['', ''];
+    const lines = obj.skin.split('\n');
+    const char = (lines[y] && lines[y][x])
+        ? lines[y][x] 
+        : ' ';
+    return cellColor[0] === '' && cellColor[1] === '';
 }
 
 const sceneObjects = [house, chest, tree, ...trees];
@@ -97,6 +129,7 @@ function drawScene() {
     drawCell(new Cell('🐱', 'yellow', 'darkgreen'), heroLeft, heroTop);
     // hero shadow behind objects
     for (let object of sceneObjects) {
+        if (!object.enabled) continue;
         if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
             ctx.fillStyle = 'black';
             const left = heroLeft * cellStyle.size;
@@ -107,6 +140,7 @@ function drawScene() {
         } 
     }
     for  (let object of sceneObjects) {
+        if (!object.enabled) continue;
         drawObject(object);
     }
     // hero direction (cursor)
@@ -136,6 +170,7 @@ function isCollision(object: StaticGameObject, left: number, top: number) {
 
 function isPositionBlocked(left: number, top: number) {
     for (let object of sceneObjects) {
+        if (!object.enabled) continue;
         const pleft = left - object.position[0];
         const ptop = top - object.position[1];
         if (isCollision(object, pleft, ptop)) { 
@@ -181,7 +216,7 @@ document.addEventListener("keypress", function (code) {
             const ptop = top - object.position[1];
             for (let action of object.actions) {
                 if (action[0][0] === pleft && action[0][1] === ptop) {
-                    action[1]();  // pass action args
+                    action[1](object);  // pass action args
                 }
             }
         }
@@ -203,7 +238,6 @@ document.addEventListener("keypress", function (code) {
 // scripts
 chest.setAction(0, 0, function () {
     const colors = new Skin('........', {'.': [undefined, undefined]}).getRawColors();
-    console.log(colors);
     const victory = new StaticGameObject(`VICTORY!`, colors, '', [6, 6]);
     sceneObjects.push(victory);
     drawScene();
