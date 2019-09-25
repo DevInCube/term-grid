@@ -1,14 +1,22 @@
 export class Skin {
 
+    characters: string[] = [];
+    raw_colors: (string | undefined)[][][] = [];
+
     constructor(
-        public mask: string = '', 
+        public charactersMask: string = '',
+        public colorsMask: string = '', 
         public colors: {
         [key: string]: (string | undefined)[];
-    } = {}) { }
+    } = {}) {
 
-    getRawColors() {
+        this.raw_colors = this.getRawColors();
+        this.characters = charactersMask.split('\n');
+    }
+
+    private getRawColors() {
         let raw_colors: (string | undefined)[][][] = [];
-        const lines = this.mask.split('\n');
+        const lines = this.colorsMask.split('\n');
         for (let y = 0; y < lines.length; y++) {
             raw_colors.push([]);
             for (let x = 0; x < lines[y].length; x++) {

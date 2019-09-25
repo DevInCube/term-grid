@@ -1,7 +1,9 @@
 import { createTextObject } from "./utils/misc";
-import { StaticGameObject, GameObjectAction } from "./engine/StaticGameObject";
+import { StaticGameObject } from "./engine/StaticGameObject";
 import { house, chest, tree, trees, lamps, flowers } from "./world/objects";
+import { npcs } from "./world/npcs";
 import { GameEvent } from "./engine/GameEvent";
+import { GameObjectAction } from "./engine/SceneObject";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -81,10 +83,10 @@ function drawObject(obj: StaticGameObject) {
     if (heroActionEnabled && isPositionBehindTheObject(obj, heroLeft + heroDir[0], heroTop + heroDir[1])) {
         showOnlyCollisions = true;
     }
-    for (let y = 0; y < obj.characters.length; y++) {
-        for (let x = 0; x < obj.characters[y].length; x++) {
-            const cellColor = (obj.colors[y] && obj.colors[y][x]) ? obj.colors[y][x] : ['', ''];
-            const char = obj.characters[y][x] || ' ';
+    for (let y = 0; y < obj.skin.characters.length; y++) {
+        for (let x = 0; x < obj.skin.characters[y].length; x++) {
+            const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
+            const char = obj.skin.characters[y][x] || ' ';
             const cell = new Cell(char, cellColor[0], cellColor[1]);
             const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
             if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
@@ -101,8 +103,8 @@ function drawObject(obj: StaticGameObject) {
 }
 
 function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
-    const cellColor = (obj.colors[y] && obj.colors[y][x]) 
-        ? obj.colors[y][x] 
+    const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) 
+        ? obj.skin.raw_colors[y][x] 
         : ['', ''];
     return cellColor[0] === '' && cellColor[1] === '';
 }
@@ -297,8 +299,8 @@ function emitEvent(ev: GameEvent) {
 const emptyCollisionChar = ' ';
 
 function isCollision(object: StaticGameObject, left: number, top: number) {
-    const cchar = object.collisions[top] && object.collisions[top][left] 
-        ? object.collisions[top][left] 
+    const cchar = object.physics.collisions[top] && object.physics.collisions[top][left] 
+        ? object.physics.collisions[top][left] 
         : emptyCollisionChar;
     return cchar !== emptyCollisionChar;
 }
@@ -321,12 +323,12 @@ function isPositionBehindTheObject(object: StaticGameObject, left: number, top: 
     // check collisions
     if (isCollision(object, ptop, pleft)) return false;
     // check characters skin
-    const cchar = object.characters[ptop] && object.characters[ptop][pleft] 
-        ? object.characters[ptop][pleft] 
+    const cchar = object.skin.characters[ptop] && object.skin.characters[ptop][pleft] 
+        ? object.skin.characters[ptop][pleft] 
         : emptyCollisionChar;
     // check color skin
-    const color = object.colors[ptop] && object.colors[ptop][pleft] 
-        ? object.colors[ptop] 
+    const color = object.skin.raw_colors[ptop] && object.skin.raw_colors[ptop][pleft] 
+        ? object.skin.raw_colors[ptop] 
         : [undefined, undefined];
     return cchar !== emptyCollisionChar || !!color[0] || !!color[1];
 }
