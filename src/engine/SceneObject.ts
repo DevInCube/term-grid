@@ -1,5 +1,5 @@
 import { GameEvent } from "./GameEvent";
-import { Skin } from "./Skin";
+import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
 
 export type GameObjectAction = (obj: SceneObject) => void;
@@ -14,7 +14,7 @@ export class SceneObject {
 
     constructor(
         public originPoint: [number, number],
-        public skin: Skin,
+        public skin: ObjectSkin,
         public physics: ObjectPhysics,
         public position: number[]) {
         

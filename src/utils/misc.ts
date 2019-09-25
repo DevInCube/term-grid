@@ -1,11 +1,13 @@
-import { Skin } from "../engine/Skin";
+import { ObjectSkin } from "../engine/ObjectSkin";
 import { StaticGameObject } from "../engine/StaticGameObject";
+import { ObjectPhysics } from "../engine/ObjectPhysics";
 
 export function createTextObject(text: string, x: number, y: number) {
-    const colors = new Skin(
+    const colors = new ObjectSkin(
+        text,
         ''.padEnd(text.length, '.'), 
         {'.': [undefined, undefined]});
-    const t = new StaticGameObject([0, 0], text, colors, '', '', [x, y]);
+    const t = new StaticGameObject([0, 0], colors, new ObjectPhysics(), [x, y]);
     return t;
 }
 

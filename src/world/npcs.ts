@@ -1,4 +1,4 @@
-import { Skin } from "../engine/Skin";
+import { ObjectSkin } from "../engine/ObjectSkin";
 import { SceneObject } from "../engine/SceneObject";
 
 // export class Npc extends SceneObject {

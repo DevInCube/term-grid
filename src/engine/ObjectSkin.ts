@@ -1,4 +1,4 @@
-export class Skin {
+export class ObjectSkin {
 
     characters: string[] = [];
     raw_colors: (string | undefined)[][][] = [];

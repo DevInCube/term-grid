@@ -166,7 +166,7 @@ function drawScene() {
             }
         }
         for (let obj of sceneObjects) {
-            for (let line of obj.lights.entries()) {
+            for (let line of obj.physics.lights.entries()) {
                 for (let left = 0; left < line[1].length; left++)
                 {
                     const char = line[1][left];

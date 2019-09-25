@@ -1,17 +1,22 @@
-System.register("engine/Skin", [], function (exports_1, context_1) {
-    var Skin;
+System.register("engine/ObjectSkin", [], function (exports_1, context_1) {
+    var ObjectSkin;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [],
         execute: function () {
-            Skin = class Skin {
-                constructor(mask = '', colors = {}) {
-                    this.mask = mask;
+            ObjectSkin = class ObjectSkin {
+                constructor(charactersMask = '', colorsMask = '', colors = {}) {
+                    this.charactersMask = charactersMask;
+                    this.colorsMask = colorsMask;
                     this.colors = colors;
+                    this.characters = [];
+                    this.raw_colors = [];
+                    this.raw_colors = this.getRawColors();
+                    this.characters = charactersMask.split('\n');
                 }
                 getRawColors() {
                     let raw_colors = [];
-                    const lines = this.mask.split('\n');
+                    const lines = this.colorsMask.split('\n');
                     for (let y = 0; y < lines.length; y++) {
                         raw_colors.push([]);
                         for (let x = 0; x < lines[y].length; x++) {
@@ -23,7 +28,7 @@ System.register("engine/Skin", [], function (exports_1, context_1) {
                     return raw_colors;
                 }
             };
-            exports_1("Skin", Skin);
+            exports_1("ObjectSkin", ObjectSkin);
         }
     };
 });
@@ -44,32 +49,39 @@ System.register("engine/GameEvent", [], function (exports_2, context_2) {
         }
     };
 });
-System.register("engine/StaticGameObject", ["engine/Skin", "utils/misc"], function (exports_3, context_3) {
-    var Skin_1, misc_1, StaticGameObject;
+System.register("engine/ObjectPhysics", [], function (exports_3, context_3) {
+    var ObjectPhysics;
     var __moduleName = context_3 && context_3.id;
     return {
-        setters: [
-            function (Skin_1_1) {
-                Skin_1 = Skin_1_1;
-            },
-            function (misc_1_1) {
-                misc_1 = misc_1_1;
-            }
-        ],
+        setters: [],
         execute: function () {
-            StaticGameObject = class StaticGameObject {
-                constructor(originPoint, charSkin, colorSkin, collisionsMask, lightMask, position) {
-                    this.originPoint = originPoint;
-                    this.position = position;
-                    this.enabled = true;
-                    this.actions = [];
-                    this.eventHandlers = [];
-                    // 
-                    this.parameters = {};
-                    this.characters = charSkin.split('\n');
-                    this.colors = colorSkin.getRawColors();
+            ObjectPhysics = class ObjectPhysics {
+                constructor(collisionsMask = '', lightMask = '') {
                     this.collisions = collisionsMask.split('\n');
                     this.lights = lightMask.split('\n');
+                }
+            };
+            exports_3("ObjectPhysics", ObjectPhysics);
+        }
+    };
+});
+System.register("engine/SceneObject", [], function (exports_4, context_4) {
+    var SceneObject;
+    var __moduleName = context_4 && context_4.id;
+    return {
+        setters: [],
+        execute: function () {
+            SceneObject = class SceneObject {
+                constructor(originPoint, skin, physics, position) {
+                    this.originPoint = originPoint;
+                    this.skin = skin;
+                    this.physics = physics;
+                    this.position = position;
+                    this.enabled = true;
+                    this.parameters = {};
+                    this.actions = [];
+                    this.eventHandlers = [];
+                    //
                 }
                 // add cb params
                 setAction(left, top, action) {
@@ -86,26 +98,54 @@ System.register("engine/StaticGameObject", ["engine/Skin", "utils/misc"], functi
                 onUpdate(handler) {
                     this.updateHandler = handler;
                 }
+            };
+            exports_4("SceneObject", SceneObject);
+        }
+    };
+});
+System.register("engine/StaticGameObject", ["engine/ObjectSkin", "utils/misc", "engine/SceneObject", "engine/ObjectPhysics"], function (exports_5, context_5) {
+    var ObjectSkin_1, misc_1, SceneObject_1, ObjectPhysics_1, StaticGameObject;
+    var __moduleName = context_5 && context_5.id;
+    return {
+        setters: [
+            function (ObjectSkin_1_1) {
+                ObjectSkin_1 = ObjectSkin_1_1;
+            },
+            function (misc_1_1) {
+                misc_1 = misc_1_1;
+            },
+            function (SceneObject_1_1) {
+                SceneObject_1 = SceneObject_1_1;
+            },
+            function (ObjectPhysics_1_1) {
+                ObjectPhysics_1 = ObjectPhysics_1_1;
+            }
+        ],
+        execute: function () {
+            StaticGameObject = class StaticGameObject extends SceneObject_1.SceneObject {
+                constructor(originPoint, skin, physics, position) {
+                    super(originPoint, skin, physics, position);
+                }
                 static createEmpty() {
-                    return new StaticGameObject([0, 0], '', new Skin_1.Skin(), '', '', [0, 0]);
+                    return new StaticGameObject([0, 0], new ObjectSkin_1.ObjectSkin(), new ObjectPhysics_1.ObjectPhysics(), [0, 0]);
                 }
                 static clone(o, params) {
                     return Object.assign(this.createEmpty(), misc_1.deepCopy(o), params);
                 }
             };
-            exports_3("StaticGameObject", StaticGameObject);
+            exports_5("StaticGameObject", StaticGameObject);
         }
     };
 });
-System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], function (exports_4, context_4) {
-    var Skin_2, StaticGameObject_1;
-    var __moduleName = context_4 && context_4.id;
+System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics"], function (exports_6, context_6) {
+    var ObjectSkin_2, StaticGameObject_1, ObjectPhysics_2;
+    var __moduleName = context_6 && context_6.id;
     function createTextObject(text, x, y) {
-        const colors = new Skin_2.Skin(''.padEnd(text.length, '.'), { '.': [undefined, undefined] });
-        const t = new StaticGameObject_1.StaticGameObject([0, 0], text, colors, '', '', [x, y]);
+        const colors = new ObjectSkin_2.ObjectSkin(text, ''.padEnd(text.length, '.'), { '.': [undefined, undefined] });
+        const t = new StaticGameObject_1.StaticGameObject([0, 0], colors, new ObjectPhysics_2.ObjectPhysics(), [x, y]);
         return t;
     }
-    exports_4("createTextObject", createTextObject);
+    exports_6("createTextObject", createTextObject);
     function deepCopy(obj) {
         let copy;
         // Handle the 3 simple types, and null or undefined
@@ -136,49 +176,55 @@ System.register("utils/misc", ["engine/Skin", "engine/StaticGameObject"], functi
         }
         throw new Error("Unable to copy obj! Its type isn't supported.");
     }
-    exports_4("deepCopy", deepCopy);
+    exports_6("deepCopy", deepCopy);
     return {
         setters: [
-            function (Skin_2_1) {
-                Skin_2 = Skin_2_1;
+            function (ObjectSkin_2_1) {
+                ObjectSkin_2 = ObjectSkin_2_1;
             },
             function (StaticGameObject_1_1) {
                 StaticGameObject_1 = StaticGameObject_1_1;
+            },
+            function (ObjectPhysics_2_1) {
+                ObjectPhysics_2 = ObjectPhysics_2_1;
             }
         ],
         execute: function () {
         }
     };
 });
-System.register("world/objects", ["engine/StaticGameObject", "engine/Skin"], function (exports_5, context_5) {
-    var StaticGameObject_2, Skin_3, house, tree, trees, bamboo, lamp, lamps, chest, flower, flowers;
-    var __moduleName = context_5 && context_5.id;
+System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_7, context_7) {
+    var StaticGameObject_2, ObjectSkin_3, ObjectPhysics_3, house, tree, trees, bamboo, lamp, lamps, chest, flower, flowers;
+    var __moduleName = context_7 && context_7.id;
     return {
         setters: [
             function (StaticGameObject_2_1) {
                 StaticGameObject_2 = StaticGameObject_2_1;
             },
-            function (Skin_3_1) {
-                Skin_3 = Skin_3_1;
+            function (ObjectSkin_3_1) {
+                ObjectSkin_3 = ObjectSkin_3_1;
+            },
+            function (ObjectPhysics_3_1) {
+                ObjectPhysics_3 = ObjectPhysics_3_1;
             }
         ],
         execute: function () {
-            exports_5("house", house = new StaticGameObject_2.StaticGameObject([2, 2], ` /^\\ 
+            exports_7("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_3.ObjectSkin(` /^\\ 
 ==*==
- ▓ ▓ `, new Skin_3.Skin(` BBB
+ ▓ ▓ `, ` BBB
 BBSBB
  WDW`, {
                 B: [undefined, 'black'],
                 S: [undefined, '#004'],
                 W: ["black", "darkred"],
                 D: ["black", "saddlebrown"]
-            }), `
+            }), new ObjectPhysics_3.ObjectPhysics(`
  ... 
- . .`, '', [5, 10]));
-            exports_5("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], ` ░ 
+ . .`, ''), [5, 10]));
+            exports_7("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], new ObjectSkin_3.ObjectSkin(` ░ 
 ░░░
 ░░░
- █`, new Skin_3.Skin(` o 
+ █`, ` o 
 o01
 01S
  H`, {
@@ -187,48 +233,48 @@ o01
                 '1': ['#080', '#060'],
                 'S': ['#060', '#040'],
                 'H': ['sienna', 'transparent'],
-            }), `
+            }), new ObjectPhysics_3.ObjectPhysics(`
 
 
- .`, '', [2, 12]));
+ .`, ''), [2, 12]));
             tree.addEventHandler((o, ev) => {
                 if (ev.type === 'wind_changed') {
                     o.parameters["animate"] = ev.args["to"];
                 }
                 else if (ev.type === 'weather_changed') {
                     if (ev.args.to === 'snow') {
-                        o.colors[0][1][1] = 'white';
-                        o.colors[1][0][1] = 'white';
-                        o.colors[1][1][1] = '#ccc';
-                        o.colors[1][2][1] = '#ccc';
+                        o.skin.raw_colors[0][1][1] = 'white';
+                        o.skin.raw_colors[1][0][1] = 'white';
+                        o.skin.raw_colors[1][1][1] = '#ccc';
+                        o.skin.raw_colors[1][2][1] = '#ccc';
                     }
                     else {
-                        o.colors[0][1][1] = '#0a0';
-                        o.colors[1][0][1] = '#0a0';
-                        o.colors[1][1][1] = '#080';
-                        o.colors[1][2][1] = '#080';
+                        o.skin.raw_colors[0][1][1] = '#0a0';
+                        o.skin.raw_colors[1][0][1] = '#0a0';
+                        o.skin.raw_colors[1][1][1] = '#080';
+                        o.skin.raw_colors[1][2][1] = '#080';
                     }
                 }
             });
             tree.onUpdate((o) => {
                 if (o.parameters["animate"]) {
                     o.parameters["tick"] = !o.parameters["tick"];
-                    o.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
-                    o.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-                    o.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+                    o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+                    o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+                    o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
                 }
             });
-            exports_5("trees", trees = [
+            exports_7("trees", trees = [
             //{...tree, position: [5, 11]} as StaticGameObject,
             //{...tree, position: [11, 8]} as StaticGameObject,
             //{...tree, position: [10, 10]} as StaticGameObject,
             ]);
-            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], `▄
+            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], new ObjectSkin_3.ObjectSkin(`▄
 █
 █
 █
 █
-█`, new Skin_3.Skin(`T
+█`, `T
 H
 L
 H
@@ -239,12 +285,12 @@ D`, {
                 'L': ['#517201', 'transparent'],
                 'H': ['#394902', 'transparent'],
                 'D': ['#574512', 'transparent'],
-            }), ` 
+            }), new ObjectPhysics_3.ObjectPhysics(` 
  
  
  
  
-.`, ``, []);
+.`, ``), [0, 0]);
             if (true) { // random trees
                 for (let y = 6; y < 18; y++) {
                     const x = (Math.random() * 8 + 1) | 0;
@@ -259,48 +305,65 @@ D`, {
                     });
                 }
             }
-            lamp = new StaticGameObject_2.StaticGameObject([0, 2], `⬤
+            lamp = new StaticGameObject_2.StaticGameObject([0, 2], new ObjectSkin_3.ObjectSkin(`⬤
 █
-█`, new Skin_3.Skin(`L
+█`, `L
 H
 H`, {
                 'L': ['yellow', 'transparent'],
                 'H': ['#666', 'transparent'],
-            }), ` 
+            }), new ObjectPhysics_3.ObjectPhysics(` 
  
-. `, `B`, []);
+. `, `B`), [0, 0]);
             lamp.parameters["is_on"] = true;
             lamp.setAction(0, 2, (o) => {
                 o.parameters["is_on"] = !o.parameters["is_on"];
-                o.colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
-                o.lights[0] = o.parameters["is_on"] ? 'F' : '0';
+                o.skin.raw_colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
+                o.physics.lights[0] = o.parameters["is_on"] ? 'F' : '0';
             });
-            exports_5("lamps", lamps = [
+            exports_7("lamps", lamps = [
                 StaticGameObject_2.StaticGameObject.clone(lamp, { position: [2, 5] }),
             ]);
-            exports_5("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], `S`, new Skin_3.Skin(`V`, {
+            exports_7("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_3.ObjectSkin(`S`, `V`, {
                 V: ['yellow', 'violet'],
-            }), `.`, '', [2, 10]));
-            flower = new StaticGameObject_2.StaticGameObject([0, 0], `❁`, new Skin_3.Skin(`V`, {
+            }), new ObjectPhysics_3.ObjectPhysics(`.`, ''), [2, 10]));
+            flower = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_3.ObjectSkin(`❁`, `V`, {
                 V: ['red', 'transparent'],
-            }), ` `, 'F', [2, 10]);
-            exports_5("flowers", flowers = []);
+            }), new ObjectPhysics_3.ObjectPhysics(` `, 'F'), [2, 10]);
+            exports_7("flowers", flowers = []);
             for (let i = 0; i < 20; i++) {
                 const fl = StaticGameObject_2.StaticGameObject.clone(flower, { position: [Math.random() * 20 | 0, Math.random() * 20 | 0] });
                 flowers.push(fl);
                 fl.onUpdate((o) => {
                     if (!o.parameters["inited"]) {
                         o.parameters["inited"] = true;
-                        o.colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0];
+                        o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0];
                     }
                 });
             }
         }
     };
 });
-System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], function (exports_6, context_6) {
+System.register("world/npcs", [], function (exports_8, context_8) {
+    var npcs;
+    var __moduleName = context_8 && context_8.id;
+    return {
+        setters: [],
+        execute: function () {
+            // export class Npc extends SceneObject {
+            //     constructor(position: [number, number], skin: Skin) {
+            //         super();
+            //     }
+            // }
+            exports_8("npcs", npcs = [
+            //new Npc([3, 3], )
+            ]);
+        }
+    };
+});
+System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], function (exports_9, context_9) {
     var misc_2, objects_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, temperature, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
-    var __moduleName = context_6 && context_6.id;
+    var __moduleName = context_9 && context_9.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size.width;
         const top = topPos * cellStyle.size.height;
@@ -341,10 +404,10 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
         if (heroActionEnabled && isPositionBehindTheObject(obj, heroLeft + heroDir[0], heroTop + heroDir[1])) {
             showOnlyCollisions = true;
         }
-        for (let y = 0; y < obj.characters.length; y++) {
-            for (let x = 0; x < obj.characters[y].length; x++) {
-                const cellColor = (obj.colors[y] && obj.colors[y][x]) ? obj.colors[y][x] : ['', ''];
-                const char = obj.characters[y][x] || ' ';
+        for (let y = 0; y < obj.skin.characters.length; y++) {
+            for (let x = 0; x < obj.skin.characters[y].length; x++) {
+                const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
+                const char = obj.skin.characters[y][x] || ' ';
                 const cell = new Cell(char, cellColor[0], cellColor[1]);
                 const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
                 if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
@@ -359,8 +422,8 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
         }
     }
     function isEmptyCell(obj, x, y) {
-        const cellColor = (obj.colors[y] && obj.colors[y][x])
-            ? obj.colors[y][x]
+        const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x])
+            ? obj.skin.raw_colors[y][x]
             : ['', ''];
         return cellColor[0] === '' && cellColor[1] === '';
     }
@@ -413,7 +476,7 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
                 }
             }
             for (let obj of sceneObjects) {
-                for (let line of obj.lights.entries()) {
+                for (let line of obj.physics.lights.entries()) {
                     for (let left = 0; left < line[1].length; left++) {
                         const char = line[1][left];
                         const lightLevel = Number.parseInt(char, 16);
@@ -532,8 +595,8 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
         console.log("event: ", ev);
     }
     function isCollision(object, left, top) {
-        const cchar = object.collisions[top] && object.collisions[top][left]
-            ? object.collisions[top][left]
+        const cchar = object.physics.collisions[top] && object.physics.collisions[top][left]
+            ? object.physics.collisions[top][left]
             : emptyCollisionChar;
         return cchar !== emptyCollisionChar;
     }
@@ -556,12 +619,12 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
         if (isCollision(object, ptop, pleft))
             return false;
         // check characters skin
-        const cchar = object.characters[ptop] && object.characters[ptop][pleft]
-            ? object.characters[ptop][pleft]
+        const cchar = object.skin.characters[ptop] && object.skin.characters[ptop][pleft]
+            ? object.skin.characters[ptop][pleft]
             : emptyCollisionChar;
         // check color skin
-        const color = object.colors[ptop] && object.colors[ptop][pleft]
-            ? object.colors[ptop]
+        const color = object.skin.raw_colors[ptop] && object.skin.raw_colors[ptop][pleft]
+            ? object.skin.raw_colors[ptop]
             : [undefined, undefined];
         return cchar !== emptyCollisionChar || !!color[0] || !!color[1];
     }

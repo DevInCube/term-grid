@@ -1,24 +1,28 @@
 import { StaticGameObject } from "./../engine/StaticGameObject";
-import { Skin } from "./../engine/Skin";
+import { ObjectSkin } from "../engine/ObjectSkin";
+import { ObjectPhysics } from "../engine/ObjectPhysics";
 
-export const house = new StaticGameObject([2, 2], ` /^\\ 
+export const house = new StaticGameObject([2, 2], 
+    new ObjectSkin(` /^\\ 
 ==*==
- ▓ ▓ `, new Skin(` BBB
+ ▓ ▓ `, ` BBB
 BBSBB
  WDW`, {
       B: [undefined, 'black'],
       S: [undefined, '#004'],
       W: ["black", "darkred"],
       D: ["black", "saddlebrown"]
-  }), `
+  }), 
+    new ObjectPhysics(`
  ... 
- . .`, '', [5, 10]);
+ . .`, ''), [5, 10]);
 
 
- export const tree = new StaticGameObject([1, 3], ` ░ 
+ export const tree = new StaticGameObject([1, 3], 
+    new ObjectSkin(` ░ 
 ░░░
 ░░░
- █`, new Skin(` o 
+ █`, ` o 
 o01
 01S
  H`, {
@@ -27,33 +31,34 @@ o01
       '1': ['#080', '#060'],
       'S': ['#060', '#040'],
       'H': ['sienna', 'transparent'],
-  }), `
+  }), 
+    new ObjectPhysics(`
 
 
- .`, '', [2, 12]);
+ .`, ''), [2, 12]);
 tree.addEventHandler((o, ev) => {
     if (ev.type === 'wind_changed') {
         o.parameters["animate"] = ev.args["to"];
     } else if (ev.type === 'weather_changed') {
         if (ev.args.to === 'snow') {
-            o.colors[0][1][1] = 'white';
-            o.colors[1][0][1] = 'white';
-            o.colors[1][1][1] = '#ccc';
-            o.colors[1][2][1] = '#ccc';
+            o.skin.raw_colors[0][1][1] = 'white';
+            o.skin.raw_colors[1][0][1] = 'white';
+            o.skin.raw_colors[1][1][1] = '#ccc';
+            o.skin.raw_colors[1][2][1] = '#ccc';
         } else {
-            o.colors[0][1][1] = '#0a0';
-            o.colors[1][0][1] = '#0a0';
-            o.colors[1][1][1] = '#080';
-            o.colors[1][2][1] = '#080';
+            o.skin.raw_colors[0][1][1] = '#0a0';
+            o.skin.raw_colors[1][0][1] = '#0a0';
+            o.skin.raw_colors[1][1][1] = '#080';
+            o.skin.raw_colors[1][2][1] = '#080';
         }
     }
 });
 tree.onUpdate((o) => {
     if (o.parameters["animate"]) {
         o.parameters["tick"] = !o.parameters["tick"];
-        o.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
-        o.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-        o.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+        o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+        o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+        o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
     }
 });
 
@@ -64,12 +69,13 @@ export const trees: StaticGameObject[] = [
 ];
 
 
-const bamboo = new StaticGameObject([0, 4], `▄
+const bamboo = new StaticGameObject([0, 4], 
+    new ObjectSkin(`▄
 █
 █
 █
 █
-█`, new Skin(`T
+█`, `T
 H
 L
 H
@@ -80,12 +86,12 @@ D`, {
       'L': ['#517201', 'transparent'],
       'H': ['#394902', 'transparent'],
       'D': ['#574512', 'transparent'],
-  }), ` 
+  }), new ObjectPhysics(` 
  
  
  
  
-.`, ``, []);
+.`, ``), [0, 0]);
 if (true) {  // random trees
     for (let y = 6; y < 18; y++) {
         const x = (Math.random() * 8 + 1) | 0;
@@ -101,33 +107,35 @@ if (true) {  // random trees
     }
 }
 
-const lamp = new StaticGameObject([0, 2], `⬤
+const lamp = new StaticGameObject([0, 2], 
+    new ObjectSkin(`⬤
 █
-█`, new Skin(`L
+█`, `L
 H
 H`, {
       'L': ['yellow', 'transparent'],
       'H': ['#666', 'transparent'],
-  }), ` 
+  }), 
+  new ObjectPhysics(` 
  
-. `, `B`, []);
+. `, `B`), [0, 0]);
 lamp.parameters["is_on"] = true;
 lamp.setAction(0, 2, (o) => {
     o.parameters["is_on"] = !o.parameters["is_on"];
-    o.colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
-    o.lights[0] = o.parameters["is_on"] ? 'F' : '0';
+    o.skin.raw_colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
+    o.physics.lights[0] = o.parameters["is_on"] ? 'F' : '0';
 });
 export const lamps: StaticGameObject[] = [
     StaticGameObject.clone(lamp, { position: [2, 5]}),
 ];
 
-export const chest = new StaticGameObject([0, 0], `S`, new Skin(`V`, {
+export const chest = new StaticGameObject([0, 0], new ObjectSkin(`S`, `V`, {
     V: ['yellow', 'violet'],
-}), `.`, '', [2, 10]);
+}), new ObjectPhysics(`.`, ''), [2, 10]);
 
-const flower = new StaticGameObject([0, 0], `❁`, new Skin(`V`, {
+const flower = new StaticGameObject([0, 0], new ObjectSkin(`❁`, `V`, {
     V: ['red', 'transparent'],
-}), ` `, 'F', [2, 10]);
+}), new ObjectPhysics(` `, 'F'), [2, 10]);
 
 export const flowers: StaticGameObject[] = [];
 for (let i = 0; i < 20; i++) {
@@ -136,7 +144,7 @@ for (let i = 0; i < 20; i++) {
     fl.onUpdate((o) => {
         if (!o.parameters["inited"]) { 
             o.parameters["inited"] = true;
-            o.colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]
+            o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]
         }
     })
 }
