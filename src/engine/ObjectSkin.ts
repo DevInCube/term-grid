@@ -12,6 +12,7 @@ export class ObjectSkin {
 
         this.raw_colors = this.getRawColors();
         this.characters = charactersMask.split('\n');
+        // console.log(charactersMask, this.characters);
     }
 
     private getRawColors() {

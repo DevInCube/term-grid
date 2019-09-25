@@ -1,13 +1,20 @@
 import { ObjectSkin } from "../engine/ObjectSkin";
 import { SceneObject } from "../engine/SceneObject";
+import { ObjectPhysics } from "../engine/ObjectPhysics";
 
-// export class Npc extends SceneObject {
+export class Npc extends SceneObject {
 
-//     constructor(position: [number, number], skin: Skin) {
-//         super();
-//     }
-// }
+    constructor(
+        skin: ObjectSkin, 
+        position: [number, number] = [0, 0],
+        originPoint: [number, number] = [0, 0]) {
+        
+        super(originPoint, skin, new ObjectPhysics(`.`, `8`), position);
+    }
+}
 
 export const npcs = [
-    //new Npc([3, 3], )
+    new Npc(new ObjectSkin('🐻', `.`, {
+        '.': [undefined, 'transparent'],
+    }), [4, 4]),
 ];

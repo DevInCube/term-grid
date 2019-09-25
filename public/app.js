@@ -13,6 +13,7 @@ System.register("engine/ObjectSkin", [], function (exports_1, context_1) {
                     this.raw_colors = [];
                     this.raw_colors = this.getRawColors();
                     this.characters = charactersMask.split('\n');
+                    // console.log(charactersMask, this.characters);
                 }
                 getRawColors() {
                     let raw_colors = [];
@@ -344,25 +345,38 @@ H`, {
         }
     };
 });
-System.register("world/npcs", [], function (exports_8, context_8) {
-    var npcs;
+System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics"], function (exports_8, context_8) {
+    var ObjectSkin_4, SceneObject_2, ObjectPhysics_4, Npc, npcs;
     var __moduleName = context_8 && context_8.id;
     return {
-        setters: [],
+        setters: [
+            function (ObjectSkin_4_1) {
+                ObjectSkin_4 = ObjectSkin_4_1;
+            },
+            function (SceneObject_2_1) {
+                SceneObject_2 = SceneObject_2_1;
+            },
+            function (ObjectPhysics_4_1) {
+                ObjectPhysics_4 = ObjectPhysics_4_1;
+            }
+        ],
         execute: function () {
-            // export class Npc extends SceneObject {
-            //     constructor(position: [number, number], skin: Skin) {
-            //         super();
-            //     }
-            // }
+            Npc = class Npc extends SceneObject_2.SceneObject {
+                constructor(skin, position = [0, 0], originPoint = [0, 0]) {
+                    super(originPoint, skin, new ObjectPhysics_4.ObjectPhysics(`.`, `8`), position);
+                }
+            };
+            exports_8("Npc", Npc);
             exports_8("npcs", npcs = [
-            //new Npc([3, 3], )
+                new Npc(new ObjectSkin_4.ObjectSkin('🐻', `.`, {
+                    '.': [undefined, 'transparent'],
+                }), [4, 4]),
             ]);
         }
     };
 });
-System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], function (exports_9, context_9) {
-    var misc_2, objects_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, temperature, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
+System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/GameEvent"], function (exports_9, context_9) {
+    var misc_2, objects_1, npcs_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, temperature, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
     var __moduleName = context_9 && context_9.id;
     function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size.width;
@@ -405,19 +419,29 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
             showOnlyCollisions = true;
         }
         for (let y = 0; y < obj.skin.characters.length; y++) {
-            for (let x = 0; x < obj.skin.characters[y].length; x++) {
+            let x = 0;
+            for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
                 const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
-                const char = obj.skin.characters[y][x] || ' ';
+                let char = obj.skin.characters[y][charIndex] || ' ';
+                if (char.charCodeAt(0) > 255) {
+                    const next = obj.skin.characters[y][charIndex + 1];
+                    if (next) {
+                        char += obj.skin.characters[y][charIndex + 1];
+                        charIndex += 1;
+                    }
+                }
                 const cell = new Cell(char, cellColor[0], cellColor[1]);
                 const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
                 if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
-                    drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, [
-                        isEmptyCell(obj, x + 0, y - 1),
+                    drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, []);
+                    /* [
+                        isEmptyCell(obj, x + 0, y - 1),  // top
                         isEmptyCell(obj, x + 1, y + 0),
                         isEmptyCell(obj, x + 0, y + 1),
                         isEmptyCell(obj, x - 1, y + 0),
-                    ]);
+                    ] */
                 }
+                x += 1;
             }
         }
     }
@@ -652,6 +676,9 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
             function (objects_1_1) {
                 objects_1 = objects_1_1;
             },
+            function (npcs_1_1) {
+                npcs_1 = npcs_1_1;
+            },
             function (GameEvent_1_1) {
                 GameEvent_1 = GameEvent_1_1;
             }
@@ -692,7 +719,7 @@ System.register("main", ["utils/misc", "world/objects", "engine/GameEvent"], fun
             isWindy = true;
             timePeriod = 'day';
             // createTextObject("Term Adventures!", 2, 2)
-            sceneObjects = [...objects_1.flowers, objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps]; // @todo sort by origin point
+            sceneObjects = [...objects_1.flowers, objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps, ...npcs_1.npcs];
             lightLayer = [];
             weatherLayer = [];
             events = [];

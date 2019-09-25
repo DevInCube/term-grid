@@ -1,9 +1,8 @@
 import { createTextObject } from "./utils/misc";
-import { StaticGameObject } from "./engine/StaticGameObject";
 import { house, chest, tree, trees, lamps, flowers } from "./world/objects";
 import { npcs } from "./world/npcs";
 import { GameEvent } from "./engine/GameEvent";
-import { GameObjectAction } from "./engine/SceneObject";
+import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -78,31 +77,40 @@ let heroTop = 9;
 let heroDir = [0, 0];
 let heroActionEnabled = false;
 
-function drawObject(obj: StaticGameObject) {
+function drawObject(obj: SceneObject) {
     let showOnlyCollisions: boolean = isPositionBehindTheObject(obj, heroLeft, heroTop);
     if (heroActionEnabled && isPositionBehindTheObject(obj, heroLeft + heroDir[0], heroTop + heroDir[1])) {
         showOnlyCollisions = true;
     }
     for (let y = 0; y < obj.skin.characters.length; y++) {
-        for (let x = 0; x < obj.skin.characters[y].length; x++) {
+        let x = 0;
+        for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
             const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
-            const char = obj.skin.characters[y][x] || ' ';
+            let char = obj.skin.characters[y][charIndex] || ' ';
+            if (char.charCodeAt(0) > 255) {
+                const next = obj.skin.characters[y][charIndex + 1];
+                if (next) {
+                    char += obj.skin.characters[y][charIndex + 1];
+                    charIndex += 1;
+                }
+            }
             const cell = new Cell(char, cellColor[0], cellColor[1]);
             const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
             if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
-                drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, [
+                drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, []);
+                /* [
                     isEmptyCell(obj, x + 0, y - 1),  // top
                     isEmptyCell(obj, x + 1, y + 0),
                     isEmptyCell(obj, x + 0, y + 1),
                     isEmptyCell(obj, x - 1, y + 0),
-                ]);
+                ] */
             }
-                
+            x += 1;
         }
     }
 }
 
-function isEmptyCell(obj: StaticGameObject, x: number, y: number) {
+function isEmptyCell(obj: SceneObject, x: number, y: number) {
     const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) 
         ? obj.skin.raw_colors[y][x] 
         : ['', ''];
@@ -114,13 +122,13 @@ let temperature = 7;  // 0-15 @todo add effects
 let isWindy = true;
 let timePeriod = 'day';
 // createTextObject("Term Adventures!", 2, 2)
-const sceneObjects = [...flowers, house, chest, tree, ...trees, ...lamps];  // @todo sort by origin point
+const sceneObjects: SceneObject[] = [...flowers, house, chest, tree, ...trees, ...lamps, ...npcs];
 let lightLayer: number[][] = [];
 let weatherLayer: Cell[][] = [];
 
 function drawScene() {
     // sort objects by origin point
-    sceneObjects.sort((a: StaticGameObject, b: StaticGameObject) => a.position[1]  - b.position[1]);
+    sceneObjects.sort((a: SceneObject, b: SceneObject) => a.position[1]  - b.position[1]);
     // bedrock
     for (let y = 0; y < viewHeight; y++) {
         for (let x = 0; x < viewWidth; x++) {
@@ -298,7 +306,7 @@ function emitEvent(ev: GameEvent) {
 
 const emptyCollisionChar = ' ';
 
-function isCollision(object: StaticGameObject, left: number, top: number) {
+function isCollision(object: SceneObject, left: number, top: number) {
     const cchar = object.physics.collisions[top] && object.physics.collisions[top][left] 
         ? object.physics.collisions[top][left] 
         : emptyCollisionChar;
@@ -317,7 +325,7 @@ function isPositionBlocked(left: number, top: number) {
     return false;
 }
 
-function isPositionBehindTheObject(object: StaticGameObject, left: number, top: number): boolean {
+function isPositionBehindTheObject(object: SceneObject, left: number, top: number): boolean {
     const pleft = left - object.position[0] + object.originPoint[0];
     const ptop = top - object.position[1] + object.originPoint[1];
     // check collisions
@@ -411,7 +419,7 @@ document.addEventListener("keypress", function (code) {
     drawScene();
 });
 
-function getActionUnderCursor(): {object: StaticGameObject, action: GameObjectAction} | undefined {
+function getActionUnderCursor(): {object: SceneObject, action: GameObjectAction} | undefined {
 
     for (let object of sceneObjects) {
         const left = heroLeft + heroDir[0];
