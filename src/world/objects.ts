@@ -138,7 +138,7 @@ const flower = new StaticGameObject([0, 0], new ObjectSkin(`❁`, `V`, {
 }), new ObjectPhysics(` `, 'F'), [2, 10]);
 
 export const flowers: StaticGameObject[] = [];
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 10; i++) {
     const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
     flowers.push(fl);
     fl.onUpdate((o) => {

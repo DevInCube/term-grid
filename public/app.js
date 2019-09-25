@@ -79,6 +79,7 @@ System.register("engine/SceneObject", [], function (exports_4, context_4) {
                     this.physics = physics;
                     this.position = position;
                     this.enabled = true;
+                    this.important = false;
                     this.parameters = {};
                     this.actions = [];
                     this.eventHandlers = [];
@@ -332,7 +333,7 @@ H`, {
                 V: ['red', 'transparent'],
             }), new ObjectPhysics_3.ObjectPhysics(` `, 'F'), [2, 10]);
             exports_7("flowers", flowers = []);
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 10; i++) {
                 const fl = StaticGameObject_2.StaticGameObject.clone(flower, { position: [Math.random() * 20 | 0, Math.random() * 20 | 0] });
                 flowers.push(fl);
                 fl.onUpdate((o) => {
@@ -345,9 +346,35 @@ H`, {
         }
     };
 });
-System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics"], function (exports_8, context_8) {
-    var ObjectSkin_4, SceneObject_2, ObjectPhysics_4, Npc, npcs;
+System.register("engine/EventLoop", [], function (exports_8, context_8) {
+    var events;
     var __moduleName = context_8 && context_8.id;
+    function eventLoop(handlers) {
+        while (events.length > 0) {
+            const ev = events.shift();
+            if (ev) {
+                for (const obj of handlers) {
+                    obj.handleEvent(ev);
+                }
+            }
+        }
+    }
+    exports_8("eventLoop", eventLoop);
+    function emitEvent(ev) {
+        events.push(ev);
+        console.log("event: ", ev);
+    }
+    exports_8("emitEvent", emitEvent);
+    return {
+        setters: [],
+        execute: function () {
+            events = [];
+        }
+    };
+});
+System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics", "engine/EventLoop", "engine/GameEvent"], function (exports_9, context_9) {
+    var ObjectSkin_4, SceneObject_2, ObjectPhysics_4, EventLoop_1, GameEvent_1, Npc, ulan, npcs;
+    var __moduleName = context_9 && context_9.id;
     return {
         setters: [
             function (ObjectSkin_4_1) {
@@ -358,27 +385,129 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engin
             },
             function (ObjectPhysics_4_1) {
                 ObjectPhysics_4 = ObjectPhysics_4_1;
+            },
+            function (EventLoop_1_1) {
+                EventLoop_1 = EventLoop_1_1;
+            },
+            function (GameEvent_1_1) {
+                GameEvent_1 = GameEvent_1_1;
             }
         ],
         execute: function () {
             Npc = class Npc extends SceneObject_2.SceneObject {
                 constructor(skin, position = [0, 0], originPoint = [0, 0]) {
                     super(originPoint, skin, new ObjectPhysics_4.ObjectPhysics(`.`, `8`), position);
+                    this.important = true;
                 }
             };
-            exports_8("Npc", Npc);
-            exports_8("npcs", npcs = [
-                new Npc(new ObjectSkin_4.ObjectSkin('🐻', `.`, {
-                    '.': [undefined, 'transparent'],
-                }), [4, 4]),
+            exports_9("Npc", Npc);
+            ulan = new Npc(new ObjectSkin_4.ObjectSkin('🐻', `.`, {
+                '.': [undefined, 'transparent'],
+            }), [4, 4]);
+            ulan.setAction(0, 0, (o) => {
+                EventLoop_1.emitEvent(new GameEvent_1.GameEvent(o, "user_action", {
+                    subtype: "npc_talk",
+                    object: o,
+                }));
+            });
+            exports_9("npcs", npcs = [
+                ulan,
             ]);
         }
     };
 });
-System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/GameEvent"], function (exports_9, context_9) {
-    var misc_2, objects_1, npcs_1, GameEvent_1, canvas, ctx, cellStyle, defaultLightLevelAtNight, Cell, viewWidth, viewHeight, heroLeft, heroTop, heroDir, heroActionEnabled, weatherType, temperature, isWindy, timePeriod, sceneObjects, lightLayer, weatherLayer, events, emptyCollisionChar;
-    var __moduleName = context_9 && context_9.id;
-    function drawCell(cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
+System.register("engine/Cell", [], function (exports_10, context_10) {
+    var Cell;
+    var __moduleName = context_10 && context_10.id;
+    return {
+        setters: [],
+        execute: function () {
+            Cell = class Cell {
+                constructor(character = ' ', textColor = 'white', backgroundColor = 'black') {
+                    this.character = character;
+                    this.textColor = textColor;
+                    this.backgroundColor = backgroundColor;
+                }
+            };
+            exports_10("Cell", Cell);
+        }
+    };
+});
+System.register("engine/GraphicsEngine", ["engine/Cell"], function (exports_11, context_11) {
+    var Cell_1, GraphicsEngine, cellStyle, emptyCollisionChar;
+    var __moduleName = context_11 && context_11.id;
+    function drawObjects(ctx, objects) {
+        for (let object of objects) {
+            if (!object.enabled)
+                continue;
+            drawObject(ctx, object, objects.filter(x => x.important));
+        }
+    }
+    exports_11("drawObjects", drawObjects);
+    function drawObject(ctx, obj, importantObjects) {
+        let showOnlyCollisions = isInFrontOfImportantObject();
+        // console.log(obj.skin.characters);
+        for (let y = 0; y < obj.skin.characters.length; y++) {
+            let x = 0;
+            for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
+                const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
+                const codePoint = obj.skin.characters[y].codePointAt(charIndex);
+                let char = obj.skin.characters[y][charIndex] || ' ';
+                if (codePoint && codePoint > 0xffff) {
+                    const next = obj.skin.characters[y][charIndex + 1];
+                    console.log(char, next, char + next);
+                    if (next) {
+                        char += next;
+                        charIndex += 1;
+                    }
+                }
+                const cell = new Cell_1.Cell(char, cellColor[0], cellColor[1]);
+                const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
+                if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
+                    drawCell(ctx, cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, []);
+                    /* [
+                        isEmptyCell(obj, x + 0, y - 1),  // top
+                        isEmptyCell(obj, x + 1, y + 0),
+                        isEmptyCell(obj, x + 0, y + 1),
+                        isEmptyCell(obj, x - 1, y + 0),
+                    ] */
+                }
+                x += 1;
+            }
+        }
+        function isInFrontOfImportantObject() {
+            for (const o of importantObjects) {
+                if (isPositionBehindTheObject(obj, o.position[0], o.position[1]))
+                    return true;
+            }
+            return false;
+        }
+    }
+    function isCollision(object, left, top) {
+        const cchar = object.physics.collisions[top] && object.physics.collisions[top][left]
+            ? object.physics.collisions[top][left]
+            : emptyCollisionChar;
+        return cchar !== emptyCollisionChar;
+    }
+    exports_11("isCollision", isCollision);
+    function isPositionBehindTheObject(object, left, top) {
+        const pleft = left - object.position[0] + object.originPoint[0];
+        const ptop = top - object.position[1] + object.originPoint[1];
+        // check collisions
+        if (isCollision(object, ptop, pleft))
+            return false;
+        // check characters skin
+        const cchar = object.skin.characters[ptop] && object.skin.characters[ptop][pleft]
+            ? object.skin.characters[ptop][pleft]
+            : emptyCollisionChar;
+        // check color skin
+        const color = object.skin.raw_colors[ptop] && object.skin.raw_colors[ptop][pleft]
+            ? object.skin.raw_colors[ptop]
+            : [undefined, undefined];
+        return cchar !== emptyCollisionChar || !!color[0] || !!color[1];
+    }
+    exports_11("isPositionBehindTheObject", isPositionBehindTheObject);
+    function drawCell(ctx, cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         const left = leftPos * cellStyle.size.width;
         const top = topPos * cellStyle.size.height;
         //
@@ -413,247 +542,255 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
                 ctx.strokeRect(left, top, borderWidth, cellStyle.size.height);
         }
     }
-    function drawObject(obj) {
-        let showOnlyCollisions = isPositionBehindTheObject(obj, heroLeft, heroTop);
-        if (heroActionEnabled && isPositionBehindTheObject(obj, heroLeft + heroDir[0], heroTop + heroDir[1])) {
-            showOnlyCollisions = true;
+    exports_11("drawCell", drawCell);
+    return {
+        setters: [
+            function (Cell_1_1) {
+                Cell_1 = Cell_1_1;
+            }
+        ],
+        execute: function () {
+            GraphicsEngine = class GraphicsEngine {
+            };
+            exports_11("GraphicsEngine", GraphicsEngine);
+            exports_11("cellStyle", cellStyle = {
+                borderColor: "#111f",
+                borderWidth: 0.5,
+                default: {
+                    textColor: '#fff',
+                    backgroundColor: '#335'
+                },
+                size: {
+                    width: 32,
+                    height: 32,
+                },
+            });
+            emptyCollisionChar = ' ';
         }
-        for (let y = 0; y < obj.skin.characters.length; y++) {
-            let x = 0;
-            for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
-                const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
-                let char = obj.skin.characters[y][charIndex] || ' ';
-                if (char.charCodeAt(0) > 255) {
-                    const next = obj.skin.characters[y][charIndex + 1];
-                    if (next) {
-                        char += obj.skin.characters[y][charIndex + 1];
-                        charIndex += 1;
+    };
+});
+System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "engine/EventLoop", "engine/GraphicsEngine"], function (exports_12, context_12) {
+    var GameEvent_2, main_1, Cell_2, EventLoop_2, GraphicsEngine_1, defaultLightLevelAtNight, Scene;
+    var __moduleName = context_12 && context_12.id;
+    return {
+        setters: [
+            function (GameEvent_2_1) {
+                GameEvent_2 = GameEvent_2_1;
+            },
+            function (main_1_1) {
+                main_1 = main_1_1;
+            },
+            function (Cell_2_1) {
+                Cell_2 = Cell_2_1;
+            },
+            function (EventLoop_2_1) {
+                EventLoop_2 = EventLoop_2_1;
+            },
+            function (GraphicsEngine_1_1) {
+                GraphicsEngine_1 = GraphicsEngine_1_1;
+            }
+        ],
+        execute: function () {
+            defaultLightLevelAtNight = 4;
+            Scene = class Scene {
+                constructor() {
+                    this.objects = [];
+                    this.weatherType = 'normal';
+                    this.temperature = 7; // 0-15 @todo add effects
+                    this.isWindy = true;
+                    this.timePeriod = 'day';
+                    this.lightLayer = [];
+                    this.weatherLayer = [];
+                }
+                handleEvent(ev) {
+                    if (ev.type === "user_action" && ev.args.subtype === "npc_talk") {
+                        EventLoop_2.emitEvent(new GameEvent_2.GameEvent(this, "switch_mode", { from: "scene", to: "dialog" }));
                     }
                 }
-                const cell = new Cell(char, cellColor[0], cellColor[1]);
-                const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
-                if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
-                    drawCell(cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, []);
-                    /* [
-                        isEmptyCell(obj, x + 0, y - 1),  // top
-                        isEmptyCell(obj, x + 1, y + 0),
-                        isEmptyCell(obj, x + 0, y + 1),
-                        isEmptyCell(obj, x - 1, y + 0),
-                    ] */
-                }
-                x += 1;
-            }
-        }
-    }
-    function isEmptyCell(obj, x, y) {
-        const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x])
-            ? obj.skin.raw_colors[y][x]
-            : ['', ''];
-        return cellColor[0] === '' && cellColor[1] === '';
-    }
-    function drawScene() {
-        // sort objects by origin point
-        sceneObjects.sort((a, b) => a.position[1] - b.position[1]);
-        // bedrock
-        for (let y = 0; y < viewHeight; y++) {
-            for (let x = 0; x < viewWidth; x++) {
-                drawCell(new Cell(' ', 'transparent', '#331'), x, y);
-            }
-        }
-        // hero
-        drawCell(new Cell('🐱', 'yellow', 'transparent'), heroLeft, heroTop);
-        // hero shadow behind objects
-        for (let object of sceneObjects) {
-            if (!object.enabled)
-                continue;
-            if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
-                ctx.fillStyle = 'black';
-                const left = heroLeft * cellStyle.size.width;
-                const top = heroTop * cellStyle.size.height;
-                ctx.globalAlpha = 0.5;
-                ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
-                break;
-            }
-        }
-        for (let object of sceneObjects) {
-            if (!object.enabled)
-                continue;
-            drawObject(object);
-        }
-        // hero direction (cursor)
-        if (heroDir[0] || heroDir[1]) {
-            drawHeroCursor();
-        }
-        updateLights();
-        function updateLights() {
-            // clear
-            lightLayer = [];
-            for (let y = 0; y < viewHeight; y++) {
-                for (let x = 0; x < viewWidth; x++) {
-                    if (!lightLayer[y])
-                        lightLayer[y] = [];
-                    if (!lightLayer[y][x])
-                        lightLayer[y][x] = 0;
-                    // hero
-                    if (Math.abs(x - heroLeft) + Math.abs(y - heroTop) <= 2)
-                        lightLayer[y][x] = 15;
-                }
-            }
-            for (let obj of sceneObjects) {
-                for (let line of obj.physics.lights.entries()) {
-                    for (let left = 0; left < line[1].length; left++) {
-                        const char = line[1][left];
-                        const lightLevel = Number.parseInt(char, 16);
-                        const aleft = obj.position[0] - obj.originPoint[0] + left;
-                        const atop = obj.position[1] - obj.originPoint[1] + line[0];
-                        lightLayer[atop][aleft] += lightLevel;
-                        // halo light
-                        const newLightLevel = lightLevel - 1;
-                        if (newLightLevel > 0) {
-                            if (atop - 1 >= 0)
-                                lightLayer[atop - 1][aleft] += newLightLevel;
-                            if (atop + 1 < viewHeight)
-                                lightLayer[atop + 1][aleft] += newLightLevel;
-                            if (aleft - 1 >= 0)
-                                lightLayer[atop][aleft - 1] += newLightLevel;
-                            if (aleft + 1 < viewWidth)
-                                lightLayer[atop][aleft + 1] += newLightLevel;
+                update() {
+                    for (const obj of this.objects) {
+                        if (obj.updateHandler) {
+                            obj.updateHandler(obj);
+                        }
+                    }
+                    const scene = this;
+                    updateWeather();
+                    function updateWeather() {
+                        scene.weatherLayer = [];
+                        for (let y = 0; y < main_1.viewHeight; y++) {
+                            for (let x = 0; x < main_1.viewWidth; x++) {
+                                createCell(x, y);
+                            }
+                        }
+                        function addCell(cell, x, y) {
+                            if (!scene.weatherLayer[y])
+                                scene.weatherLayer[y] = [];
+                            scene.weatherLayer[y][x] = cell;
+                        }
+                        function createCell(x, y) {
+                            if (scene.weatherType === 'rain') {
+                                const sym = ((Math.random() * 2 | 0) === 1) ? '`' : ' ';
+                                addCell(new Cell_2.Cell(sym, 'cyan', '#0003'), x, y);
+                            }
+                            else if (scene.weatherType === 'snow') {
+                                const r = (Math.random() * 6 | 0);
+                                if (r === 0)
+                                    addCell(new Cell_2.Cell('❄', 'white', 'transparent'), x, y);
+                                else if (r === 1)
+                                    addCell(new Cell_2.Cell('❅', 'white', 'transparent'), x, y);
+                                else if (r === 2)
+                                    addCell(new Cell_2.Cell('❆', 'white', 'transparent'), x, y);
+                            }
+                            else if (scene.weatherType === 'rain_and_snow') {
+                                const r = Math.random() * 3 | 0;
+                                if (r === 1)
+                                    addCell(new Cell_2.Cell('❄', 'white', 'transparent'), x, y);
+                                else if (r === 2)
+                                    addCell(new Cell_2.Cell('`', 'cyan', 'transparent'), x, y);
+                            }
+                            else if (scene.weatherType === 'mist') {
+                                if ((Math.random() * 2 | 0) === 1)
+                                    addCell(new Cell_2.Cell('*', 'transparent', '#fff2'), x, y);
+                            }
                         }
                     }
                 }
-            }
-        }
-        drawWeather();
-        function drawHeroCursor() {
-            const leftPos = heroLeft + heroDir[0];
-            const topPos = heroTop + heroDir[1];
-            drawCell(new Cell('.', 'black', 'yellow'), leftPos, topPos, true);
-            // palette borders
-            const left = leftPos * cellStyle.size.width;
-            const top = topPos * cellStyle.size.height;
-            ctx.globalAlpha = 1;
-            ctx.strokeStyle = 'yellow';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
-        }
-        function drawWeather() {
-            for (let y = 0; y < viewHeight; y++) {
-                for (let x = 0; x < viewWidth; x++) {
-                    if (weatherLayer[y] && weatherLayer[y][x])
-                        drawCell(weatherLayer[y][x], x, y);
-                }
-            }
-            if (timePeriod === 'night') {
-                for (let y = 0; y < viewHeight; y++) {
-                    for (let x = 0; x < viewWidth; x++) {
-                        const lightLevel = (lightLayer[y] && lightLayer[y][x])
-                            ? lightLayer[y][x]
-                            : defaultLightLevelAtNight;
-                        drawCell(new Cell(' ', 'transparent', `#000${(15 - lightLevel).toString(16)}`), x, y);
+                draw(ctx) {
+                    // sort objects by origin point
+                    this.objects.sort((a, b) => a.position[1] - b.position[1]);
+                    // bedrock
+                    for (let y = 0; y < main_1.viewHeight; y++) {
+                        for (let x = 0; x < main_1.viewWidth; x++) {
+                            GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', 'transparent', '#331'), x, y);
+                        }
+                    }
+                    // hero
+                    GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell('🐱', 'yellow', 'transparent'), main_1.heroLeft, main_1.heroTop);
+                    // hero shadow behind objects
+                    for (let object of this.objects) {
+                        if (!object.enabled)
+                            continue;
+                        if (GraphicsEngine_1.isPositionBehindTheObject(object, main_1.heroLeft, main_1.heroTop)) {
+                            ctx.fillStyle = 'black';
+                            const left = main_1.heroLeft * GraphicsEngine_1.cellStyle.size.width;
+                            const top = main_1.heroTop * GraphicsEngine_1.cellStyle.size.height;
+                            ctx.globalAlpha = 0.5;
+                            ctx.fillRect(left, top, GraphicsEngine_1.cellStyle.size.width, GraphicsEngine_1.cellStyle.size.height);
+                            break;
+                        }
+                    }
+                    GraphicsEngine_1.drawObjects(ctx, this.objects);
+                    // hero direction (cursor)
+                    if (main_1.heroDir[0] || main_1.heroDir[1]) {
+                        drawHeroCursor();
+                    }
+                    const scene = this;
+                    updateLights();
+                    function updateLights() {
+                        // clear
+                        scene.lightLayer = [];
+                        for (let y = 0; y < main_1.viewHeight; y++) {
+                            for (let x = 0; x < main_1.viewWidth; x++) {
+                                if (!scene.lightLayer[y])
+                                    scene.lightLayer[y] = [];
+                                if (!scene.lightLayer[y][x])
+                                    scene.lightLayer[y][x] = 0;
+                                // hero
+                                if (Math.abs(x - main_1.heroLeft) + Math.abs(y - main_1.heroTop) <= 2)
+                                    scene.lightLayer[y][x] = 15;
+                            }
+                        }
+                        for (let obj of scene.objects) {
+                            for (let line of obj.physics.lights.entries()) {
+                                for (let left = 0; left < line[1].length; left++) {
+                                    const char = line[1][left];
+                                    const lightLevel = Number.parseInt(char, 16);
+                                    const aleft = obj.position[0] - obj.originPoint[0] + left;
+                                    const atop = obj.position[1] - obj.originPoint[1] + line[0];
+                                    scene.lightLayer[atop][aleft] += lightLevel;
+                                    // halo light
+                                    const newLightLevel = lightLevel - 1;
+                                    if (newLightLevel > 0) {
+                                        if (atop - 1 >= 0)
+                                            scene.lightLayer[atop - 1][aleft] += newLightLevel;
+                                        if (atop + 1 < main_1.viewHeight)
+                                            scene.lightLayer[atop + 1][aleft] += newLightLevel;
+                                        if (aleft - 1 >= 0)
+                                            scene.lightLayer[atop][aleft - 1] += newLightLevel;
+                                        if (aleft + 1 < main_1.viewWidth)
+                                            scene.lightLayer[atop][aleft + 1] += newLightLevel;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    drawWeather();
+                    function drawHeroCursor() {
+                        const leftPos = main_1.heroLeft + main_1.heroDir[0];
+                        const topPos = main_1.heroTop + main_1.heroDir[1];
+                        GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell('.', 'black', 'yellow'), leftPos, topPos, true);
+                        // palette borders
+                        const left = leftPos * GraphicsEngine_1.cellStyle.size.width;
+                        const top = topPos * GraphicsEngine_1.cellStyle.size.height;
+                        ctx.globalAlpha = 1;
+                        ctx.strokeStyle = 'yellow';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(left, top, GraphicsEngine_1.cellStyle.size.width, GraphicsEngine_1.cellStyle.size.height);
+                    }
+                    function drawWeather() {
+                        for (let y = 0; y < main_1.viewHeight; y++) {
+                            for (let x = 0; x < main_1.viewWidth; x++) {
+                                if (scene.weatherLayer[y] && scene.weatherLayer[y][x])
+                                    GraphicsEngine_1.drawCell(ctx, scene.weatherLayer[y][x], x, y);
+                            }
+                        }
+                        if (scene.timePeriod === 'night') {
+                            for (let y = 0; y < main_1.viewHeight; y++) {
+                                for (let x = 0; x < main_1.viewWidth; x++) {
+                                    const lightLevel = (scene.lightLayer[y] && scene.lightLayer[y][x])
+                                        ? scene.lightLayer[y][x]
+                                        : defaultLightLevelAtNight;
+                                    GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', 'transparent', `#000${(15 - lightLevel).toString(16)}`), x, y);
+                                }
+                            }
+                        }
                     }
                 }
-            }
+                isPositionBlocked(left, top) {
+                    for (let object of this.objects) {
+                        if (!object.enabled)
+                            continue;
+                        const pleft = left - object.position[0] + object.originPoint[0];
+                        const ptop = top - object.position[1] + object.originPoint[1];
+                        if (GraphicsEngine_1.isCollision(object, pleft, ptop)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            };
+            exports_12("Scene", Scene);
         }
-    }
-    function update() {
-        for (const obj of sceneObjects) {
-            if (obj.updateHandler) {
-                obj.updateHandler(obj);
-            }
-        }
-        updateWeather();
-        function updateWeather() {
-            weatherLayer = [];
-            for (let y = 0; y < viewHeight; y++) {
-                for (let x = 0; x < viewWidth; x++) {
-                    createCell(x, y);
-                }
-            }
-            function addCell(cell, x, y) {
-                if (!weatherLayer[y])
-                    weatherLayer[y] = [];
-                weatherLayer[y][x] = cell;
-            }
-            function createCell(x, y) {
-                if (weatherType === 'rain') {
-                    const sym = ((Math.random() * 2 | 0) === 1) ? '`' : ' ';
-                    addCell(new Cell(sym, 'cyan', '#0003'), x, y);
-                }
-                else if (weatherType === 'snow') {
-                    const r = (Math.random() * 6 | 0);
-                    if (r === 0)
-                        addCell(new Cell('❄', 'white', 'transparent'), x, y);
-                    else if (r === 1)
-                        addCell(new Cell('❅', 'white', 'transparent'), x, y);
-                    else if (r === 2)
-                        addCell(new Cell('❆', 'white', 'transparent'), x, y);
-                }
-                else if (weatherType === 'rain_and_snow') {
-                    const r = Math.random() * 3 | 0;
-                    if (r === 1)
-                        addCell(new Cell('❄', 'white', 'transparent'), x, y);
-                    else if (r === 2)
-                        addCell(new Cell('`', 'cyan', 'transparent'), x, y);
-                }
-                else if (weatherType === 'mist') {
-                    if ((Math.random() * 2 | 0) === 1)
-                        addCell(new Cell('*', 'transparent', '#fff2'), x, y);
-                }
+    };
+});
+System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine"], function (exports_13, context_13) {
+    var misc_2, objects_1, npcs_1, GameEvent_3, EventLoop_3, Scene_1, Cell_3, GraphicsEngine_2, canvas, ctx, Game, game, scene, viewWidth, viewHeight, heroLeft, heroTop, heroDir;
+    var __moduleName = context_13 && context_13.id;
+    function drawDialog() {
+        // background
+        for (let y = 0; y < viewHeight; y++) {
+            for (let x = 0; x < viewWidth; x++) {
+                GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell('.', 'white', '#333'), x, y);
             }
         }
     }
     function onInterval() {
-        update();
-        while (events.length > 0) {
-            const ev = events.shift();
-            if (ev) {
-                for (const obj of sceneObjects) {
-                    obj.handleEvent(ev);
-                }
-            }
-        }
-        drawScene();
-    }
-    function emitEvent(ev) {
-        events.push(ev);
-        console.log("event: ", ev);
-    }
-    function isCollision(object, left, top) {
-        const cchar = object.physics.collisions[top] && object.physics.collisions[top][left]
-            ? object.physics.collisions[top][left]
-            : emptyCollisionChar;
-        return cchar !== emptyCollisionChar;
-    }
-    function isPositionBlocked(left, top) {
-        for (let object of sceneObjects) {
-            if (!object.enabled)
-                continue;
-            const pleft = left - object.position[0] + object.originPoint[0];
-            const ptop = top - object.position[1] + object.originPoint[1];
-            if (isCollision(object, pleft, ptop)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    function isPositionBehindTheObject(object, left, top) {
-        const pleft = left - object.position[0] + object.originPoint[0];
-        const ptop = top - object.position[1] + object.originPoint[1];
-        // check collisions
-        if (isCollision(object, ptop, pleft))
-            return false;
-        // check characters skin
-        const cchar = object.skin.characters[ptop] && object.skin.characters[ptop][pleft]
-            ? object.skin.characters[ptop][pleft]
-            : emptyCollisionChar;
-        // check color skin
-        const color = object.skin.raw_colors[ptop] && object.skin.raw_colors[ptop][pleft]
-            ? object.skin.raw_colors[ptop]
-            : [undefined, undefined];
-        return cchar !== emptyCollisionChar || !!color[0] || !!color[1];
+        game.update();
+        EventLoop_3.eventLoop([game, scene, ...scene.objects]);
+        game.draw();
     }
     function getActionUnderCursor() {
-        for (let object of sceneObjects) {
+        for (let object of scene.objects) {
             const left = heroLeft + heroDir[0];
             const top = heroTop + heroDir[1];
             //
@@ -679,8 +816,20 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
             function (npcs_1_1) {
                 npcs_1 = npcs_1_1;
             },
-            function (GameEvent_1_1) {
-                GameEvent_1 = GameEvent_1_1;
+            function (GameEvent_3_1) {
+                GameEvent_3 = GameEvent_3_1;
+            },
+            function (EventLoop_3_1) {
+                EventLoop_3 = EventLoop_3_1;
+            },
+            function (Scene_1_1) {
+                Scene_1 = Scene_1_1;
+            },
+            function (Cell_3_1) {
+                Cell_3 = Cell_3_1;
+            },
+            function (GraphicsEngine_2_1) {
+                GraphicsEngine_2 = GraphicsEngine_2_1;
             }
         ],
         execute: function () {
@@ -688,129 +837,120 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
             ctx = canvas.getContext("2d");
-            cellStyle = {
-                borderColor: "#111f",
-                borderWidth: 0.5,
-                default: {
-                    textColor: '#fff',
-                    backgroundColor: '#335'
-                },
-                size: {
-                    width: 32,
-                    height: 32,
-                },
-            };
-            defaultLightLevelAtNight = 4;
-            Cell = class Cell {
-                constructor(character = ' ', textColor = cellStyle.default.textColor, backgroundColor = cellStyle.default.backgroundColor) {
-                    this.character = character;
-                    this.textColor = textColor;
-                    this.backgroundColor = backgroundColor;
+            Game = class Game {
+                constructor() {
+                    this.mode = "scene"; // "dialog", "inventory", ...
+                }
+                handleEvent(ev) {
+                    if (ev.type === "switch_mode") {
+                        this.mode = ev.args.to;
+                    }
+                }
+                draw() {
+                    if (this.mode === "scene")
+                        scene.draw(ctx);
+                    else if (this.mode === "dialog") {
+                        drawDialog();
+                    }
+                }
+                update() {
+                    if (this.mode === "scene")
+                        scene.update();
                 }
             };
-            viewWidth = 20;
-            viewHeight = 20;
-            heroLeft = 9;
-            heroTop = 9;
-            heroDir = [0, 0];
-            heroActionEnabled = false;
-            weatherType = 'normal';
-            temperature = 7; // 0-15 @todo add effects
-            isWindy = true;
-            timePeriod = 'day';
-            // createTextObject("Term Adventures!", 2, 2)
-            sceneObjects = [...objects_1.flowers, objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps, ...npcs_1.npcs];
-            lightLayer = [];
-            weatherLayer = [];
-            events = [];
+            game = new Game();
+            scene = new Scene_1.Scene();
+            scene.objects = [...objects_1.flowers, objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps, ...npcs_1.npcs];
+            exports_13("viewWidth", viewWidth = 20);
+            exports_13("viewHeight", viewHeight = 20);
+            exports_13("heroLeft", heroLeft = 9);
+            exports_13("heroTop", heroTop = 9);
+            exports_13("heroDir", heroDir = [0, 0]);
             // initial events
-            emitEvent(new GameEvent_1.GameEvent("system", "weather_changed", { from: weatherType, to: weatherType }));
-            emitEvent(new GameEvent_1.GameEvent("system", "wind_changed", { from: isWindy, to: isWindy }));
-            emitEvent(new GameEvent_1.GameEvent("system", "time_changed", { from: timePeriod, to: timePeriod }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
             //
             onInterval(); // initial run
             setInterval(onInterval, 500);
-            emptyCollisionChar = ' ';
             document.addEventListener("keypress", function (code) {
-                heroActionEnabled = false;
                 const raw_key = code.key.toLowerCase();
                 if (raw_key === 'w') {
-                    heroDir = [0, -1];
+                    exports_13("heroDir", heroDir = [0, -1]);
                 }
                 else if (raw_key === 's') {
-                    heroDir = [0, +1];
+                    exports_13("heroDir", heroDir = [0, +1]);
                 }
                 else if (raw_key === 'a') {
-                    heroDir = [-1, 0];
+                    exports_13("heroDir", heroDir = [-1, 0]);
                 }
                 else if (raw_key === 'd') {
-                    heroDir = [+1, 0];
+                    exports_13("heroDir", heroDir = [+1, 0]);
                 }
                 else if (raw_key === ' ') {
-                    heroActionEnabled = true;
                     const actionData = getActionUnderCursor();
                     if (actionData) {
                         actionData.action(actionData.object);
                     }
-                    drawScene();
+                    onInterval();
                     return;
                 }
                 else {
                     // debug keys
-                    const oldWeatherType = weatherType;
+                    const oldWeatherType = scene.weatherType;
                     if (raw_key === '1') { // debug
-                        weatherType = 'normal';
+                        scene.weatherType = 'normal';
                     }
                     else if (raw_key === '2') { // debug
-                        weatherType = 'rain';
+                        scene.weatherType = 'rain';
                     }
                     else if (raw_key === '3') { // debug
-                        weatherType = 'snow';
+                        scene.weatherType = 'snow';
                     }
                     else if (raw_key === '4') { // debug
-                        weatherType = 'rain_and_snow';
+                        scene.weatherType = 'rain_and_snow';
                     }
                     else if (raw_key === '5') { // debug
-                        weatherType = 'mist';
+                        scene.weatherType = 'mist';
                     }
-                    if (oldWeatherType !== weatherType) {
-                        emitEvent(new GameEvent_1.GameEvent("system", "weather_changed", {
+                    if (oldWeatherType !== scene.weatherType) {
+                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", {
                             from: oldWeatherType,
-                            to: weatherType,
+                            to: scene.weatherType,
                         }));
                     }
                     // wind
                     if (raw_key === 'e') {
-                        isWindy = !isWindy;
-                        emitEvent(new GameEvent_1.GameEvent("system", "wind_changed", {
-                            from: !isWindy,
-                            to: isWindy,
+                        scene.isWindy = !scene.isWindy;
+                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", {
+                            from: !scene.isWindy,
+                            to: scene.isWindy,
                         }));
                     }
                     //
                     if (raw_key === 'q') { // debug
-                        timePeriod = timePeriod === 'day' ? 'night' : 'day';
+                        scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
                         //
-                        emitEvent(new GameEvent_1.GameEvent("system", "time_changed", {
-                            from: timePeriod === 'day' ? 'night' : 'day',
-                            to: timePeriod,
+                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
+                            from: scene.timePeriod === 'day' ? 'night' : 'day',
+                            to: scene.timePeriod,
                         }));
                     }
-                    console.log(weatherType, timePeriod);
+                    console.log(scene.weatherType, scene.timePeriod);
                     return; // skip
                 }
                 if (!code.shiftKey) {
-                    if (!isPositionBlocked(heroLeft + heroDir[0], heroTop + heroDir[1])) {
-                        heroLeft += heroDir[0];
-                        heroTop += heroDir[1];
+                    if (!scene.isPositionBlocked(heroLeft + heroDir[0], heroTop + heroDir[1])) {
+                        exports_13("heroLeft", heroLeft += heroDir[0]);
+                        exports_13("heroTop", heroTop += heroDir[1]);
                     }
                 }
-                drawScene();
+                onInterval();
             });
             // scripts
             objects_1.chest.setAction(0, 0, function () {
-                sceneObjects.push(misc_2.createTextObject(`VICTORY!`, 6, 6));
-                drawScene();
+                scene.objects.push(misc_2.createTextObject(`VICTORY!`, 6, 6));
+                onInterval();
             });
         }
     };

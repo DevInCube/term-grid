@@ -1,12 +1,17 @@
-import { GameEvent } from "./GameEvent";
+import { GameEvent, GameEventHandler } from "./GameEvent";
 import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
 
 export type GameObjectAction = (obj: SceneObject) => void;
 export type GameObjectEventHandler = (obj: SceneObject, ev: GameEvent) => void;
 
-export class SceneObject {
+export interface Drawable {
+    draw(ctx: CanvasRenderingContext2D) : void;
+}
+
+export class SceneObject implements GameEventHandler {
     public enabled = true;
+    public important = false;
     public parameters: {[key: string]: any} = {};
     public actions: [[number, number], GameObjectAction][] = [];
     public eventHandlers: GameObjectEventHandler[] = [];
