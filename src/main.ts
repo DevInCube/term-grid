@@ -24,9 +24,8 @@ class Game implements GameEventHandler {
     }
 
     draw() {
-        if (this.mode === "scene")
-            scene.draw(ctx);
-        else if (this.mode === "dialog") {
+        scene.draw(ctx);
+        if (this.mode === "dialog") {
             drawDialog();
         }
     }
@@ -51,9 +50,14 @@ export let heroDir = [0, 0];
 
 function drawDialog() {
     // background
-    for (let y = 0; y < viewHeight; y++) {
-        for (let x = 0; x < viewWidth; x++) {
-            drawCell(ctx, new Cell('.', 'white', '#333'), x, y);
+    const dialogWidth = viewWidth;
+    const dialogHeight = viewHeight / 2 - 3;
+    for (let y = 0; y < dialogHeight; y++) {
+        for (let x = 0; x < dialogWidth; x++) {
+            if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
+                drawCell(ctx, new Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
+            else 
+                drawCell(ctx, new Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
         }
     }
 }

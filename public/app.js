@@ -778,9 +778,14 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
     var __moduleName = context_13 && context_13.id;
     function drawDialog() {
         // background
-        for (let y = 0; y < viewHeight; y++) {
-            for (let x = 0; x < viewWidth; x++) {
-                GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell('.', 'white', '#333'), x, y);
+        const dialogWidth = viewWidth;
+        const dialogHeight = viewHeight / 2 - 3;
+        for (let y = 0; y < dialogHeight; y++) {
+            for (let x = 0; x < dialogWidth; x++) {
+                if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
+                    GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
+                else
+                    GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
             }
         }
     }
@@ -847,9 +852,8 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
                     }
                 }
                 draw() {
-                    if (this.mode === "scene")
-                        scene.draw(ctx);
-                    else if (this.mode === "dialog") {
+                    scene.draw(ctx);
+                    if (this.mode === "dialog") {
                         drawDialog();
                     }
                 }
