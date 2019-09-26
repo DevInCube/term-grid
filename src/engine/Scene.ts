@@ -25,7 +25,7 @@ export class Scene implements GameEventHandler {
     update() {
         for (const obj of this.objects) {
             if (obj.updateHandler) {
-                obj.updateHandler(obj);
+                obj.updateHandler(obj, this);
             }
         }
         
@@ -127,17 +127,18 @@ export class Scene implements GameEventHandler {
                         const lightLevel = Number.parseInt(char, 16);
                         const aleft = obj.position[0] - obj.originPoint[0] + left;
                         const atop = obj.position[1] - obj.originPoint[1] + line[0];
-                        scene.lightLayer[atop][aleft] += lightLevel;
+                        if (scene.lightLayer[atop] && scene.lightLayer[atop][aleft])
+                            scene.lightLayer[atop][aleft] += lightLevel;
                         // halo light
                         const newLightLevel = lightLevel - 1;
                         if (newLightLevel > 0) {
-                            if (atop - 1 >= 0)
+                            if (atop - 1 >= 0 && scene.lightLayer[atop - 1] && scene.lightLayer[atop - 1][aleft])
                                 scene.lightLayer[atop - 1][aleft] += newLightLevel;
-                            if (atop + 1 < viewHeight)
+                            if (atop + 1 < viewHeight && scene.lightLayer[atop + 1] && scene.lightLayer[atop + 1][aleft])
                                 scene.lightLayer[atop + 1][aleft] += newLightLevel;
-                            if (aleft - 1 >= 0)
+                            if (aleft - 1 >= 0 && scene.lightLayer[atop] && scene.lightLayer[atop][aleft - 1])
                                 scene.lightLayer[atop][aleft - 1] += newLightLevel;
-                            if (aleft + 1 < viewWidth)
+                            if (aleft + 1 < viewWidth && scene.lightLayer[atop] && scene.lightLayer[atop][aleft + 1])
                                 scene.lightLayer[atop][aleft + 1] += newLightLevel;
                         }
                     }
@@ -177,11 +178,11 @@ export class Scene implements GameEventHandler {
         }
     }
 
-    isPositionBlocked(left: number, top: number) {
+    isPositionBlocked(position: [number, number]) {
         for (let object of this.objects) {
             if (!object.enabled) continue;
-            const pleft = left - object.position[0] + object.originPoint[0];
-            const ptop = top - object.position[1] + object.originPoint[1];
+            const pleft = position[0] - object.position[0] + object.originPoint[0];
+            const ptop = position[1] - object.position[1] + object.originPoint[1];
             if (isCollision(object, pleft, ptop)) { 
                 return true;
             }

@@ -1,8 +1,10 @@
 import { GameEvent, GameEventHandler } from "./GameEvent";
 import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
+import { Scene } from "./Scene";
 
 export type GameObjectAction = (obj: SceneObject) => void;
+export type UpdateHandler = (obj: SceneObject, scene: Scene) => void;
 export type GameObjectEventHandler = (obj: SceneObject, ev: GameEvent) => void;
 
 export interface Drawable {
@@ -15,13 +17,13 @@ export class SceneObject implements GameEventHandler {
     public parameters: {[key: string]: any} = {};
     public actions: [[number, number], GameObjectAction][] = [];
     public eventHandlers: GameObjectEventHandler[] = [];
-    public updateHandler: GameObjectAction;
+    public updateHandler: UpdateHandler;
 
     constructor(
         public originPoint: [number, number],
         public skin: ObjectSkin,
         public physics: ObjectPhysics,
-        public position: number[]) {
+        public position: [number, number]) {
         
         //
     }
@@ -40,7 +42,7 @@ export class SceneObject implements GameEventHandler {
         }
     }
 
-    onUpdate(handler: GameObjectAction) {
+    onUpdate(handler: UpdateHandler) {
         this.updateHandler = handler;
     }
 }

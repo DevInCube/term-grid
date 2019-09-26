@@ -1,4 +1,4 @@
-import { introLevel } from "./world/intro";
+import { sheepLevel } from "./world/levels/sheep";
 import { Npc } from "./world/npcs";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
@@ -42,7 +42,7 @@ class Game implements GameEventHandler {
 const game = new Game();
 
 const scene = new Scene();
-scene.objects = introLevel;
+scene.objects = sheepLevel;
 
 export const viewWidth = 20;
 export const viewHeight = 20;
@@ -140,11 +140,8 @@ document.addEventListener("keypress", function (code) {
             return;  // skip
         }
         if (!code.shiftKey) {
-            if (!scene.isPositionBlocked(
-                    hero.position[0] + hero.direction[0], 
-                    hero.position[1] + hero.direction[1])) {
-                hero.position[0] += hero.direction[0];
-                hero.position[1] += hero.direction[1];
+            if (!scene.isPositionBlocked(hero.cursorPosition)) {
+                hero.move();
             }
         }
     }

@@ -2,6 +2,12 @@ import { ObjectSkin } from "../engine/ObjectSkin";
 import { StaticGameObject } from "../engine/StaticGameObject";
 import { ObjectPhysics } from "../engine/ObjectPhysics";
 
+export function distanceTo(a: [number, number], b: [number, number]): number {
+    return Math.sqrt(
+        (a[0] - b[0]) ** 2 + 
+        (a[1] - b[1]) ** 2);
+}
+
 export function createTextObject(text: string, x: number, y: number) {
     const colors = new ObjectSkin(
         text,
