@@ -102,7 +102,7 @@ if (true) {  // random trees
     for (let tree of trees) {
         tree.setAction(0, 5, (obj) => { 
             obj.enabled = false; 
-            console.log("Cut tree");
+            // console.log("Cut tree"); @todo sent event
         });
     }
 }

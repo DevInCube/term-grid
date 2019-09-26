@@ -1,6 +1,5 @@
-import { createTextObject } from "./utils/misc";
-import { house, chest, tree, trees, lamps, flowers } from "./world/objects";
-import { npcs, Npc } from "./world/npcs";
+import { introLevel } from "./world/intro";
+import { Npc } from "./world/npcs";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 import { emitEvent, eventLoop } from "./engine/EventLoop";
@@ -21,6 +20,9 @@ class Game implements GameEventHandler {
     handleEvent(ev: GameEvent): void {
         if (ev.type === "switch_mode") {
             this.mode = ev.args.to;
+        } else if (ev.type === "add_object") {
+            scene.objects.push(ev.args.object);
+            // @todo send new event
         }
     }
 
@@ -40,7 +42,7 @@ class Game implements GameEventHandler {
 const game = new Game();
 
 const scene = new Scene();
-scene.objects = [...flowers, house, chest, tree, ...trees, ...lamps, ...npcs];
+scene.objects = introLevel;
 
 export const viewWidth = 20;
 export const viewHeight = 20;
@@ -56,7 +58,7 @@ document.addEventListener("keydown", function(ev) {
         // onSceneInput();
     } else if (game.mode === 'dialog') {
         if (key_code === "Escape") {
-            game.mode = "scene";
+            emitEvent(new GameEvent("system", "switch_mode", { from: game.mode, to: "scene" }));
         }
     }
 });
@@ -64,7 +66,7 @@ document.addEventListener("keydown", function(ev) {
 document.addEventListener("keypress", function (code) {
     const raw_key = code.key.toLowerCase();
     const key_code = code.code;
-    console.log(raw_key, key_code);
+    // console.log(raw_key, key_code);
     if (game.mode === 'scene') {
         onSceneInput();
     } else if (game.mode === 'dialog') {
@@ -195,8 +197,3 @@ emitEvent(new GameEvent("system", "time_changed", {from: scene.timePeriod, to: s
 onInterval(); // initial run
 setInterval(onInterval, 500);
 
-// scripts
-chest.setAction(0, 0, function () {
-    scene.objects.push(createTextObject(`VICTORY!`, 6, 6));
-    onInterval();
-});
