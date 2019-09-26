@@ -5,7 +5,8 @@ import { emitEvent } from "../engine/EventLoop";
 import { GameEvent } from "../engine/GameEvent";
 
 export class Npc extends SceneObject {
-
+    direction: [number, number] = [0, 0];
+    
     constructor(
         skin: ObjectSkin, 
         position: [number, number] = [0, 0],

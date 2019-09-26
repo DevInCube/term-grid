@@ -38,7 +38,7 @@ function drawObject(ctx: CanvasRenderingContext2D, obj: SceneObject, importantOb
             let char = obj.skin.characters[y][charIndex] || ' ';
             if (codePoint && <number>codePoint > 0xffff) {
                 const next = obj.skin.characters[y][charIndex + 1];
-                console.log(char, next, char + next);
+                // console.log(char, next, char + next);
                 if (next) {
                     char += next;
                     charIndex += 1;

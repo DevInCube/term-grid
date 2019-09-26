@@ -1,12 +1,13 @@
 import { createTextObject } from "./utils/misc";
 import { house, chest, tree, trees, lamps, flowers } from "./world/objects";
-import { npcs } from "./world/npcs";
+import { npcs, Npc } from "./world/npcs";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 import { emitEvent, eventLoop } from "./engine/EventLoop";
 import { Scene } from "./engine/Scene";
 import { Cell } from "./engine/Cell";
 import { drawCell } from "./engine/GraphicsEngine";
+import { ObjectSkin } from "./engine/ObjectSkin";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -44,50 +45,20 @@ scene.objects = [...flowers, house, chest, tree, ...trees, ...lamps, ...npcs];
 export const viewWidth = 20;
 export const viewHeight = 20;
 
-export let heroLeft = 9;
-export let heroTop = 9;
-export let heroDir = [0, 0];
 
-function drawDialog() {
-    // background
-    const dialogWidth = viewWidth;
-    const dialogHeight = viewHeight / 2 - 3;
-    for (let y = 0; y < dialogHeight; y++) {
-        for (let x = 0; x < dialogWidth; x++) {
-            if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
-                drawCell(ctx, new Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
-            else 
-                drawCell(ctx, new Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
-        }
-    }
-}
-
-function onInterval() {
-    game.update();
-    eventLoop([game, scene, ...scene.objects]);
-    game.draw();
-}
-
-
-// initial events
-emitEvent(new GameEvent("system", "weather_changed", {from: scene.weatherType, to: scene.weatherType}));
-emitEvent(new GameEvent("system", "wind_changed", {from: scene.isWindy, to: scene.isWindy}));
-emitEvent(new GameEvent("system", "time_changed", {from: scene.timePeriod, to: scene.timePeriod}));
-//
-onInterval(); // initial run
-setInterval(onInterval, 500);
-
+export const hero = new Npc(new ObjectSkin('🐱', '.', {'.': [undefined, 'transparent']}), [9, 7]);
+scene.objects.push(hero);
 
 document.addEventListener("keypress", function (code) {
     const raw_key = code.key.toLowerCase();
     if (raw_key === 'w') {
-        heroDir = [0, -1];
+        hero.direction = [0, -1];
     } else if (raw_key === 's') {
-        heroDir = [0, +1];
+        hero.direction = [0, +1];
     } else if (raw_key === 'a') {
-        heroDir = [-1, 0];
+        hero.direction = [-1, 0];
     } else if (raw_key === 'd') {
-        heroDir = [+1, 0];
+        hero.direction = [+1, 0];
     } else if (raw_key === ' ') {
         const actionData = getActionUnderCursor();
         if (actionData) {
@@ -141,13 +112,14 @@ document.addEventListener("keypress", function (code) {
                     to: scene.timePeriod,
                 }));
         }
-        console.log(scene.weatherType, scene.timePeriod);
         return;  // skip
     }
     if (!code.shiftKey) {
-        if (!scene.isPositionBlocked(heroLeft + heroDir[0], heroTop + heroDir[1])) {
-            heroLeft += heroDir[0];
-            heroTop += heroDir[1];
+        if (!scene.isPositionBlocked(
+                hero.position[0] + hero.direction[0], 
+                hero.position[1] + hero.direction[1])) {
+            hero.position[0] += hero.direction[0];
+            hero.position[1] += hero.direction[1];
         }
     }
 
@@ -155,10 +127,10 @@ document.addEventListener("keypress", function (code) {
 });
 
 function getActionUnderCursor(): {object: SceneObject, action: GameObjectAction} | undefined {
-
+    const npc = hero;
     for (let object of scene.objects) {
-        const left = heroLeft + heroDir[0];
-        const top = heroTop + heroDir[1];
+        const left = npc.position[0] + npc.direction[0];
+        const top = npc.position[1] + npc.direction[1];
         //
         const pleft = left - object.position[0] + object.originPoint[0];
         const ptop = top - object.position[1] + object.originPoint[1];
@@ -171,6 +143,35 @@ function getActionUnderCursor(): {object: SceneObject, action: GameObjectAction}
     }
     return undefined;
 }
+
+function drawDialog() {
+    // background
+    const dialogWidth = viewWidth;
+    const dialogHeight = viewHeight / 2 - 3;
+    for (let y = 0; y < dialogHeight; y++) {
+        for (let x = 0; x < dialogWidth; x++) {
+            if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
+                drawCell(ctx, new Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
+            else 
+                drawCell(ctx, new Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
+        }
+    }
+}
+
+function onInterval() {
+    game.update();
+    eventLoop([game, scene, ...scene.objects]);
+    game.draw();
+}
+
+
+// initial events
+emitEvent(new GameEvent("system", "weather_changed", {from: scene.weatherType, to: scene.weatherType}));
+emitEvent(new GameEvent("system", "wind_changed", {from: scene.isWindy, to: scene.isWindy}));
+emitEvent(new GameEvent("system", "time_changed", {from: scene.timePeriod, to: scene.timePeriod}));
+//
+onInterval(); // initial run
+setInterval(onInterval, 500);
 
 // scripts
 chest.setAction(0, 0, function () {

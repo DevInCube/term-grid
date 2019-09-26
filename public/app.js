@@ -397,6 +397,7 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engin
             Npc = class Npc extends SceneObject_2.SceneObject {
                 constructor(skin, position = [0, 0], originPoint = [0, 0]) {
                     super(originPoint, skin, new ObjectPhysics_4.ObjectPhysics(`.`, `8`), position);
+                    this.direction = [0, 0];
                     this.important = true;
                 }
             };
@@ -455,7 +456,7 @@ System.register("engine/GraphicsEngine", ["engine/Cell"], function (exports_11, 
                 let char = obj.skin.characters[y][charIndex] || ' ';
                 if (codePoint && codePoint > 0xffff) {
                     const next = obj.skin.characters[y][charIndex + 1];
-                    console.log(char, next, char + next);
+                    // console.log(char, next, char + next);
                     if (next) {
                         char += next;
                         charIndex += 1;
@@ -664,16 +665,14 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                             GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', 'transparent', '#331'), x, y);
                         }
                     }
-                    // hero
-                    GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell('🐱', 'yellow', 'transparent'), main_1.heroLeft, main_1.heroTop);
                     // hero shadow behind objects
                     for (let object of this.objects) {
                         if (!object.enabled)
                             continue;
-                        if (GraphicsEngine_1.isPositionBehindTheObject(object, main_1.heroLeft, main_1.heroTop)) {
+                        if (GraphicsEngine_1.isPositionBehindTheObject(object, main_1.hero.position[0], main_1.hero.position[1])) {
                             ctx.fillStyle = 'black';
-                            const left = main_1.heroLeft * GraphicsEngine_1.cellStyle.size.width;
-                            const top = main_1.heroTop * GraphicsEngine_1.cellStyle.size.height;
+                            const left = main_1.hero.position[0] * GraphicsEngine_1.cellStyle.size.width;
+                            const top = main_1.hero.position[1] * GraphicsEngine_1.cellStyle.size.height;
                             ctx.globalAlpha = 0.5;
                             ctx.fillRect(left, top, GraphicsEngine_1.cellStyle.size.width, GraphicsEngine_1.cellStyle.size.height);
                             break;
@@ -681,7 +680,7 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                     }
                     GraphicsEngine_1.drawObjects(ctx, this.objects);
                     // hero direction (cursor)
-                    if (main_1.heroDir[0] || main_1.heroDir[1]) {
+                    if (main_1.hero.direction[0] || main_1.hero.direction[1]) {
                         drawHeroCursor();
                     }
                     const scene = this;
@@ -695,8 +694,8 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                                     scene.lightLayer[y] = [];
                                 if (!scene.lightLayer[y][x])
                                     scene.lightLayer[y][x] = 0;
-                                // hero
-                                if (Math.abs(x - main_1.heroLeft) + Math.abs(y - main_1.heroTop) <= 2)
+                                // hero light
+                                if (Math.abs(x - main_1.hero.position[0]) + Math.abs(y - main_1.hero.position[1]) <= 2)
                                     scene.lightLayer[y][x] = 15;
                             }
                         }
@@ -726,8 +725,8 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                     }
                     drawWeather();
                     function drawHeroCursor() {
-                        const leftPos = main_1.heroLeft + main_1.heroDir[0];
-                        const topPos = main_1.heroTop + main_1.heroDir[1];
+                        const leftPos = main_1.hero.position[0] + main_1.hero.direction[0];
+                        const topPos = main_1.hero.position[1] + main_1.hero.direction[1];
                         GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell('.', 'black', 'yellow'), leftPos, topPos, true);
                         // palette borders
                         const left = leftPos * GraphicsEngine_1.cellStyle.size.width;
@@ -773,9 +772,26 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
         }
     };
 });
-System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine"], function (exports_13, context_13) {
-    var misc_2, objects_1, npcs_1, GameEvent_3, EventLoop_3, Scene_1, Cell_3, GraphicsEngine_2, canvas, ctx, Game, game, scene, viewWidth, viewHeight, heroLeft, heroTop, heroDir;
+System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "engine/ObjectSkin"], function (exports_13, context_13) {
+    var misc_2, objects_1, npcs_1, GameEvent_3, EventLoop_3, Scene_1, Cell_3, GraphicsEngine_2, ObjectSkin_5, canvas, ctx, Game, game, scene, viewWidth, viewHeight, hero;
     var __moduleName = context_13 && context_13.id;
+    function getActionUnderCursor() {
+        const npc = hero;
+        for (let object of scene.objects) {
+            const left = npc.position[0] + npc.direction[0];
+            const top = npc.position[1] + npc.direction[1];
+            //
+            const pleft = left - object.position[0] + object.originPoint[0];
+            const ptop = top - object.position[1] + object.originPoint[1];
+            for (let action of object.actions) {
+                if (action[0][0] === pleft && action[0][1] === ptop) {
+                    const actionFunc = action[1];
+                    return { object, action: actionFunc };
+                }
+            }
+        }
+        return undefined;
+    }
     function drawDialog() {
         // background
         const dialogWidth = viewWidth;
@@ -793,22 +809,6 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
         game.update();
         EventLoop_3.eventLoop([game, scene, ...scene.objects]);
         game.draw();
-    }
-    function getActionUnderCursor() {
-        for (let object of scene.objects) {
-            const left = heroLeft + heroDir[0];
-            const top = heroTop + heroDir[1];
-            //
-            const pleft = left - object.position[0] + object.originPoint[0];
-            const ptop = top - object.position[1] + object.originPoint[1];
-            for (let action of object.actions) {
-                if (action[0][0] === pleft && action[0][1] === ptop) {
-                    const actionFunc = action[1];
-                    return { object, action: actionFunc };
-                }
-            }
-        }
-        return undefined;
     }
     return {
         setters: [
@@ -835,6 +835,9 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
             },
             function (GraphicsEngine_2_1) {
                 GraphicsEngine_2 = GraphicsEngine_2_1;
+            },
+            function (ObjectSkin_5_1) {
+                ObjectSkin_5 = ObjectSkin_5_1;
             }
         ],
         execute: function () {
@@ -867,29 +870,21 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
             scene.objects = [...objects_1.flowers, objects_1.house, objects_1.chest, objects_1.tree, ...objects_1.trees, ...objects_1.lamps, ...npcs_1.npcs];
             exports_13("viewWidth", viewWidth = 20);
             exports_13("viewHeight", viewHeight = 20);
-            exports_13("heroLeft", heroLeft = 9);
-            exports_13("heroTop", heroTop = 9);
-            exports_13("heroDir", heroDir = [0, 0]);
-            // initial events
-            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
-            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
-            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
-            //
-            onInterval(); // initial run
-            setInterval(onInterval, 500);
+            exports_13("hero", hero = new npcs_1.Npc(new ObjectSkin_5.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
+            scene.objects.push(hero);
             document.addEventListener("keypress", function (code) {
                 const raw_key = code.key.toLowerCase();
                 if (raw_key === 'w') {
-                    exports_13("heroDir", heroDir = [0, -1]);
+                    hero.direction = [0, -1];
                 }
                 else if (raw_key === 's') {
-                    exports_13("heroDir", heroDir = [0, +1]);
+                    hero.direction = [0, +1];
                 }
                 else if (raw_key === 'a') {
-                    exports_13("heroDir", heroDir = [-1, 0]);
+                    hero.direction = [-1, 0];
                 }
                 else if (raw_key === 'd') {
-                    exports_13("heroDir", heroDir = [+1, 0]);
+                    hero.direction = [+1, 0];
                 }
                 else if (raw_key === ' ') {
                     const actionData = getActionUnderCursor();
@@ -940,17 +935,23 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
                             to: scene.timePeriod,
                         }));
                     }
-                    console.log(scene.weatherType, scene.timePeriod);
                     return; // skip
                 }
                 if (!code.shiftKey) {
-                    if (!scene.isPositionBlocked(heroLeft + heroDir[0], heroTop + heroDir[1])) {
-                        exports_13("heroLeft", heroLeft += heroDir[0]);
-                        exports_13("heroTop", heroTop += heroDir[1]);
+                    if (!scene.isPositionBlocked(hero.position[0] + hero.direction[0], hero.position[1] + hero.direction[1])) {
+                        hero.position[0] += hero.direction[0];
+                        hero.position[1] += hero.direction[1];
                     }
                 }
                 onInterval();
             });
+            // initial events
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
+            //
+            onInterval(); // initial run
+            setInterval(onInterval, 500);
             // scripts
             objects_1.chest.setAction(0, 0, function () {
                 scene.objects.push(misc_2.createTextObject(`VICTORY!`, 6, 6));

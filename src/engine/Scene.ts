@@ -1,6 +1,6 @@
 import { GameEvent, GameEventHandler } from "./GameEvent";
 import { SceneObject, Drawable } from "./SceneObject";
-import { viewHeight, viewWidth, heroLeft, heroTop, heroDir } from "../main";
+import { viewHeight, viewWidth, hero } from "../main";
 import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
 import { drawCell, isPositionBehindTheObject, cellStyle, isCollision, drawObjects } from "./GraphicsEngine";
@@ -82,16 +82,15 @@ export class Scene implements GameEventHandler {
                 drawCell(ctx, new Cell(' ', 'transparent', '#331'), x, y);
             }
         }
-        // hero
-        drawCell(ctx, new Cell('🐱', 'yellow', 'transparent'), heroLeft, heroTop);
+
         // hero shadow behind objects
         for (let object of this.objects) {
             if (!object.enabled)
                 continue;
-            if (isPositionBehindTheObject(object, heroLeft, heroTop)) {
+            if (isPositionBehindTheObject(object, hero.position[0], hero.position[1])) {
                 ctx.fillStyle = 'black';
-                const left = heroLeft * cellStyle.size.width;
-                const top = heroTop * cellStyle.size.height;
+                const left = hero.position[0] * cellStyle.size.width;
+                const top = hero.position[1] * cellStyle.size.height;
                 ctx.globalAlpha = 0.5;
                 ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
                 break;
@@ -100,7 +99,7 @@ export class Scene implements GameEventHandler {
         drawObjects(ctx, this.objects);
 
         // hero direction (cursor)
-        if (heroDir[0] || heroDir[1]) {
+        if (hero.direction[0] || hero.direction[1]) {
             drawHeroCursor();
         }
 
@@ -116,8 +115,8 @@ export class Scene implements GameEventHandler {
                         scene.lightLayer[y] = [];
                     if (!scene.lightLayer[y][x])
                         scene.lightLayer[y][x] = 0;
-                    // hero
-                    if (Math.abs(x - heroLeft) + Math.abs(y - heroTop) <= 2)
+                    // hero light
+                    if (Math.abs(x - hero.position[0]) + Math.abs(y - hero.position[1]) <= 2)
                         scene.lightLayer[y][x] = 15;
                 }
             }
@@ -147,8 +146,8 @@ export class Scene implements GameEventHandler {
         }
         drawWeather();
         function drawHeroCursor() {
-            const leftPos = heroLeft + heroDir[0];
-            const topPos = heroTop + heroDir[1];
+            const leftPos = hero.position[0] + hero.direction[0];
+            const topPos = hero.position[1] + hero.direction[1];
             drawCell(ctx, new Cell('.', 'black', 'yellow'), leftPos, topPos, true);
             // palette borders
             const left = leftPos * cellStyle.size.width;
