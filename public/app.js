@@ -872,78 +872,100 @@ System.register("main", ["utils/misc", "world/objects", "world/npcs", "engine/Ga
             exports_13("viewHeight", viewHeight = 20);
             exports_13("hero", hero = new npcs_1.Npc(new ObjectSkin_5.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
             scene.objects.push(hero);
+            document.addEventListener("keydown", function (ev) {
+                // const raw_key = ev.key.toLowerCase();
+                const key_code = ev.code;
+                if (game.mode === 'scene') {
+                    // onSceneInput();
+                }
+                else if (game.mode === 'dialog') {
+                    if (key_code === "Escape") {
+                        game.mode = "scene";
+                    }
+                }
+            });
             document.addEventListener("keypress", function (code) {
                 const raw_key = code.key.toLowerCase();
-                if (raw_key === 'w') {
-                    hero.direction = [0, -1];
+                const key_code = code.code;
+                console.log(raw_key, key_code);
+                if (game.mode === 'scene') {
+                    onSceneInput();
                 }
-                else if (raw_key === 's') {
-                    hero.direction = [0, +1];
-                }
-                else if (raw_key === 'a') {
-                    hero.direction = [-1, 0];
-                }
-                else if (raw_key === 'd') {
-                    hero.direction = [+1, 0];
-                }
-                else if (raw_key === ' ') {
-                    const actionData = getActionUnderCursor();
-                    if (actionData) {
-                        actionData.action(actionData.object);
-                    }
-                    onInterval();
-                    return;
-                }
-                else {
-                    // debug keys
-                    const oldWeatherType = scene.weatherType;
-                    if (raw_key === '1') { // debug
-                        scene.weatherType = 'normal';
-                    }
-                    else if (raw_key === '2') { // debug
-                        scene.weatherType = 'rain';
-                    }
-                    else if (raw_key === '3') { // debug
-                        scene.weatherType = 'snow';
-                    }
-                    else if (raw_key === '4') { // debug
-                        scene.weatherType = 'rain_and_snow';
-                    }
-                    else if (raw_key === '5') { // debug
-                        scene.weatherType = 'mist';
-                    }
-                    if (oldWeatherType !== scene.weatherType) {
-                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", {
-                            from: oldWeatherType,
-                            to: scene.weatherType,
-                        }));
-                    }
-                    // wind
-                    if (raw_key === 'e') {
-                        scene.isWindy = !scene.isWindy;
-                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", {
-                            from: !scene.isWindy,
-                            to: scene.isWindy,
-                        }));
-                    }
+                else if (game.mode === 'dialog') {
                     //
-                    if (raw_key === 'q') { // debug
-                        scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
-                        //
-                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
-                            from: scene.timePeriod === 'day' ? 'night' : 'day',
-                            to: scene.timePeriod,
-                        }));
-                    }
-                    return; // skip
-                }
-                if (!code.shiftKey) {
-                    if (!scene.isPositionBlocked(hero.position[0] + hero.direction[0], hero.position[1] + hero.direction[1])) {
-                        hero.position[0] += hero.direction[0];
-                        hero.position[1] += hero.direction[1];
-                    }
                 }
                 onInterval();
+                function onSceneInput() {
+                    if (raw_key === 'w') {
+                        hero.direction = [0, -1];
+                    }
+                    else if (raw_key === 's') {
+                        hero.direction = [0, +1];
+                    }
+                    else if (raw_key === 'a') {
+                        hero.direction = [-1, 0];
+                    }
+                    else if (raw_key === 'd') {
+                        hero.direction = [+1, 0];
+                    }
+                    else if (raw_key === ' ') {
+                        const actionData = getActionUnderCursor();
+                        if (actionData) {
+                            actionData.action(actionData.object);
+                        }
+                        onInterval();
+                        return;
+                    }
+                    else {
+                        // debug keys
+                        const oldWeatherType = scene.weatherType;
+                        if (raw_key === '1') { // debug
+                            scene.weatherType = 'normal';
+                        }
+                        else if (raw_key === '2') { // debug
+                            scene.weatherType = 'rain';
+                        }
+                        else if (raw_key === '3') { // debug
+                            scene.weatherType = 'snow';
+                        }
+                        else if (raw_key === '4') { // debug
+                            scene.weatherType = 'rain_and_snow';
+                        }
+                        else if (raw_key === '5') { // debug
+                            scene.weatherType = 'mist';
+                        }
+                        if (oldWeatherType !== scene.weatherType) {
+                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", {
+                                from: oldWeatherType,
+                                to: scene.weatherType,
+                            }));
+                        }
+                        // wind
+                        if (raw_key === 'e') {
+                            scene.isWindy = !scene.isWindy;
+                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", {
+                                from: !scene.isWindy,
+                                to: scene.isWindy,
+                            }));
+                        }
+                        //
+                        if (raw_key === 'q') { // debug
+                            scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
+                            //
+                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
+                                from: scene.timePeriod === 'day' ? 'night' : 'day',
+                                to: scene.timePeriod,
+                            }));
+                        }
+                        return; // skip
+                    }
+                    if (!code.shiftKey) {
+                        if (!scene.isPositionBlocked(hero.position[0] + hero.direction[0], hero.position[1] + hero.direction[1])) {
+                            hero.position[0] += hero.direction[0];
+                            hero.position[1] += hero.direction[1];
+                        }
+                    }
+                }
             });
             // initial events
             EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
