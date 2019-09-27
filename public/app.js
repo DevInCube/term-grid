@@ -330,6 +330,8 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                     this.timePeriod = 'day';
                     this.lightLayer = [];
                     this.weatherLayer = [];
+                    this.dayLightLevel = 15;
+                    this.globalLightLevel = 0;
                 }
                 handleEvent(ev) {
                     if (ev.type === "user_action" && ev.args.subtype === "npc_talk") {
@@ -345,7 +347,14 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                     }
                     const scene = this;
                     updateWeather();
+                    updateLights();
                     function updateWeather() {
+                        if (scene.weatherType === 'rain') {
+                            scene.dayLightLevel = 12;
+                        }
+                        else {
+                            scene.dayLightLevel = 15;
+                        }
                         if (scene.weatherTicks > 300) {
                             scene.weatherTicks = 0;
                             scene.weatherLayer = [];
@@ -362,7 +371,7 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                             function createCell(x, y) {
                                 if (scene.weatherType === 'rain') {
                                     const sym = ((Math.random() * 2 | 0) === 1) ? '`' : ' ';
-                                    addCell(new Cell_2.Cell(sym, 'cyan', '#0003'), x, y);
+                                    addCell(new Cell_2.Cell(sym, 'cyan', '#0000'), x, y);
                                 }
                                 else if (scene.weatherType === 'snow') {
                                     const r = (Math.random() * 6 | 0);
@@ -387,28 +396,21 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                             }
                         }
                     }
-                }
-                draw(ctx) {
-                    // sort objects by origin point
-                    this.objects.sort((a, b) => a.position[1] - b.position[1]);
-                    // bedrock
-                    for (let y = 0; y < main_1.viewHeight; y++) {
-                        for (let x = 0; x < main_1.viewWidth; x++) {
-                            GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', 'transparent', '#331'), x, y);
-                        }
-                    }
-                    GraphicsEngine_1.drawObjects(ctx, this.objects);
-                    const scene = this;
-                    updateLights();
                     function updateLights() {
                         // clear
+                        if (scene.timePeriod === 'night') {
+                            scene.globalLightLevel = defaultLightLevelAtNight;
+                        }
+                        else {
+                            scene.globalLightLevel = scene.dayLightLevel;
+                        }
                         scene.lightLayer = [];
                         for (let y = 0; y < main_1.viewHeight; y++) {
                             for (let x = 0; x < main_1.viewWidth; x++) {
                                 if (!scene.lightLayer[y])
                                     scene.lightLayer[y] = [];
                                 if (!scene.lightLayer[y][x])
-                                    scene.lightLayer[y][x] = 0;
+                                    scene.lightLayer[y][x] = scene.globalLightLevel;
                             }
                         }
                         const lightObjects = [
@@ -447,11 +449,24 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                         }
                         function addLight(left, top, lightLevel) {
                             if (scene.lightLayer[top] && typeof scene.lightLayer[top][left] != "undefined") {
-                                scene.lightLayer[top][left] += lightLevel;
+                                scene.lightLayer[top][left] = lightLevel;
                             }
                         }
                     }
+                }
+                draw(ctx) {
+                    // sort objects by origin point
+                    this.objects.sort((a, b) => a.position[1] - b.position[1]);
+                    // bedrock
+                    for (let y = 0; y < main_1.viewHeight; y++) {
+                        for (let x = 0; x < main_1.viewWidth; x++) {
+                            GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', 'transparent', '#331'), x, y);
+                        }
+                    }
+                    GraphicsEngine_1.drawObjects(ctx, this.objects);
+                    const scene = this;
                     drawWeather();
+                    drawLights();
                     function drawWeather() {
                         for (let y = 0; y < main_1.viewHeight; y++) {
                             for (let x = 0; x < main_1.viewWidth; x++) {
@@ -459,14 +474,12 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                                     GraphicsEngine_1.drawCell(ctx, scene.weatherLayer[y][x], x, y);
                             }
                         }
-                        if (scene.timePeriod === 'night') {
-                            for (let y = 0; y < main_1.viewHeight; y++) {
-                                for (let x = 0; x < main_1.viewWidth; x++) {
-                                    const lightLevel = (scene.lightLayer[y] && scene.lightLayer[y][x])
-                                        ? scene.lightLayer[y][x]
-                                        : defaultLightLevelAtNight;
-                                    GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', 'transparent', `#000${(15 - lightLevel).toString(16)}`), x, y);
-                                }
+                    }
+                    function drawLights() {
+                        for (let y = 0; y < main_1.viewHeight; y++) {
+                            for (let x = 0; x < main_1.viewWidth; x++) {
+                                const lightLevel = scene.lightLayer[y][x] | 0;
+                                GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', undefined, `#000${(15 - lightLevel).toString(16)}`), x, y);
                             }
                         }
                     }

@@ -18,6 +18,8 @@ export class Scene implements GameEventHandler {
     timePeriod = 'day';
     lightLayer: number[][] = [];
     weatherLayer: Cell[][] = [];
+    dayLightLevel: number = 15;
+    globalLightLevel: number = 0;
 
     handleEvent(ev: GameEvent): void {
         if (ev.type === "user_action" && ev.args.subtype === "npc_talk") {
@@ -35,8 +37,14 @@ export class Scene implements GameEventHandler {
         
         const scene = this;
         updateWeather();
+        updateLights();
         
         function updateWeather() {
+            if (scene.weatherType === 'rain') {
+                scene.dayLightLevel = 12;
+            } else {
+                scene.dayLightLevel = 15;
+            }
             if (scene.weatherTicks > 300) {
                 scene.weatherTicks = 0;
                 scene.weatherLayer = [];
@@ -53,7 +61,7 @@ export class Scene implements GameEventHandler {
                 function createCell(x: number, y: number) {
                     if (scene.weatherType === 'rain') {
                         const sym = ((Math.random() * 2 | 0) === 1) ? '`' : ' ';
-                        addCell(new Cell(sym, 'cyan', '#0003'), x, y);
+                        addCell(new Cell(sym, 'cyan', '#0000'), x, y);
                     }
                     else if (scene.weatherType === 'snow') {
                         const r = (Math.random() * 6 | 0);
@@ -78,32 +86,21 @@ export class Scene implements GameEventHandler {
                 }
             }
         }
-    }
 
-    draw(ctx: CanvasRenderingContext2D) {
-        // sort objects by origin point
-        this.objects.sort((a: SceneObject, b: SceneObject) => a.position[1] - b.position[1]);
-        // bedrock
-        for (let y = 0; y < viewHeight; y++) {
-            for (let x = 0; x < viewWidth; x++) {
-                drawCell(ctx, new Cell(' ', 'transparent', '#331'), x, y);
-            }
-        }
-
-        drawObjects(ctx, this.objects);
-
-        const scene = this;
-        updateLights();
-        
         function updateLights() {
             // clear
+            if (scene.timePeriod === 'night') {
+                scene.globalLightLevel = defaultLightLevelAtNight;
+            } else {
+                scene.globalLightLevel = scene.dayLightLevel;
+            }
             scene.lightLayer = [];
             for (let y = 0; y < viewHeight; y++) {
                 for (let x = 0; x < viewWidth; x++) {
                     if (!scene.lightLayer[y])
                         scene.lightLayer[y] = [];
                     if (!scene.lightLayer[y][x])
-                        scene.lightLayer[y][x] = 0;
+                        scene.lightLayer[y][x] = scene.globalLightLevel;
                 }
             }
             const lightObjects = [
@@ -145,11 +142,27 @@ export class Scene implements GameEventHandler {
 
             function addLight(left: number, top: number, lightLevel: number) {
                 if (scene.lightLayer[top] && typeof scene.lightLayer[top][left] != "undefined") {
-                    scene.lightLayer[top][left] += lightLevel;
+                    scene.lightLayer[top][left] = lightLevel;
                 }
             }
         }
+    }
+
+    draw(ctx: CanvasRenderingContext2D) {
+        // sort objects by origin point
+        this.objects.sort((a: SceneObject, b: SceneObject) => a.position[1] - b.position[1]);
+        // bedrock
+        for (let y = 0; y < viewHeight; y++) {
+            for (let x = 0; x < viewWidth; x++) {
+                drawCell(ctx, new Cell(' ', 'transparent', '#331'), x, y);
+            }
+        }
+
+        drawObjects(ctx, this.objects);
+
+        const scene = this;
         drawWeather();
+        drawLights();
 
         function drawWeather() {
             for (let y = 0; y < viewHeight; y++) {
@@ -158,14 +171,13 @@ export class Scene implements GameEventHandler {
                         drawCell(ctx, scene.weatherLayer[y][x], x, y);
                 }
             }
-            if (scene.timePeriod === 'night') {
-                for (let y = 0; y < viewHeight; y++) {
-                    for (let x = 0; x < viewWidth; x++) {
-                        const lightLevel = (scene.lightLayer[y] && scene.lightLayer[y][x])
-                            ? scene.lightLayer[y][x]
-                            : defaultLightLevelAtNight;
-                        drawCell(ctx, new Cell(' ', 'transparent', `#000${(15 - lightLevel).toString(16)}`), x, y);
-                    }
+        }
+
+        function drawLights() {
+            for (let y = 0; y < viewHeight; y++) {
+                for (let x = 0; x < viewWidth; x++) {
+                    const lightLevel = scene.lightLayer[y][x] | 0;
+                    drawCell(ctx, new Cell(' ', undefined, `#000${(15 - lightLevel).toString(16)}`), x, y);
                 }
             }
         }
