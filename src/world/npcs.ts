@@ -6,8 +6,10 @@ import { GameEvent } from "../engine/GameEvent";
 import { deepCopy, distanceTo } from "../utils/misc";
 
 export class Npc extends SceneObject {
-    type: string = "npc";
+    type: string = "undefined";
     direction: [number, number] = [0, 0];
+    moveSpeed: number = 2;  // cells per second
+    moveTick: number = 0;
 
     get cursorPosition(): [number, number] {
         return [
@@ -26,8 +28,13 @@ export class Npc extends SceneObject {
     }
 
     move(): void {
-        this.position[0] += this.direction[0];
-        this.position[1] += this.direction[1];
+        const obj = this;
+        if (obj.moveTick >= 1000 / obj.moveSpeed) {
+            obj.position[0] += obj.direction[0];
+            obj.position[1] += obj.direction[1];
+            //
+            obj.moveTick = 0;
+        }
     }
 
     distanceTo(other: Npc): number {

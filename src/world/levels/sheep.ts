@@ -48,8 +48,9 @@ if (true) {  // random sheeps
         sheep1.setAction(0, 5, (obj) => { 
             //
         });
-        sheep1.onUpdate((obj: SceneObject, scene: Scene) => {
+        sheep1.onUpdate((ticks: number, obj: SceneObject, scene: Scene) => {
             const sheep = <Npc>obj;
+            sheep.moveTick += ticks;
             const state = sheep.parameters["state"];
             if (!state) {
                 //sheep.parameters["state"] = (Math.random() * 2 | 0) === 0 ? "wandering" : "still";

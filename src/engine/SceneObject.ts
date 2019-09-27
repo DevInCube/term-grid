@@ -4,7 +4,7 @@ import { ObjectPhysics } from "./ObjectPhysics";
 import { Scene } from "./Scene";
 
 export type GameObjectAction = (obj: SceneObject) => void;
-export type UpdateHandler = (obj: SceneObject, scene: Scene) => void;
+export type UpdateHandler = (ticks: number, obj: SceneObject, scene: Scene) => void;
 export type GameObjectEventHandler = (obj: SceneObject, ev: GameEvent) => void;
 
 export interface Drawable {

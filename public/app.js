@@ -283,10 +283,10 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                         EventLoop_1.emitEvent(new GameEvent_1.GameEvent(this, "switch_mode", { from: "scene", to: "dialog" }));
                     }
                 }
-                update() {
+                update(ticks) {
                     for (const obj of this.objects) {
                         if (obj.updateHandler) {
-                            obj.updateHandler(obj, this);
+                            obj.updateHandler(ticks, obj, this);
                         }
                     }
                     const scene = this;
@@ -610,8 +610,10 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engin
             Npc = class Npc extends SceneObject_2.SceneObject {
                 constructor(skin = new ObjectSkin_3.ObjectSkin(), position = [0, 0], originPoint = [0, 0]) {
                     super(originPoint, skin, new ObjectPhysics_3.ObjectPhysics(`.`, `8`), position);
-                    this.type = "npc";
+                    this.type = "undefined";
                     this.direction = [0, 0];
+                    this.moveSpeed = 2; // cells per second
+                    this.moveTick = 0;
                     this.important = true;
                 }
                 get cursorPosition() {
@@ -621,8 +623,13 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engin
                     ];
                 }
                 move() {
-                    this.position[0] += this.direction[0];
-                    this.position[1] += this.direction[1];
+                    const obj = this;
+                    if (obj.moveTick >= 1000 / obj.moveSpeed) {
+                        obj.position[0] += obj.direction[0];
+                        obj.position[1] += obj.direction[1];
+                        //
+                        obj.moveTick = 0;
+                    }
                 }
                 distanceTo(other) {
                     return misc_2.distanceTo(this.position, other.position);
@@ -702,8 +709,9 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
                     sheep1.setAction(0, 5, (obj) => {
                         //
                     });
-                    sheep1.onUpdate((obj, scene) => {
+                    sheep1.onUpdate((ticks, obj, scene) => {
                         const sheep = obj;
+                        sheep.moveTick += ticks;
                         const state = sheep.parameters["state"];
                         if (!state) {
                             //sheep.parameters["state"] = (Math.random() * 2 | 0) === 0 ? "wandering" : "still";
@@ -839,7 +847,7 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
     };
 });
 System.register("main", ["world/levels/sheep", "world/npcs", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "engine/ObjectSkin"], function (exports_13, context_13) {
-    var sheep_1, npcs_2, GameEvent_3, EventLoop_3, Scene_1, Cell_3, GraphicsEngine_2, ObjectSkin_5, canvas, ctx, Game, game, scene, viewWidth, viewHeight, hero;
+    var sheep_1, npcs_2, GameEvent_3, EventLoop_3, Scene_1, Cell_3, GraphicsEngine_2, ObjectSkin_5, canvas, ctx, Game, game, scene, viewWidth, viewHeight, hero, ticksPerStep;
     var __moduleName = context_13 && context_13.id;
     function getActionUnderCursor() {
         const npc = hero;
@@ -872,7 +880,7 @@ System.register("main", ["world/levels/sheep", "world/npcs", "engine/GameEvent",
         }
     }
     function onInterval() {
-        game.update();
+        game.update(ticksPerStep);
         EventLoop_3.eventLoop([game, scene, ...scene.objects]);
         game.draw();
     }
@@ -927,9 +935,9 @@ System.register("main", ["world/levels/sheep", "world/npcs", "engine/GameEvent",
                         drawDialog();
                     }
                 }
-                update() {
+                update(ticks) {
                     if (this.mode === "scene")
-                        scene.update();
+                        scene.update(ticks);
                 }
             };
             game = new Game();
@@ -938,6 +946,11 @@ System.register("main", ["world/levels/sheep", "world/npcs", "engine/GameEvent",
             exports_13("viewWidth", viewWidth = 20);
             exports_13("viewHeight", viewHeight = 20);
             exports_13("hero", hero = new npcs_2.Npc(new ObjectSkin_5.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
+            hero.moveSpeed = 4;
+            hero.onUpdate((ticks, o, scene) => {
+                const obj = o;
+                obj.moveTick += ticks;
+            });
             scene.objects.push(hero);
             document.addEventListener("keydown", function (ev) {
                 // const raw_key = ev.key.toLowerCase();
@@ -1033,13 +1046,14 @@ System.register("main", ["world/levels/sheep", "world/npcs", "engine/GameEvent",
                     }
                 }
             });
+            ticksPerStep = 33;
             // initial events
             EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
             EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
             EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
             //
             onInterval(); // initial run
-            setInterval(onInterval, 500);
+            setInterval(onInterval, ticksPerStep);
         }
     };
 });
@@ -1106,7 +1120,7 @@ o01
                     }
                 }
             });
-            tree.onUpdate((o) => {
+            tree.onUpdate((ticks, o, scene) => {
                 if (o.parameters["animate"]) {
                     o.parameters["tick"] = !o.parameters["tick"];
                     o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
@@ -1184,7 +1198,7 @@ H`, {
             for (let i = 0; i < 10; i++) {
                 const fl = StaticGameObject_3.StaticGameObject.clone(flower, { position: [Math.random() * 20 | 0, Math.random() * 20 | 0] });
                 flowers.push(fl);
-                fl.onUpdate((o) => {
+                fl.onUpdate((ticks, o, scene) => {
                     if (!o.parameters["inited"]) {
                         o.parameters["inited"] = true;
                         o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0];

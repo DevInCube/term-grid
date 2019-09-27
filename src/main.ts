@@ -33,9 +33,9 @@ class Game implements GameEventHandler {
         }
     }
 
-    update() {
+    update(ticks: number) {
         if (this.mode === "scene")
-            scene.update();
+            scene.update(ticks);
     }
 }
 
@@ -49,6 +49,11 @@ export const viewHeight = 20;
 
 
 export const hero = new Npc(new ObjectSkin('🐱', '.', {'.': [undefined, 'transparent']}), [9, 7]);
+hero.moveSpeed = 4;
+hero.onUpdate((ticks, o, scene) => {
+    const obj = <Npc>o;
+    obj.moveTick += ticks;
+});
 scene.objects.push(hero);
 
 document.addEventListener("keydown", function(ev) {
@@ -179,12 +184,13 @@ function drawDialog() {
     }
 }
 
+const ticksPerStep = 33;
+
 function onInterval() {
-    game.update();
+    game.update(ticksPerStep);
     eventLoop([game, scene, ...scene.objects]);
     game.draw();
 }
-
 
 // initial events
 emitEvent(new GameEvent("system", "weather_changed", {from: scene.weatherType, to: scene.weatherType}));
@@ -192,5 +198,5 @@ emitEvent(new GameEvent("system", "wind_changed", {from: scene.isWindy, to: scen
 emitEvent(new GameEvent("system", "time_changed", {from: scene.timePeriod, to: scene.timePeriod}));
 //
 onInterval(); // initial run
-setInterval(onInterval, 500);
+setInterval(onInterval, ticksPerStep);
 

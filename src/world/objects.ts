@@ -53,7 +53,7 @@ tree.addEventHandler((o, ev) => {
         }
     }
 });
-tree.onUpdate((o) => {
+tree.onUpdate((ticks, o, scene) => {
     if (o.parameters["animate"]) {
         o.parameters["tick"] = !o.parameters["tick"];
         o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
@@ -141,7 +141,7 @@ export const flowers: StaticGameObject[] = [];
 for (let i = 0; i < 10; i++) {
     const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
     flowers.push(fl);
-    fl.onUpdate((o) => {
+    fl.onUpdate((ticks, o, scene) => {
         if (!o.parameters["inited"]) { 
             o.parameters["inited"] = true;
             o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]

@@ -22,10 +22,10 @@ export class Scene implements GameEventHandler {
         }
     }
     
-    update() {
+    update(ticks: number) {
         for (const obj of this.objects) {
             if (obj.updateHandler) {
-                obj.updateHandler(obj, this);
+                obj.updateHandler(ticks, obj, this);
             }
         }
         
