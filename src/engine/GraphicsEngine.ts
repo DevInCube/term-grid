@@ -28,9 +28,13 @@ export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[
     // draw cursors
     for (let object of objects) {
         if (object instanceof Npc
-            && object.showCursor
             && (object.direction[0] || object.direction[1]) ) {
-            drawNpcCursor(ctx, object);
+            if (object.showCursor) {
+                drawNpcCursor(ctx, object);
+            }
+            if (object.objectInMainHand) {
+                drawObject(ctx, object.objectInMainHand, []);
+            }
         }
     }
 }

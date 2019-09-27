@@ -5,6 +5,7 @@ import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
 import { drawCell, isPositionBehindTheObject, cellStyle, isCollision, drawObjects } from "./GraphicsEngine";
 import { Npc } from "./Npc";
+import { Item } from "./Item";
 
 const defaultLightLevelAtNight = 4;
 
@@ -108,28 +109,36 @@ export class Scene implements GameEventHandler {
                     //     scene.lightLayer[y][x] = 15;
                 }
             }
-            for (let obj of scene.objects) {
+            const lightObjects = [
+                ...scene.objects, 
+                ...scene.objects
+                    .filter(x => (x instanceof Npc) && x.objectInMainHand)
+                    .map((x: Npc) => <Item>x.objectInMainHand)
+            ];
+            for (let obj of lightObjects) {
                 for (let line of obj.physics.lights.entries()) {
                     for (let left = 0; left < line[1].length; left++) {
                         const char = line[1][left];
                         const lightLevel = Number.parseInt(char, 16);
                         const aleft = obj.position[0] - obj.originPoint[0] + left;
                         const atop = obj.position[1] - obj.originPoint[1] + line[0];
-                        if (scene.lightLayer[atop] && scene.lightLayer[atop][aleft])
-                            scene.lightLayer[atop][aleft] += lightLevel;
+                        // console.log('add light', scene.lightLayer);
+                        addLight(atop, aleft, lightLevel);
                         // halo light
                         const newLightLevel = lightLevel - 1;
                         if (newLightLevel > 0) {
-                            if (atop - 1 >= 0 && scene.lightLayer[atop - 1] && scene.lightLayer[atop - 1][aleft])
-                                scene.lightLayer[atop - 1][aleft] += newLightLevel;
-                            if (atop + 1 < viewHeight && scene.lightLayer[atop + 1] && scene.lightLayer[atop + 1][aleft])
-                                scene.lightLayer[atop + 1][aleft] += newLightLevel;
-                            if (aleft - 1 >= 0 && scene.lightLayer[atop] && scene.lightLayer[atop][aleft - 1])
-                                scene.lightLayer[atop][aleft - 1] += newLightLevel;
-                            if (aleft + 1 < viewWidth && scene.lightLayer[atop] && scene.lightLayer[atop][aleft + 1])
-                                scene.lightLayer[atop][aleft + 1] += newLightLevel;
+                            addLight(atop - 1, aleft, newLightLevel);
+                            addLight(atop + 1, aleft, newLightLevel);
+                            addLight(atop, aleft - 1, newLightLevel);
+                            addLight(atop, aleft + 1, newLightLevel);
                         }
                     }
+                }
+            }
+
+            function addLight(top: number, left: number, lightLevel: number) {
+                if (scene.lightLayer[top] && typeof scene.lightLayer[top][left] != "undefined") {
+                    scene.lightLayer[top][left] += lightLevel;
                 }
             }
         }

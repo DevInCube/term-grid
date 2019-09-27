@@ -2,13 +2,16 @@ import { ObjectSkin } from "./ObjectSkin";
 import { SceneObject } from "./SceneObject";
 import { ObjectPhysics } from "./ObjectPhysics";
 import { deepCopy, distanceTo } from "../utils/misc";
+import { Item } from "./Item";
 
 export class Npc extends SceneObject {
     type: string = "undefined";
-    direction: [number, number] = [0, 0];
+    direction: [number, number] = [0, 1];
     showCursor: boolean = false;
     moveSpeed: number = 2; // cells per second
     moveTick: number = 0;
+    objectInMainHand: Item | null = null;
+
     get cursorPosition(): [number, number] {
         return [
             this.position[0] + this.direction[0],
@@ -16,7 +19,7 @@ export class Npc extends SceneObject {
         ];
     }
     constructor(skin: ObjectSkin = new ObjectSkin(), position: [number, number] = [0, 0], originPoint: [number, number] = [0, 0]) {
-        super(originPoint, skin, new ObjectPhysics(`.`, `8`), position);
+        super(originPoint, skin, new ObjectPhysics(`.`, ``), position);
         this.important = true;
     }
     move(): void {
