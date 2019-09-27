@@ -19,6 +19,7 @@ const hFence = new StaticGameObject(
     [0, 0]);
 
 const sheeps: Npc[] = [];
+const wolves: Npc[] = [];
 const fences: StaticGameObject[] = [];
 
 const sheep = new Npc(new ObjectSkin(`🐑`, `.`, {
@@ -51,6 +52,7 @@ if (true) {  // random sheeps
         });
         sheep1.onUpdate((ticks: number, obj: SceneObject, scene: Scene) => {
             const sheep = <Npc>obj;
+            if (!sheep.enabled) return;
             sheep.moveTick += ticks;
             const state = sheep.parameters["state"];
             if (!state) {
@@ -65,7 +67,6 @@ if (true) {  // random sheeps
                     sheep.parameters["state"] = "feared";
                     sheep.parameters["stress"] = 3;
                     sheep.parameters["enemies"] = enemiesNearby;
-                    runAway();
                 } else {  // if (fearedSheeps.length) 
                     const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
                     //console.log(sheepsStress);
@@ -77,7 +78,6 @@ if (true) {  // random sheeps
                         sheep.parameters["state"] = "feared_2";
                         sheep.parameters["enemies"] = fearedSheeps[0].parameters["enemies"];
                         enemiesNearby = fearedSheeps[0].parameters["enemies"];
-                        runAway();
                     }
                 }
                 
@@ -134,28 +134,10 @@ if (true) {  // random sheeps
                 sheep.direction[1] = (Math.random() * 3 | 0) - 1;
             }
 
-            function runAway() {
-                // let directionToRun = [0, 0];
-                // for (const e of enemiesNearby) {
-                //     directionToRun[0] += sheep.position[0] - e.position[0]
-                //     directionToRun[1] += sheep.position[1] - e.position[1];
-                // }
-                // for (const fs of fearedSheeps) {
-                //     directionToRun[0] += sheep.position[0] - fs.position[0]
-                //     directionToRun[1] += sheep.position[1] - fs.position[1];
-                // }
-                // directionToRun[0] = (directionToRun[0] | 0);
-                // directionToRun[1] = (directionToRun[1] | 0);
-                // // console.log(directionToRun);
-
-                // // normalize direction
-                // sheep.direction[0] = directionToRun[0] !== 0 ? directionToRun[0] / Math.abs(directionToRun[0]) : 0;
-                // sheep.direction[1] = directionToRun[1] !== 0 ? directionToRun[1] / Math.abs(directionToRun[1]) : 0;
-            }
-
             function getEnemiesNearby(radius: number) {
                 const enemies = [];
                 for (const object of scene.objects) {
+                    if (!object.enabled) continue;
                     if (object === sheep) continue;  // self check
                     if (object instanceof Npc && object.type !== "sheep") {
                         if (sheep.distanceTo(object) < radius) {
@@ -169,6 +151,7 @@ if (true) {  // random sheeps
             function getFearedSheepNearby(radius: number) {
                 const sheepsNearby = [];
                 for (const object of scene.objects) {
+                    if (!object.enabled) continue;
                     if (object === sheep) continue;  // self check
                     if (object instanceof Npc && object.type === "sheep") {
                         if (sheep.distanceTo(object) < radius 
@@ -183,5 +166,64 @@ if (true) {  // random sheeps
     }
 }
 
+const wolf = new Npc(new ObjectSkin(`🐺`, `.`, {
+    '.': [undefined, 'transparent'],
+}), [15, 15]);
+wolf.type = "wolf";
+wolf.moveSpeed = 4;
+wolf.onUpdate((ticks: number, obj: SceneObject, scene: Scene) => {
+    const wolf = <Npc>obj;
+    wolf.moveTick += ticks;
+    wolf.direction = [0, 0];
+    //
+    const prayList = getPrayNearby(6);
+    if (prayList.length) {
+        wolf.parameters["target"] = prayList[0];
+    }
+    const target = wolf.parameters["target"];
+    if (target) {
+        if (wolf.distanceTo(target) <= 1) {
+            target.enabled = false;  // eat prey
+            console.log("Wolf ate sheep");
+            wolf.parameters["target"] = null;
+        }
+        const possibleDirs: {direction: [number, number], available?: boolean, distance?: number}[] = [
+            { direction: [-1, 0] },
+            { direction: [+1, 0] },
+            { direction: [0, -1] },
+            { direction: [0, +1] },
+        ];
+        for (let pd of possibleDirs) {
+            const position: [number, number] = [
+                wolf.position[0] + pd.direction[0],
+                wolf.position[1] + pd.direction[1],
+            ];
+            pd.available = !scene.isPositionBlocked(position);
+            pd.distance = distanceTo(position, target.position);
+        }
+        const direction = possibleDirs.filter(x => x.available);
+        direction.sort((x, y) => <number>x.distance - <number>y.distance);
+        if (direction.length) {
+            wolf.direction = direction[0].direction;
+            wolf.move();
+        }
+    }
+
+    function getPrayNearby(radius: number) {
+        const enemies = [];
+        for (const object of scene.objects) {
+            if (!object.enabled) continue;
+            if (object === wolf) continue;  // self check
+            if (object instanceof Npc && object.type === "sheep") {
+                if (wolf.distanceTo(object) < radius) {
+                    enemies.push(object);
+                }
+            }
+        }
+        return enemies;
+    }
+});
+wolves.push(wolf);
+
 const tree2 = StaticGameObject.clone(tree, {position: [7, 9]});
-export const sheepLevel = [...sheeps, ...fences, tree2];
+export const sheepLevel = [...sheeps, ...wolves, ...fences, tree2];

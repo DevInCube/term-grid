@@ -852,7 +852,7 @@ H`, {
     };
 });
 System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects"], function (exports_14, context_14) {
-    var Npc_3, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, fences, sheep, tree2, sheepLevel;
+    var Npc_3, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, wolves, fences, sheep, wolf, tree2, sheepLevel;
     var __moduleName = context_14 && context_14.id;
     return {
         setters: [
@@ -879,6 +879,7 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
             vFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_5.ObjectPhysics('.'), [0, 0]);
             hFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_5.ObjectPhysics('.'), [0, 0]);
             sheeps = [];
+            wolves = [];
             fences = [];
             sheep = new Npc_3.Npc(new ObjectSkin_5.ObjectSkin(`🐑`, `.`, {
                 '.': [undefined, 'transparent'],
@@ -908,6 +909,8 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     });
                     sheep1.onUpdate((ticks, obj, scene) => {
                         const sheep = obj;
+                        if (!sheep.enabled)
+                            return;
                         sheep.moveTick += ticks;
                         const state = sheep.parameters["state"];
                         if (!state) {
@@ -922,7 +925,6 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                                 sheep.parameters["state"] = "feared";
                                 sheep.parameters["stress"] = 3;
                                 sheep.parameters["enemies"] = enemiesNearby;
-                                runAway();
                             }
                             else { // if (fearedSheeps.length) 
                                 const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
@@ -936,7 +938,6 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                                     sheep.parameters["state"] = "feared_2";
                                     sheep.parameters["enemies"] = fearedSheeps[0].parameters["enemies"];
                                     enemiesNearby = fearedSheeps[0].parameters["enemies"];
-                                    runAway();
                                 }
                             }
                         }
@@ -992,26 +993,11 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                             sheep.direction[0] = (Math.random() * 3 | 0) - 1;
                             sheep.direction[1] = (Math.random() * 3 | 0) - 1;
                         }
-                        function runAway() {
-                            // let directionToRun = [0, 0];
-                            // for (const e of enemiesNearby) {
-                            //     directionToRun[0] += sheep.position[0] - e.position[0]
-                            //     directionToRun[1] += sheep.position[1] - e.position[1];
-                            // }
-                            // for (const fs of fearedSheeps) {
-                            //     directionToRun[0] += sheep.position[0] - fs.position[0]
-                            //     directionToRun[1] += sheep.position[1] - fs.position[1];
-                            // }
-                            // directionToRun[0] = (directionToRun[0] | 0);
-                            // directionToRun[1] = (directionToRun[1] | 0);
-                            // // console.log(directionToRun);
-                            // // normalize direction
-                            // sheep.direction[0] = directionToRun[0] !== 0 ? directionToRun[0] / Math.abs(directionToRun[0]) : 0;
-                            // sheep.direction[1] = directionToRun[1] !== 0 ? directionToRun[1] / Math.abs(directionToRun[1]) : 0;
-                        }
                         function getEnemiesNearby(radius) {
                             const enemies = [];
                             for (const object of scene.objects) {
+                                if (!object.enabled)
+                                    continue;
                                 if (object === sheep)
                                     continue; // self check
                                 if (object instanceof Npc_3.Npc && object.type !== "sheep") {
@@ -1025,6 +1011,8 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                         function getFearedSheepNearby(radius) {
                             const sheepsNearby = [];
                             for (const object of scene.objects) {
+                                if (!object.enabled)
+                                    continue;
                                 if (object === sheep)
                                     continue; // self check
                                 if (object instanceof Npc_3.Npc && object.type === "sheep") {
@@ -1039,8 +1027,67 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     });
                 }
             }
+            wolf = new Npc_3.Npc(new ObjectSkin_5.ObjectSkin(`🐺`, `.`, {
+                '.': [undefined, 'transparent'],
+            }), [15, 15]);
+            wolf.type = "wolf";
+            wolf.moveSpeed = 4;
+            wolf.onUpdate((ticks, obj, scene) => {
+                const wolf = obj;
+                wolf.moveTick += ticks;
+                wolf.direction = [0, 0];
+                //
+                const prayList = getPrayNearby(6);
+                if (prayList.length) {
+                    wolf.parameters["target"] = prayList[0];
+                }
+                const target = wolf.parameters["target"];
+                if (target) {
+                    if (wolf.distanceTo(target) <= 1) {
+                        target.enabled = false; // eat prey
+                        console.log("Wolf ate sheep");
+                        wolf.parameters["target"] = null;
+                    }
+                    const possibleDirs = [
+                        { direction: [-1, 0] },
+                        { direction: [+1, 0] },
+                        { direction: [0, -1] },
+                        { direction: [0, +1] },
+                    ];
+                    for (let pd of possibleDirs) {
+                        const position = [
+                            wolf.position[0] + pd.direction[0],
+                            wolf.position[1] + pd.direction[1],
+                        ];
+                        pd.available = !scene.isPositionBlocked(position);
+                        pd.distance = misc_3.distanceTo(position, target.position);
+                    }
+                    const direction = possibleDirs.filter(x => x.available);
+                    direction.sort((x, y) => x.distance - y.distance);
+                    if (direction.length) {
+                        wolf.direction = direction[0].direction;
+                        wolf.move();
+                    }
+                }
+                function getPrayNearby(radius) {
+                    const enemies = [];
+                    for (const object of scene.objects) {
+                        if (!object.enabled)
+                            continue;
+                        if (object === wolf)
+                            continue; // self check
+                        if (object instanceof Npc_3.Npc && object.type === "sheep") {
+                            if (wolf.distanceTo(object) < radius) {
+                                enemies.push(object);
+                            }
+                        }
+                    }
+                    return enemies;
+                }
+            });
+            wolves.push(wolf);
             tree2 = StaticGameObject_3.StaticGameObject.clone(objects_1.tree, { position: [7, 9] });
-            exports_14("sheepLevel", sheepLevel = [...sheeps, ...fences, tree2]);
+            exports_14("sheepLevel", sheepLevel = [...sheeps, ...wolves, ...fences, tree2]);
         }
     };
 });
