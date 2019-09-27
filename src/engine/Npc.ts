@@ -11,6 +11,7 @@ export class Npc extends SceneObject {
     moveSpeed: number = 2; // cells per second
     moveTick: number = 0;
     objectInMainHand: Item | null = null;
+    objectInSecondaryHand: Item | null = null;
 
     get cursorPosition(): [number, number] {
         return [

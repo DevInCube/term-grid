@@ -35,6 +35,9 @@ export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[
             if (object.objectInMainHand) {
                 drawObject(ctx, object.objectInMainHand, []);
             }
+            if (object.objectInSecondaryHand) {
+                drawObject(ctx, object.objectInSecondaryHand, []);
+            }
         }
     }
 }

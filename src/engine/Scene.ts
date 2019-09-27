@@ -110,7 +110,10 @@ export class Scene implements GameEventHandler {
                 ...scene.objects, 
                 ...scene.objects
                     .filter(x => (x instanceof Npc) && x.objectInMainHand)
-                    .map((x: Npc) => <Item>x.objectInMainHand)
+                    .map((x: Npc) => <Item>x.objectInMainHand),
+                ...scene.objects
+                    .filter(x => (x instanceof Npc) && x.objectInSecondaryHand)
+                    .map((x: Npc) => <Item>x.objectInSecondaryHand)
             ];
             for (let obj of lightObjects) {
                 for (let line of obj.physics.lights.entries()) {

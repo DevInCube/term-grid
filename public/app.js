@@ -128,6 +128,9 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc"], function
                 if (object.objectInMainHand) {
                     drawObject(ctx, object.objectInMainHand, []);
                 }
+                if (object.objectInSecondaryHand) {
+                    drawObject(ctx, object.objectInSecondaryHand, []);
+                }
             }
         }
     }
@@ -412,7 +415,10 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                             ...scene.objects,
                             ...scene.objects
                                 .filter(x => (x instanceof Npc_2.Npc) && x.objectInMainHand)
-                                .map((x) => x.objectInMainHand)
+                                .map((x) => x.objectInMainHand),
+                            ...scene.objects
+                                .filter(x => (x instanceof Npc_2.Npc) && x.objectInSecondaryHand)
+                                .map((x) => x.objectInSecondaryHand)
                         ];
                         for (let obj of lightObjects) {
                             for (let line of obj.physics.lights.entries()) {
@@ -645,6 +651,7 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                     this.moveSpeed = 2; // cells per second
                     this.moveTick = 0;
                     this.objectInMainHand = null;
+                    this.objectInSecondaryHand = null;
                     this.important = true;
                 }
                 get cursorPosition() {
@@ -1063,12 +1070,18 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"]
             exports_16("hero", hero = new Npc_4.Npc(new ObjectSkin_7.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
             hero.moveSpeed = 10;
             hero.showCursor = true;
-            hero.objectInMainHand = items_1.lamp;
+            hero.objectInSecondaryHand = items_1.lamp;
             hero.onUpdate((ticks, o, scene) => {
                 const obj = o;
                 obj.moveTick += ticks;
                 if (obj.objectInMainHand) {
                     obj.objectInMainHand.position = obj.cursorPosition;
+                }
+                if (obj.objectInSecondaryHand) {
+                    obj.objectInSecondaryHand.position = [
+                        obj.position[0] + obj.direction[1],
+                        obj.position[1] - obj.direction[0],
+                    ];
                 }
             });
         }
