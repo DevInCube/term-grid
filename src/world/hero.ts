@@ -1,4 +1,4 @@
-import { Npc } from "./npcs";
+import { Npc } from "../engine/Npc";
 import { ObjectSkin } from "../engine/ObjectSkin";
 
 export const hero = new Npc(new ObjectSkin('🐱', '.', {'.': [undefined, 'transparent']}), [9, 7]);

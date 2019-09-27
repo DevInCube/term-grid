@@ -109,8 +109,8 @@ System.register("engine/EventLoop", [], function (exports_5, context_5) {
         }
     };
 });
-System.register("engine/GraphicsEngine", ["engine/Cell", "world/npcs"], function (exports_6, context_6) {
-    var Cell_1, npcs_1, GraphicsEngine, cellStyle, emptyCollisionChar;
+System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc"], function (exports_6, context_6) {
+    var Cell_1, Npc_1, GraphicsEngine, cellStyle, emptyCollisionChar;
     var __moduleName = context_6 && context_6.id;
     function drawObjects(ctx, objects) {
         for (let object of objects) {
@@ -120,7 +120,7 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "world/npcs"], function
         }
         // draw cursors
         for (let object of objects) {
-            if (object instanceof npcs_1.Npc
+            if (object instanceof Npc_1.Npc
                 && object.showCursor
                 && (object.direction[0] || object.direction[1])) {
                 drawNpcCursor(ctx, object);
@@ -244,8 +244,8 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "world/npcs"], function
             function (Cell_1_1) {
                 Cell_1 = Cell_1_1;
             },
-            function (npcs_1_1) {
-                npcs_1 = npcs_1_1;
+            function (Npc_1_1) {
+                Npc_1 = Npc_1_1;
             }
         ],
         execute: function () {
@@ -582,8 +582,8 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
         }
     };
 });
-System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics", "engine/EventLoop", "engine/GameEvent", "utils/misc"], function (exports_11, context_11) {
-    var ObjectSkin_3, SceneObject_2, ObjectPhysics_3, EventLoop_2, GameEvent_2, misc_2, Npc, ulan, npcs;
+System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics", "utils/misc"], function (exports_11, context_11) {
+    var ObjectSkin_3, SceneObject_2, ObjectPhysics_3, misc_2, Npc;
     var __moduleName = context_11 && context_11.id;
     return {
         setters: [
@@ -595,12 +595,6 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engin
             },
             function (ObjectPhysics_3_1) {
                 ObjectPhysics_3 = ObjectPhysics_3_1;
-            },
-            function (EventLoop_2_1) {
-                EventLoop_2 = EventLoop_2_1;
-            },
-            function (GameEvent_2_1) {
-                GameEvent_2 = GameEvent_2_1;
             },
             function (misc_2_1) {
                 misc_2 = misc_2_1;
@@ -643,18 +637,6 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/SceneObject", "engin
                 }
             };
             exports_11("Npc", Npc);
-            ulan = new Npc(new ObjectSkin_3.ObjectSkin('🐻', `.`, {
-                '.': [undefined, 'transparent'],
-            }), [4, 4]);
-            ulan.setAction(0, 0, (o) => {
-                EventLoop_2.emitEvent(new GameEvent_2.GameEvent(o, "user_action", {
-                    subtype: "npc_talk",
-                    object: o,
-                }));
-            });
-            exports_11("npcs", npcs = [
-                ulan,
-            ]);
         }
     };
 });
@@ -813,13 +795,13 @@ H`, {
         }
     };
 });
-System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects"], function (exports_13, context_13) {
-    var npcs_2, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, fences, sheep, tree2, sheepLevel;
+System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects"], function (exports_13, context_13) {
+    var Npc_2, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, fences, sheep, tree2, sheepLevel;
     var __moduleName = context_13 && context_13.id;
     return {
         setters: [
-            function (npcs_2_1) {
-                npcs_2 = npcs_2_1;
+            function (Npc_2_1) {
+                Npc_2 = Npc_2_1;
             },
             function (ObjectSkin_5_1) {
                 ObjectSkin_5 = ObjectSkin_5_1;
@@ -842,7 +824,7 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
             hFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_5.ObjectPhysics('.'), [0, 0]);
             sheeps = [];
             fences = [];
-            sheep = new npcs_2.Npc(new ObjectSkin_5.ObjectSkin(`🐑`, `.`, {
+            sheep = new Npc_2.Npc(new ObjectSkin_5.ObjectSkin(`🐑`, `.`, {
                 '.': [undefined, 'transparent'],
             }), [0, 0]);
             sheep.type = "sheep";
@@ -861,7 +843,7 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
                     const parts = 4;
                     for (let p = 0; p < parts; p++) {
                         const x = 1 + (16 / parts * p) + (Math.random() * (16 / parts) + 1) | 0;
-                        sheeps.push(npcs_2.Npc.clone(sheep, { position: [x, y] }));
+                        sheeps.push(Npc_2.Npc.clone(sheep, { position: [x, y] }));
                     }
                 }
                 for (let sheep1 of sheeps) {
@@ -976,7 +958,7 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
                             for (const object of scene.objects) {
                                 if (object === sheep)
                                     continue; // self check
-                                if (object instanceof npcs_2.Npc && object.type !== "sheep") {
+                                if (object instanceof Npc_2.Npc && object.type !== "sheep") {
                                     if (sheep.distanceTo(object) < radius) {
                                         enemies.push(object);
                                     }
@@ -989,7 +971,7 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
                             for (const object of scene.objects) {
                                 if (object === sheep)
                                     continue; // self check
-                                if (object instanceof npcs_2.Npc && object.type === "sheep") {
+                                if (object instanceof Npc_2.Npc && object.type === "sheep") {
                                     if (sheep.distanceTo(object) < radius
                                         && (object.parameters["stress"] | 0) > 0) {
                                         sheepsNearby.push(object);
@@ -1006,20 +988,20 @@ System.register("world/levels/sheep", ["world/npcs", "engine/ObjectSkin", "engin
         }
     };
 });
-System.register("world/hero", ["world/npcs", "engine/ObjectSkin"], function (exports_14, context_14) {
-    var npcs_3, ObjectSkin_6, hero;
+System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_14, context_14) {
+    var Npc_3, ObjectSkin_6, hero;
     var __moduleName = context_14 && context_14.id;
     return {
         setters: [
-            function (npcs_3_1) {
-                npcs_3 = npcs_3_1;
+            function (Npc_3_1) {
+                Npc_3 = Npc_3_1;
             },
             function (ObjectSkin_6_1) {
                 ObjectSkin_6 = ObjectSkin_6_1;
             }
         ],
         execute: function () {
-            exports_14("hero", hero = new npcs_3.Npc(new ObjectSkin_6.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
+            exports_14("hero", hero = new Npc_3.Npc(new ObjectSkin_6.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
             hero.moveSpeed = 10;
             hero.showCursor = true;
             hero.onUpdate((ticks, o, scene) => {
@@ -1030,7 +1012,7 @@ System.register("world/hero", ["world/npcs", "engine/ObjectSkin"], function (exp
     };
 });
 System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero"], function (exports_15, context_15) {
-    var sheep_1, GameEvent_3, EventLoop_3, Scene_1, Cell_3, GraphicsEngine_2, hero_1, canvas, ctx, Game, game, scene, viewWidth, viewHeight, ticksPerStep;
+    var sheep_1, GameEvent_2, EventLoop_2, Scene_1, Cell_3, GraphicsEngine_2, hero_1, canvas, ctx, Game, game, scene, viewWidth, viewHeight, ticksPerStep;
     var __moduleName = context_15 && context_15.id;
     function getActionUnderCursor() {
         const npc = hero_1.hero;
@@ -1064,7 +1046,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
     }
     function onInterval() {
         game.update(ticksPerStep);
-        EventLoop_3.eventLoop([game, scene, ...scene.objects]);
+        EventLoop_2.eventLoop([game, scene, ...scene.objects]);
         game.draw();
     }
     return {
@@ -1072,11 +1054,11 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
             function (sheep_1_1) {
                 sheep_1 = sheep_1_1;
             },
-            function (GameEvent_3_1) {
-                GameEvent_3 = GameEvent_3_1;
+            function (GameEvent_2_1) {
+                GameEvent_2 = GameEvent_2_1;
             },
-            function (EventLoop_3_1) {
-                EventLoop_3 = EventLoop_3_1;
+            function (EventLoop_2_1) {
+                EventLoop_2 = EventLoop_2_1;
             },
             function (Scene_1_1) {
                 Scene_1 = Scene_1_1;
@@ -1134,7 +1116,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                 }
                 else if (game.mode === 'dialog') {
                     if (key_code === "Escape") {
-                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "switch_mode", { from: game.mode, to: "scene" }));
+                        EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "switch_mode", { from: game.mode, to: "scene" }));
                     }
                 }
             });
@@ -1189,7 +1171,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                             scene.weatherType = 'mist';
                         }
                         if (oldWeatherType !== scene.weatherType) {
-                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", {
+                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "weather_changed", {
                                 from: oldWeatherType,
                                 to: scene.weatherType,
                             }));
@@ -1197,7 +1179,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                         // wind
                         if (raw_key === 'e') {
                             scene.isWindy = !scene.isWindy;
-                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", {
+                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "wind_changed", {
                                 from: !scene.isWindy,
                                 to: scene.isWindy,
                             }));
@@ -1206,7 +1188,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                         if (raw_key === 'q') { // debug
                             scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
                             //
-                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
+                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "time_changed", {
                                 from: scene.timePeriod === 'day' ? 'night' : 'day',
                                 to: scene.timePeriod,
                             }));
@@ -1222,18 +1204,52 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
             });
             ticksPerStep = 33;
             // initial events
-            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
-            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
-            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
+            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
+            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
+            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
             //
             onInterval(); // initial run
             setInterval(onInterval, ticksPerStep);
         }
     };
 });
-System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_16, context_16) {
-    var objects_2, misc_4, EventLoop_4, GameEvent_4, npcs_4, introLevel;
+System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_16, context_16) {
+    var ObjectSkin_7, EventLoop_3, GameEvent_3, Npc_4, ulan, npcs;
     var __moduleName = context_16 && context_16.id;
+    return {
+        setters: [
+            function (ObjectSkin_7_1) {
+                ObjectSkin_7 = ObjectSkin_7_1;
+            },
+            function (EventLoop_3_1) {
+                EventLoop_3 = EventLoop_3_1;
+            },
+            function (GameEvent_3_1) {
+                GameEvent_3 = GameEvent_3_1;
+            },
+            function (Npc_4_1) {
+                Npc_4 = Npc_4_1;
+            }
+        ],
+        execute: function () {
+            ulan = new Npc_4.Npc(new ObjectSkin_7.ObjectSkin('🐻', `.`, {
+                '.': [undefined, 'transparent'],
+            }), [4, 4]);
+            ulan.setAction(0, 0, (o) => {
+                EventLoop_3.emitEvent(new GameEvent_3.GameEvent(o, "user_action", {
+                    subtype: "npc_talk",
+                    object: o,
+                }));
+            });
+            exports_16("npcs", npcs = [
+                ulan,
+            ]);
+        }
+    };
+});
+System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_17, context_17) {
+    var objects_2, misc_4, EventLoop_4, GameEvent_4, npcs_1, introLevel;
+    var __moduleName = context_17 && context_17.id;
     return {
         setters: [
             function (objects_2_1) {
@@ -1248,12 +1264,12 @@ System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/Ev
             function (GameEvent_4_1) {
                 GameEvent_4 = GameEvent_4_1;
             },
-            function (npcs_4_1) {
-                npcs_4 = npcs_4_1;
+            function (npcs_1_1) {
+                npcs_1 = npcs_1_1;
             }
         ],
         execute: function () {
-            exports_16("introLevel", introLevel = [...objects_2.flowers, objects_2.house, objects_2.chest, objects_2.tree, ...objects_2.trees, ...objects_2.lamps, ...npcs_4.npcs]);
+            exports_17("introLevel", introLevel = [...objects_2.flowers, objects_2.house, objects_2.chest, objects_2.tree, ...objects_2.trees, ...objects_2.lamps, ...npcs_1.npcs]);
             // scripts
             objects_2.chest.setAction(0, 0, function () {
                 EventLoop_4.emitEvent(new GameEvent_4.GameEvent(objects_2.chest, "add_object", { object: misc_4.createTextObject(`VICTORY!`, 6, 6) }));

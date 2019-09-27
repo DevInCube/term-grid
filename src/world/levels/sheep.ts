@@ -1,4 +1,4 @@
-import { Npc } from "../npcs";
+import { Npc } from "../../engine/Npc";
 import { ObjectSkin } from "../../engine/ObjectSkin";
 import { Scene } from "../../engine/Scene";
 import { SceneObject } from "../../engine/SceneObject";

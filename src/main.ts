@@ -1,5 +1,5 @@
 import { sheepLevel } from "./world/levels/sheep";
-import { Npc } from "./world/npcs";
+import { Npc } from "./engine/Npc";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 import { emitEvent, eventLoop } from "./engine/EventLoop";

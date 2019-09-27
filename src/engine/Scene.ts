@@ -4,7 +4,7 @@ import { viewHeight, viewWidth } from "../main";
 import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
 import { drawCell, isPositionBehindTheObject, cellStyle, isCollision, drawObjects } from "./GraphicsEngine";
-import { Npc } from "../world/npcs";
+import { Npc } from "./Npc";
 
 const defaultLightLevelAtNight = 4;
 

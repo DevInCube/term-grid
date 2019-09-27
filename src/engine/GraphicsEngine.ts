@@ -1,6 +1,6 @@
 import { SceneObject } from "./SceneObject";
 import { Cell } from "./Cell";
-import { Npc } from "../world/npcs";
+import { Npc } from "./Npc";
 
 export class GraphicsEngine {
     
