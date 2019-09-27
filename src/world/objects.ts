@@ -54,11 +54,15 @@ tree.addEventHandler((o, ev) => {
     }
 });
 tree.onUpdate((ticks, o, scene) => {
-    if (o.parameters["animate"]) {
-        o.parameters["tick"] = !o.parameters["tick"];
-        o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
-        o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-        o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+    o.ticks += ticks;
+    if (o.ticks > 300) {
+        if (o.parameters["animate"]) {
+            o.parameters["tick"] = !o.parameters["tick"];
+            o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+            o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+            o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+        }
+        o.ticks = 0;
     }
 });
 

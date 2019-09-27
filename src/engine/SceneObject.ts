@@ -18,6 +18,7 @@ export class SceneObject implements GameEventHandler {
     public actions: [[number, number], GameObjectAction][] = [];
     public eventHandlers: GameObjectEventHandler[] = [];
     public updateHandler: UpdateHandler;
+    ticks: number = 0;
 
     constructor(
         public originPoint: [number, number],

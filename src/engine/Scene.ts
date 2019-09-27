@@ -1,9 +1,10 @@
 import { GameEvent, GameEventHandler } from "./GameEvent";
 import { SceneObject, Drawable } from "./SceneObject";
-import { viewHeight, viewWidth, hero } from "../main";
+import { viewHeight, viewWidth } from "../main";
 import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
 import { drawCell, isPositionBehindTheObject, cellStyle, isCollision, drawObjects } from "./GraphicsEngine";
+import { Npc } from "../world/npcs";
 
 const defaultLightLevelAtNight = 4;
 
@@ -83,25 +84,7 @@ export class Scene implements GameEventHandler {
             }
         }
 
-        // hero shadow behind objects
-        for (let object of this.objects) {
-            if (!object.enabled)
-                continue;
-            if (isPositionBehindTheObject(object, hero.position[0], hero.position[1])) {
-                ctx.fillStyle = 'black';
-                const left = hero.position[0] * cellStyle.size.width;
-                const top = hero.position[1] * cellStyle.size.height;
-                ctx.globalAlpha = 0.5;
-                ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
-                break;
-            }
-        }
         drawObjects(ctx, this.objects);
-
-        // hero direction (cursor)
-        if (hero.direction[0] || hero.direction[1]) {
-            drawHeroCursor();
-        }
 
         const scene = this;
         updateLights();
@@ -115,9 +98,9 @@ export class Scene implements GameEventHandler {
                         scene.lightLayer[y] = [];
                     if (!scene.lightLayer[y][x])
                         scene.lightLayer[y][x] = 0;
-                    // hero light
-                    if (Math.abs(x - hero.position[0]) + Math.abs(y - hero.position[1]) <= 2)
-                        scene.lightLayer[y][x] = 15;
+                    // hero light @todo lamp light in hero hands
+                    // if (Math.abs(x - hero.position[0]) + Math.abs(y - hero.position[1]) <= 2)
+                    //     scene.lightLayer[y][x] = 15;
                 }
             }
             for (let obj of scene.objects) {
@@ -146,18 +129,7 @@ export class Scene implements GameEventHandler {
             }
         }
         drawWeather();
-        function drawHeroCursor() {
-            const leftPos = hero.position[0] + hero.direction[0];
-            const topPos = hero.position[1] + hero.direction[1];
-            drawCell(ctx, new Cell('.', 'black', 'yellow'), leftPos, topPos, true);
-            // palette borders
-            const left = leftPos * cellStyle.size.width;
-            const top = topPos * cellStyle.size.height;
-            ctx.globalAlpha = 1;
-            ctx.strokeStyle = 'yellow';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
-        }
+
         function drawWeather() {
             for (let y = 0; y < viewHeight; y++) {
                 for (let x = 0; x < viewWidth; x++) {

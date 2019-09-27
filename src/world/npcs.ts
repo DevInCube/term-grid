@@ -8,6 +8,7 @@ import { deepCopy, distanceTo } from "../utils/misc";
 export class Npc extends SceneObject {
     type: string = "undefined";
     direction: [number, number] = [0, 0];
+    showCursor: boolean = false;
     moveSpeed: number = 2;  // cells per second
     moveTick: number = 0;
 

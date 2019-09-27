@@ -7,6 +7,7 @@ import { Scene } from "./engine/Scene";
 import { Cell } from "./engine/Cell";
 import { drawCell } from "./engine/GraphicsEngine";
 import { ObjectSkin } from "./engine/ObjectSkin";
+import { hero } from "./world/hero";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -47,13 +48,6 @@ scene.objects = sheepLevel;
 export const viewWidth = 20;
 export const viewHeight = 20;
 
-
-export const hero = new Npc(new ObjectSkin('🐱', '.', {'.': [undefined, 'transparent']}), [9, 7]);
-hero.moveSpeed = 4;
-hero.onUpdate((ticks, o, scene) => {
-    const obj = <Npc>o;
-    obj.moveTick += ticks;
-});
 scene.objects.push(hero);
 
 document.addEventListener("keydown", function(ev) {

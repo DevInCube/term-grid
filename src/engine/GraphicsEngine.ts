@@ -1,5 +1,6 @@
 import { SceneObject } from "./SceneObject";
 import { Cell } from "./Cell";
+import { Npc } from "../world/npcs";
 
 export class GraphicsEngine {
     
@@ -24,6 +25,26 @@ export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[
             continue;
         drawObject(ctx, object, objects.filter(x => x.important));
     }
+    for (let object of objects) {
+        if (object instanceof Npc
+            && object.showCursor
+            && (object.direction[0] || object.direction[1]) ) {
+            drawNpcCursor(ctx, object);
+        }
+    }
+}
+
+function drawNpcCursor(ctx: CanvasRenderingContext2D, npc: Npc) {
+    const leftPos = npc.position[0] + npc.direction[0];
+    const topPos = npc.position[1] + npc.direction[1];
+    drawCell(ctx, new Cell('.', 'black', 'yellow'), leftPos, topPos, true);
+    // palette borders
+    const left = leftPos * cellStyle.size.width;
+    const top = topPos * cellStyle.size.height;
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'yellow';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
 }
 
 function drawObject(ctx: CanvasRenderingContext2D, obj: SceneObject, importantObjects: SceneObject[]) {

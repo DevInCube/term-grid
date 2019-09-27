@@ -5,6 +5,7 @@ import { SceneObject } from "../../engine/SceneObject";
 import { StaticGameObject } from "../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../engine/ObjectPhysics";
 import { distanceTo } from "../../utils/misc";
+import { tree } from "../objects";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -182,4 +183,5 @@ if (true) {  // random sheeps
     }
 }
 
-export const sheepLevel = [...sheeps, ...fences];
+const tree2 = StaticGameObject.clone(tree, {position: [7, 9]});
+export const sheepLevel = [...sheeps, ...fences, tree2];
