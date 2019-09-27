@@ -120,11 +120,11 @@ if (true) {  // random sheeps
             }
 
             if (sheep.parameters["state"] === "feared") {
-                sheep.skin.raw_colors[0][0] = [undefined, "OrangeRed"];
+                sheep.skin.raw_colors[0][0] = [undefined, "#FF000055"];
             } else if (sheep.parameters["stress"] > 1) {
-                sheep.skin.raw_colors[0][0] = [undefined, "Coral"];
+                sheep.skin.raw_colors[0][0] = [undefined, "#FF8C0055"];
             } else if (sheep.parameters["stress"] > 0) {
-                sheep.skin.raw_colors[0][0] = [undefined, "Orange"];
+                sheep.skin.raw_colors[0][0] = [undefined, "#FFFF0055"];
             } else {
                 sheep.skin.raw_colors[0][0] = [undefined, "transparent"];
             }
