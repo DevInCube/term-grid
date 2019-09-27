@@ -104,9 +104,6 @@ export class Scene implements GameEventHandler {
                         scene.lightLayer[y] = [];
                     if (!scene.lightLayer[y][x])
                         scene.lightLayer[y][x] = 0;
-                    // hero light @todo lamp light in hero hands
-                    // if (Math.abs(x - hero.position[0]) + Math.abs(y - hero.position[1]) <= 2)
-                    //     scene.lightLayer[y][x] = 15;
                 }
             }
             const lightObjects = [
@@ -123,20 +120,27 @@ export class Scene implements GameEventHandler {
                         const aleft = obj.position[0] - obj.originPoint[0] + left;
                         const atop = obj.position[1] - obj.originPoint[1] + line[0];
                         // console.log('add light', scene.lightLayer);
-                        addLight(atop, aleft, lightLevel);
-                        // halo light
-                        const newLightLevel = lightLevel - 1;
-                        if (newLightLevel > 0) {
-                            addLight(atop - 1, aleft, newLightLevel);
-                            addLight(atop + 1, aleft, newLightLevel);
-                            addLight(atop, aleft - 1, newLightLevel);
-                            addLight(atop, aleft + 1, newLightLevel);
-                        }
+                        addLight(aleft, atop, lightLevel);
+                        spreadPoint(scene.lightLayer, aleft, atop);
                     }
                 }
             }
 
-            function addLight(top: number, left: number, lightLevel: number) {
+            function spreadPoint(array: number[][], x: number, y: number)
+            {
+                if (array[y][x] - 2 <= defaultLightLevelAtNight) return;
+                for (let i = x - 1; i < x + 2; i++)
+                    for (let j = y - 1; j < y + 2; j++)
+                        if ((i === x || j === y) && !(i === x && j === y) 
+                            && (i >= 0 && i < 20 && j >= 0 && j < 20)
+                            && array[j][i] + 1 < array[y][x])
+                        {
+                            array[j][i] = array[y][x] - 2;
+                            spreadPoint(array, i, j);
+                        }
+            }
+
+            function addLight(left: number, top: number, lightLevel: number) {
                 if (scene.lightLayer[top] && typeof scene.lightLayer[top][left] != "undefined") {
                     scene.lightLayer[top][left] += lightLevel;
                 }
