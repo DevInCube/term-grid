@@ -25,6 +25,7 @@ export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[
             continue;
         drawObject(ctx, object, objects.filter(x => x.important));
     }
+    // draw cursors
     for (let object of objects) {
         if (object instanceof Npc
             && object.showCursor
