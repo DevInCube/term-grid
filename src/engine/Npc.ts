@@ -12,6 +12,8 @@ export class Npc extends SceneObject {
     moveTick: number = 0;
     objectInMainHand: Item | null = null;
     objectInSecondaryHand: Item | null = null;
+    health: number = 1;
+    maxHealth: number = 3;
 
     get cursorPosition(): [number, number] {
         return [

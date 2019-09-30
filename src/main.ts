@@ -8,6 +8,7 @@ import { Cell } from "./engine/Cell";
 import { drawCell } from "./engine/GraphicsEngine";
 import { ObjectSkin } from "./engine/ObjectSkin";
 import { hero } from "./world/hero";
+import { PlayerUi } from "./ui/playerUi";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -29,12 +30,14 @@ class Game implements GameEventHandler {
 
     draw() {
         scene.draw(ctx);
+        heroUi.draw(ctx);
         if (this.mode === "dialog") {
             drawDialog();
         }
     }
 
     update(ticks: number) {
+        heroUi.update(ticks, scene);
         if (this.mode === "scene")
             scene.update(ticks);
     }
@@ -47,6 +50,8 @@ scene.objects = sheepLevel;
 
 export const viewWidth = 20;
 export const viewHeight = 20;
+
+let heroUi = new PlayerUi(hero);
 
 scene.objects.push(hero);
 

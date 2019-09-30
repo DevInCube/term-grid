@@ -147,6 +147,30 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc"], function
         ctx.lineWidth = 2;
         ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
     }
+    function drawObjectAt(ctx, obj, position) {
+        for (let y = 0; y < obj.skin.characters.length; y++) {
+            let x = 0;
+            for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
+                const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
+                const codePoint = obj.skin.characters[y].codePointAt(charIndex);
+                let char = obj.skin.characters[y][charIndex] || ' ';
+                if (codePoint && codePoint > 0xffff) {
+                    const next = obj.skin.characters[y][charIndex + 1];
+                    // console.log(char, next, char + next);
+                    if (next) {
+                        char += next;
+                        charIndex += 1;
+                    }
+                }
+                const cell = new Cell_1.Cell(char, cellColor[0], cellColor[1]);
+                if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
+                    drawCell(ctx, cell, position[0] - obj.originPoint[0] + x, position[1] - obj.originPoint[1] + y);
+                }
+                x += 1;
+            }
+        }
+    }
+    exports_6("drawObjectAt", drawObjectAt);
     function drawObject(ctx, obj, importantObjects) {
         let showOnlyCollisions = isInFrontOfImportantObject();
         // console.log(obj.skin.characters);
@@ -665,6 +689,8 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                     this.moveTick = 0;
                     this.objectInMainHand = null;
                     this.objectInSecondaryHand = null;
+                    this.health = 1;
+                    this.maxHealth = 3;
                     this.important = true;
                 }
                 get cursorPosition() {
@@ -1147,9 +1173,66 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"]
         }
     };
 });
-System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero"], function (exports_17, context_17) {
-    var sheep_1, GameEvent_2, EventLoop_2, Scene_1, Cell_3, GraphicsEngine_2, hero_1, canvas, ctx, Game, game, scene, viewWidth, viewHeight, ticksPerStep;
+System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_17, context_17) {
+    var GraphicsEngine_2, Cell_3, main_2, Npc_5, PlayerUi;
     var __moduleName = context_17 && context_17.id;
+    return {
+        setters: [
+            function (GraphicsEngine_2_1) {
+                GraphicsEngine_2 = GraphicsEngine_2_1;
+            },
+            function (Cell_3_1) {
+                Cell_3 = Cell_3_1;
+            },
+            function (main_2_1) {
+                main_2 = main_2_1;
+            },
+            function (Npc_5_1) {
+                Npc_5 = Npc_5_1;
+            }
+        ],
+        execute: function () {
+            PlayerUi = class PlayerUi {
+                constructor(npc) {
+                    this.npc = npc;
+                    this.objectUnderCursor = null;
+                }
+                draw(ctx) {
+                    for (let i = 0; i < main_2.viewWidth; i++) {
+                        GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(' ', 'white', 'black'), i, 0);
+                    }
+                    for (let i = 0; i < this.npc.maxHealth; i++) {
+                        GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), i, 0);
+                    }
+                    if (this.objectUnderCursor) {
+                        if (this.objectUnderCursor instanceof Npc_5.Npc) {
+                            GraphicsEngine_2.drawObjectAt(ctx, this.objectUnderCursor, [main_2.viewWidth - this.npc.maxHealth - 1, 0]);
+                            for (let i = 0; i < this.npc.maxHealth; i++) {
+                                GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), main_2.viewWidth - this.npc.maxHealth + i, 0);
+                            }
+                        }
+                    }
+                }
+                update(ticks, scene) {
+                    this.objectUnderCursor = null;
+                    for (let o of scene.objects) {
+                        if (o instanceof Npc_5.Npc) {
+                            if (o.position[0] === this.npc.cursorPosition[0]
+                                && o.position[1] === this.npc.cursorPosition[1]) {
+                                this.objectUnderCursor = o;
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            exports_17("PlayerUi", PlayerUi);
+        }
+    };
+});
+System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi"], function (exports_18, context_18) {
+    var sheep_1, GameEvent_2, EventLoop_2, Scene_1, Cell_4, GraphicsEngine_3, hero_1, playerUi_1, canvas, ctx, Game, game, scene, viewWidth, viewHeight, heroUi, ticksPerStep;
+    var __moduleName = context_18 && context_18.id;
     function getActionUnderCursor() {
         const npc = hero_1.hero;
         for (let object of scene.objects) {
@@ -1174,9 +1257,9 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
         for (let y = 0; y < dialogHeight; y++) {
             for (let x = 0; x < dialogWidth; x++) {
                 if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
-                    GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
+                    GraphicsEngine_3.drawCell(ctx, new Cell_4.Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
                 else
-                    GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
+                    GraphicsEngine_3.drawCell(ctx, new Cell_4.Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
             }
         }
     }
@@ -1199,14 +1282,17 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
             function (Scene_1_1) {
                 Scene_1 = Scene_1_1;
             },
-            function (Cell_3_1) {
-                Cell_3 = Cell_3_1;
+            function (Cell_4_1) {
+                Cell_4 = Cell_4_1;
             },
-            function (GraphicsEngine_2_1) {
-                GraphicsEngine_2 = GraphicsEngine_2_1;
+            function (GraphicsEngine_3_1) {
+                GraphicsEngine_3 = GraphicsEngine_3_1;
             },
             function (hero_1_1) {
                 hero_1 = hero_1_1;
+            },
+            function (playerUi_1_1) {
+                playerUi_1 = playerUi_1_1;
             }
         ],
         execute: function () {
@@ -1229,11 +1315,13 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                 }
                 draw() {
                     scene.draw(ctx);
+                    heroUi.draw(ctx);
                     if (this.mode === "dialog") {
                         drawDialog();
                     }
                 }
                 update(ticks) {
+                    heroUi.update(ticks, scene);
                     if (this.mode === "scene")
                         scene.update(ticks);
                 }
@@ -1241,8 +1329,9 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
             game = new Game();
             scene = new Scene_1.Scene();
             scene.objects = sheep_1.sheepLevel;
-            exports_17("viewWidth", viewWidth = 20);
-            exports_17("viewHeight", viewHeight = 20);
+            exports_18("viewWidth", viewWidth = 20);
+            exports_18("viewHeight", viewHeight = 20);
+            heroUi = new playerUi_1.PlayerUi(hero_1.hero);
             scene.objects.push(hero_1.hero);
             document.addEventListener("keydown", function (ev) {
                 // const raw_key = ev.key.toLowerCase();
@@ -1349,9 +1438,9 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
         }
     };
 });
-System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_18, context_18) {
-    var ObjectSkin_8, EventLoop_3, GameEvent_3, Npc_5, ulan, npcs;
-    var __moduleName = context_18 && context_18.id;
+System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_19, context_19) {
+    var ObjectSkin_8, EventLoop_3, GameEvent_3, Npc_6, ulan, npcs;
+    var __moduleName = context_19 && context_19.id;
     return {
         setters: [
             function (ObjectSkin_8_1) {
@@ -1363,12 +1452,12 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
             function (GameEvent_3_1) {
                 GameEvent_3 = GameEvent_3_1;
             },
-            function (Npc_5_1) {
-                Npc_5 = Npc_5_1;
+            function (Npc_6_1) {
+                Npc_6 = Npc_6_1;
             }
         ],
         execute: function () {
-            ulan = new Npc_5.Npc(new ObjectSkin_8.ObjectSkin('🐻', `.`, {
+            ulan = new Npc_6.Npc(new ObjectSkin_8.ObjectSkin('🐻', `.`, {
                 '.': [undefined, 'transparent'],
             }), [4, 4]);
             ulan.setAction(0, 0, (o) => {
@@ -1377,15 +1466,15 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
                     object: o,
                 }));
             });
-            exports_18("npcs", npcs = [
+            exports_19("npcs", npcs = [
                 ulan,
             ]);
         }
     };
 });
-System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_19, context_19) {
+System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_20, context_20) {
     var objects_2, misc_4, EventLoop_4, GameEvent_4, npcs_1, introLevel;
-    var __moduleName = context_19 && context_19.id;
+    var __moduleName = context_20 && context_20.id;
     return {
         setters: [
             function (objects_2_1) {
@@ -1405,7 +1494,7 @@ System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/Ev
             }
         ],
         execute: function () {
-            exports_19("introLevel", introLevel = [...objects_2.flowers, objects_2.house, objects_2.chest, objects_2.tree, ...objects_2.trees, ...objects_2.lamps, ...npcs_1.npcs]);
+            exports_20("introLevel", introLevel = [...objects_2.flowers, objects_2.house, objects_2.chest, objects_2.tree, ...objects_2.trees, ...objects_2.lamps, ...npcs_1.npcs]);
             // scripts
             objects_2.chest.setAction(0, 0, function () {
                 EventLoop_4.emitEvent(new GameEvent_4.GameEvent(objects_2.chest, "add_object", { object: misc_4.createTextObject(`VICTORY!`, 6, 6) }));

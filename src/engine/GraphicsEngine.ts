@@ -55,6 +55,32 @@ function drawNpcCursor(ctx: CanvasRenderingContext2D, npc: Npc) {
     ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
 }
 
+export function drawObjectAt(ctx: CanvasRenderingContext2D, obj: SceneObject, position: [number ,number]) {
+    for (let y = 0; y < obj.skin.characters.length; y++) {
+        let x = 0;
+        for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
+            const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
+            const codePoint = obj.skin.characters[y].codePointAt(charIndex);
+            
+            let char = obj.skin.characters[y][charIndex] || ' ';
+            if (codePoint && <number>codePoint > 0xffff) {
+                const next = obj.skin.characters[y][charIndex + 1];
+                // console.log(char, next, char + next);
+                if (next) {
+                    char += next;
+                    charIndex += 1;
+                }
+            }
+            const cell = new Cell(char, cellColor[0], cellColor[1]);
+            if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
+                drawCell(ctx, cell, position[0] - obj.originPoint[0] + x, position[1] - obj.originPoint[1] + y);
+            }
+            x += 1;
+        }
+
+    }
+}
+
 function drawObject(ctx: CanvasRenderingContext2D, obj: SceneObject, importantObjects: SceneObject[]) {
     let showOnlyCollisions: boolean = isInFrontOfImportantObject();
     // console.log(obj.skin.characters);
