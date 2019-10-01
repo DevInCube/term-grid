@@ -68,7 +68,7 @@ export class Npc extends SceneObject {
     distanceTo(other: Npc): number {
         return distanceTo(this.position, other.position);
     }
-    
+
     handleEvent(ev: GameEvent) {
         super.handleEvent(ev);
         if (ev.type === "attack" && ev.args.subject === this) {
@@ -81,5 +81,75 @@ export class Npc extends SceneObject {
                 emitEvent(new GameEvent(this, "death", { object: this }));
             }
         }
+    }
+
+    runAway(scene: Scene, enemiesNearby: Npc[]) {
+        const possibleDirs: { direction: [number, number], available?: boolean, distance?: number }[] = [
+            { direction: [-1, 0] },
+            { direction: [+1, 0] },
+            { direction: [0, -1] },
+            { direction: [0, +1] },
+        ];
+        for (let pd of possibleDirs) {
+            const position: [number, number] = [
+                this.position[0] + pd.direction[0],
+                this.position[1] + pd.direction[1],
+            ];
+            pd.available = !scene.isPositionBlocked(position);
+            if (enemiesNearby.length)
+                pd.distance = distanceTo(position, enemiesNearby[0].position);
+        }
+        const direction = possibleDirs.filter(x => x.available);
+        direction.sort((x, y) => <number>y.distance - <number>x.distance);
+        if (direction.length) {
+            this.direction = direction[0].direction;
+            this.move();
+        }
+    }
+
+    approach(scene: Scene, target: SceneObject) {
+        const possibleDirs: { direction: [number, number], available?: boolean, distance?: number }[] = [
+            { direction: [-1, 0] },
+            { direction: [+1, 0] },
+            { direction: [0, -1] },
+            { direction: [0, +1] },
+        ];
+        for (let pd of possibleDirs) {
+            const position: [number, number] = [
+                this.position[0] + pd.direction[0],
+                this.position[1] + pd.direction[1],
+            ];
+            pd.available = !scene.isPositionBlocked(position);
+            pd.distance = distanceTo(position, target.position);
+        }
+        const direction = possibleDirs.filter(x => x.available);
+        direction.sort((x, y) => <number>x.distance - <number>y.distance);
+        if (direction.length) {
+            this.direction = direction[0].direction;
+            this.move();
+        }
+    }
+
+    moveRandomly() {
+        if ((Math.random() * 100 | 0) === 0) {
+            this.direction[0] = (Math.random() * 3 | 0) - 1;
+            if (this.direction[0] === 0) {
+                this.direction[1] = (Math.random() * 3 | 0) - 1;
+            }
+        }
+    }
+
+    getMobsNearby(scene: Scene, radius: number, callback: (o: Npc) => boolean): Npc[] {
+        const enemies = [];
+        for (const object of scene.objects) {
+            if (!object.enabled) continue;
+            if (object === this) continue;  // self check
+            if (object instanceof Npc && callback(object)) {
+                if (this.distanceTo(object) < radius) {
+                    enemies.push(object);
+                }
+            }
+        }
+        return enemies;
     }
 }

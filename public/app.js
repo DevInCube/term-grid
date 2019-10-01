@@ -748,6 +748,74 @@ System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engin
                         }
                     }
                 }
+                runAway(scene, enemiesNearby) {
+                    const possibleDirs = [
+                        { direction: [-1, 0] },
+                        { direction: [+1, 0] },
+                        { direction: [0, -1] },
+                        { direction: [0, +1] },
+                    ];
+                    for (let pd of possibleDirs) {
+                        const position = [
+                            this.position[0] + pd.direction[0],
+                            this.position[1] + pd.direction[1],
+                        ];
+                        pd.available = !scene.isPositionBlocked(position);
+                        if (enemiesNearby.length)
+                            pd.distance = misc_1.distanceTo(position, enemiesNearby[0].position);
+                    }
+                    const direction = possibleDirs.filter(x => x.available);
+                    direction.sort((x, y) => y.distance - x.distance);
+                    if (direction.length) {
+                        this.direction = direction[0].direction;
+                        this.move();
+                    }
+                }
+                approach(scene, target) {
+                    const possibleDirs = [
+                        { direction: [-1, 0] },
+                        { direction: [+1, 0] },
+                        { direction: [0, -1] },
+                        { direction: [0, +1] },
+                    ];
+                    for (let pd of possibleDirs) {
+                        const position = [
+                            this.position[0] + pd.direction[0],
+                            this.position[1] + pd.direction[1],
+                        ];
+                        pd.available = !scene.isPositionBlocked(position);
+                        pd.distance = misc_1.distanceTo(position, target.position);
+                    }
+                    const direction = possibleDirs.filter(x => x.available);
+                    direction.sort((x, y) => x.distance - y.distance);
+                    if (direction.length) {
+                        this.direction = direction[0].direction;
+                        this.move();
+                    }
+                }
+                moveRandomly() {
+                    if ((Math.random() * 100 | 0) === 0) {
+                        this.direction[0] = (Math.random() * 3 | 0) - 1;
+                        if (this.direction[0] === 0) {
+                            this.direction[1] = (Math.random() * 3 | 0) - 1;
+                        }
+                    }
+                }
+                getMobsNearby(scene, radius, callback) {
+                    const enemies = [];
+                    for (const object of scene.objects) {
+                        if (!object.enabled)
+                            continue;
+                        if (object === this)
+                            continue; // self check
+                        if (object instanceof Npc && callback(object)) {
+                            if (this.distanceTo(object) < radius) {
+                                enemies.push(object);
+                            }
+                        }
+                    }
+                    return enemies;
+                }
             };
             exports_12("Npc", Npc);
         }
@@ -971,8 +1039,8 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     }
                     sheep.direction = [0, 0];
                     //
-                    let enemiesNearby = getEnemiesNearby(5);
-                    const fearedSheeps = getFearedSheepNearby(2);
+                    let enemiesNearby = this.getMobsNearby(scene, 5, x => x.type !== 'sheep');
+                    const fearedSheeps = this.getMobsNearby(scene, 2, x => x.type === "sheep" && (x.parameters["stress"] | 0) > 0);
                     if (enemiesNearby.length || fearedSheeps.length) {
                         if (enemiesNearby.length) {
                             sheep.parameters["state"] = "feared";
@@ -995,40 +1063,18 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                         }
                     }
                     else {
-                        sheep.parameters["state"] = "still";
+                        sheep.parameters["state"] = "wandering";
                         sheep.parameters["stress"] = 0;
                         sheep.parameters["enemies"] = [];
                     }
                     if (state === "wandering") {
-                        if ((Math.random() * 3 | 0) === 0) {
-                            moveRandomly();
-                        }
+                        this.moveRandomly();
                     }
                     if (!scene.isPositionBlocked(sheep.cursorPosition)) {
                         sheep.move();
                     }
                     else if (sheep.parameters["stress"] > 0) {
-                        const possibleDirs = [
-                            { direction: [-1, 0] },
-                            { direction: [+1, 0] },
-                            { direction: [0, -1] },
-                            { direction: [0, +1] },
-                        ];
-                        for (let pd of possibleDirs) {
-                            const position = [
-                                sheep.position[0] + pd.direction[0],
-                                sheep.position[1] + pd.direction[1],
-                            ];
-                            pd.available = !scene.isPositionBlocked(position);
-                            if (enemiesNearby.length)
-                                pd.distance = misc_3.distanceTo(position, enemiesNearby[0].position);
-                        }
-                        const direction = possibleDirs.filter(x => x.available);
-                        direction.sort((x, y) => y.distance - x.distance);
-                        if (direction.length) {
-                            sheep.direction = direction[0].direction;
-                            sheep.move();
-                        }
+                        this.runAway(scene, enemiesNearby);
                     }
                     if (sheep.parameters["state"] === "feared") {
                         sheep.skin.raw_colors[0][0] = [undefined, "#FF000055"];
@@ -1041,41 +1087,6 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     }
                     else {
                         sheep.skin.raw_colors[0][0] = [undefined, "transparent"];
-                    }
-                    function moveRandomly() {
-                        sheep.direction[0] = (Math.random() * 3 | 0) - 1;
-                        sheep.direction[1] = (Math.random() * 3 | 0) - 1;
-                    }
-                    function getEnemiesNearby(radius) {
-                        const enemies = [];
-                        for (const object of scene.objects) {
-                            if (!object.enabled)
-                                continue;
-                            if (object === sheep)
-                                continue; // self check
-                            if (object instanceof Npc_3.Npc && object.type !== "sheep") {
-                                if (sheep.distanceTo(object) < radius) {
-                                    enemies.push(object);
-                                }
-                            }
-                        }
-                        return enemies;
-                    }
-                    function getFearedSheepNearby(radius) {
-                        const sheepsNearby = [];
-                        for (const object of scene.objects) {
-                            if (!object.enabled)
-                                continue;
-                            if (object === sheep)
-                                continue; // self check
-                            if (object instanceof Npc_3.Npc && object.type === "sheep") {
-                                if (sheep.distanceTo(object) < radius
-                                    && (object.parameters["stress"] | 0) > 0) {
-                                    sheepsNearby.push(object);
-                                }
-                            }
-                        }
-                        return sheepsNearby;
                     }
                 }
             };
@@ -1123,26 +1134,7 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                         if (wolf.distanceTo(target) <= 1) {
                             wolf.attack(target);
                         }
-                        const possibleDirs = [
-                            { direction: [-1, 0] },
-                            { direction: [+1, 0] },
-                            { direction: [0, -1] },
-                            { direction: [0, +1] },
-                        ];
-                        for (let pd of possibleDirs) {
-                            const position = [
-                                wolf.position[0] + pd.direction[0],
-                                wolf.position[1] + pd.direction[1],
-                            ];
-                            pd.available = !scene.isPositionBlocked(position);
-                            pd.distance = misc_3.distanceTo(position, target.position);
-                        }
-                        const direction = possibleDirs.filter(x => x.available);
-                        direction.sort((x, y) => x.distance - y.distance);
-                        if (direction.length) {
-                            wolf.direction = direction[0].direction;
-                            wolf.move();
-                        }
+                        wolf.approach(scene, target);
                     }
                     function getPrayNearby(self, radius) {
                         const enemies = [];
