@@ -3,9 +3,10 @@ import { ObjectSkin } from "../../engine/ObjectSkin";
 import { Scene } from "../../engine/Scene";
 import { StaticGameObject } from "../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../engine/ObjectPhysics";
-import { distanceTo } from "../../utils/misc";
+import { distanceTo, clone } from "../../utils/misc";
 import { tree } from "../objects";
 import { GameEvent } from "../../engine/GameEvent";
+import { SceneObject } from "../../engine/SceneObject";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -156,12 +157,12 @@ const sheep = new Sheep();
 
 if (true) {  // add fence
     for (let x = 1; x < 19; x++) {
-        fences.push(StaticGameObject.clone(hFence, { position: [x, 1] }));
-        fences.push(StaticGameObject.clone(hFence, { position: [x, 18] }));
+        fences.push(clone(hFence, { position: [x, 1] }));
+        fences.push(clone(hFence, { position: [x, 18] }));
     }
     for (let y = 2; y < 18; y++) {
-        fences.push(StaticGameObject.clone(vFence, { position: [1, y] }));
-        fences.push(StaticGameObject.clone(vFence, { position: [18, y] }));
+        fences.push(clone(vFence, { position: [1, y] }));
+        fences.push(clone(vFence, { position: [18, y] }));
     }
 }
 
@@ -170,7 +171,7 @@ if (true) {  // random sheeps
         const parts = 4;
         for (let p = 0; p < parts; p++) {
             const x = 1 + (16 / parts * p) + (Math.random() * (16 / parts) + 1) | 0;
-            const newSheep = Npc.clone(sheep, { position: [x, y] });
+            const newSheep = clone(sheep, { position: [x, y] });
             sheeps.push(newSheep);
         }
     }
@@ -247,5 +248,5 @@ const wolf = new class extends Npc {
 };
 wolves.push(wolf);
 
-const tree2 = StaticGameObject.clone(tree, { position: [7, 9] });
+const tree2 = clone(tree, { position: [7, 9] });
 export const sheepLevel = [...sheeps, ...wolves, ...fences, tree2];

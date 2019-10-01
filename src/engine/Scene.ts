@@ -1,9 +1,9 @@
 import { GameEvent, GameEventHandler } from "./GameEvent";
-import { SceneObject, Drawable } from "./SceneObject";
+import { SceneObject } from "./SceneObject";
 import { viewHeight, viewWidth } from "../main";
 import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
-import { drawCell, isPositionBehindTheObject, cellStyle, isCollision, drawObjects } from "./GraphicsEngine";
+import { drawCell, isCollision, drawObjects } from "./GraphicsEngine";
 import { Npc } from "./Npc";
 import { Item } from "./Item";
 

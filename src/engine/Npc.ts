@@ -1,10 +1,10 @@
-import { ObjectSkin } from "./ObjectSkin";
 import { SceneObject } from "./SceneObject";
+import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
-import { deepCopy, distanceTo } from "../utils/misc";
+import { distanceTo } from "../utils/misc";
 import { Item } from "./Item";
 import { emitEvent } from "./EventLoop";
-import { GameEvent, GameEventHandler } from "./GameEvent";
+import { GameEvent } from "./GameEvent";
 import { Scene } from "./Scene";
 
 export class Npc extends SceneObject {
@@ -31,15 +31,20 @@ export class Npc extends SceneObject {
             this.position[1] + this.direction[1]
         ];
     }
+
     constructor(skin: ObjectSkin = new ObjectSkin(), position: [number, number] = [0, 0], originPoint: [number, number] = [0, 0]) {
         super(originPoint, skin, new ObjectPhysics(`.`, ``), position);
         this.important = true;
     }
-    update(ticks: number, scene: Scene) { 
+
+    new() { return new Npc(); }
+
+    update(ticks: number, scene: Scene) {
         super.update(ticks, scene);
         this.moveTick += ticks;
         this.attackTick += ticks;
     }
+
     move(): void {
         const obj = this;
         if (obj.moveTick >= 1000 / obj.moveSpeed) {
@@ -49,6 +54,7 @@ export class Npc extends SceneObject {
             obj.moveTick = 0;
         }
     }
+
     attack(target: Npc): void {
         if (this.attackTick > 1000 / this.attackSpeed) {
             this.attackTick = 0;
@@ -58,9 +64,11 @@ export class Npc extends SceneObject {
             }));
         }
     }
+
     distanceTo(other: Npc): number {
         return distanceTo(this.position, other.position);
     }
+    
     handleEvent(ev: GameEvent) {
         super.handleEvent(ev);
         if (ev.type === "attack" && ev.args.subject === this) {
@@ -73,12 +81,5 @@ export class Npc extends SceneObject {
                 emitEvent(new GameEvent(this, "death", { object: this }));
             }
         }
-    }
-
-    new() {
-        return new Npc();
-    }
-    static clone<T extends Npc>(o: T, params: {}): T {
-        return Object.assign(o.new(), deepCopy(o), params);
     }
 }

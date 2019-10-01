@@ -1,6 +1,23 @@
-System.register("engine/ObjectSkin", [], function (exports_1, context_1) {
-    var ObjectSkin;
+System.register("engine/GameEvent", [], function (exports_1, context_1) {
+    var GameEvent;
     var __moduleName = context_1 && context_1.id;
+    return {
+        setters: [],
+        execute: function () {
+            GameEvent = class GameEvent {
+                constructor(sender, type, args) {
+                    this.sender = sender;
+                    this.type = type;
+                    this.args = args;
+                }
+            };
+            exports_1("GameEvent", GameEvent);
+        }
+    };
+});
+System.register("engine/ObjectSkin", [], function (exports_2, context_2) {
+    var ObjectSkin;
+    var __moduleName = context_2 && context_2.id;
     return {
         setters: [],
         execute: function () {
@@ -29,24 +46,7 @@ System.register("engine/ObjectSkin", [], function (exports_1, context_1) {
                     return raw_colors;
                 }
             };
-            exports_1("ObjectSkin", ObjectSkin);
-        }
-    };
-});
-System.register("engine/GameEvent", [], function (exports_2, context_2) {
-    var GameEvent;
-    var __moduleName = context_2 && context_2.id;
-    return {
-        setters: [],
-        execute: function () {
-            GameEvent = class GameEvent {
-                constructor(sender, type, args) {
-                    this.sender = sender;
-                    this.type = type;
-                    this.args = args;
-                }
-            };
-            exports_2("GameEvent", GameEvent);
+            exports_2("ObjectSkin", ObjectSkin);
         }
     };
 });
@@ -526,51 +526,16 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
         }
     };
 });
-System.register("engine/SceneObject", [], function (exports_9, context_9) {
-    var SceneObject;
+System.register("engine/StaticGameObject", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_9, context_9) {
+    var SceneObject_2, ObjectSkin_1, ObjectPhysics_1, StaticGameObject;
     var __moduleName = context_9 && context_9.id;
     return {
-        setters: [],
-        execute: function () {
-            SceneObject = class SceneObject {
-                constructor(originPoint, skin, physics, position) {
-                    this.originPoint = originPoint;
-                    this.skin = skin;
-                    this.physics = physics;
-                    this.position = position;
-                    this.enabled = true;
-                    this.important = false;
-                    this.parameters = {};
-                    this.actions = [];
-                    this.ticks = 0;
-                    //
-                }
-                // add cb params
-                setAction(left, top, action) {
-                    this.actions.push([[left, top], action]);
-                }
-                handleEvent(ev) { }
-                update(ticks, scene) {
-                    this.ticks += ticks;
-                }
-            };
-            exports_9("SceneObject", SceneObject);
-        }
-    };
-});
-System.register("engine/StaticGameObject", ["engine/ObjectSkin", "utils/misc", "engine/SceneObject", "engine/ObjectPhysics"], function (exports_10, context_10) {
-    var ObjectSkin_1, misc_1, SceneObject_2, ObjectPhysics_1, StaticGameObject;
-    var __moduleName = context_10 && context_10.id;
-    return {
         setters: [
-            function (ObjectSkin_1_1) {
-                ObjectSkin_1 = ObjectSkin_1_1;
-            },
-            function (misc_1_1) {
-                misc_1 = misc_1_1;
-            },
             function (SceneObject_2_1) {
                 SceneObject_2 = SceneObject_2_1;
+            },
+            function (ObjectSkin_1_1) {
+                ObjectSkin_1 = ObjectSkin_1_1;
             },
             function (ObjectPhysics_1_1) {
                 ObjectPhysics_1 = ObjectPhysics_1_1;
@@ -581,31 +546,30 @@ System.register("engine/StaticGameObject", ["engine/ObjectSkin", "utils/misc", "
                 constructor(originPoint, skin, physics, position) {
                     super(originPoint, skin, physics, position);
                 }
-                static createEmpty() {
-                    return new StaticGameObject([0, 0], new ObjectSkin_1.ObjectSkin(), new ObjectPhysics_1.ObjectPhysics(), [0, 0]);
-                }
-                static clone(o, params) {
-                    return Object.assign(this.createEmpty(), misc_1.deepCopy(o), params);
-                }
+                new() { return new StaticGameObject([0, 0], new ObjectSkin_1.ObjectSkin(), new ObjectPhysics_1.ObjectPhysics(), [0, 0]); }
             };
-            exports_10("StaticGameObject", StaticGameObject);
+            exports_9("StaticGameObject", StaticGameObject);
         }
     };
 });
-System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics"], function (exports_11, context_11) {
+System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics"], function (exports_10, context_10) {
     var ObjectSkin_2, StaticGameObject_1, ObjectPhysics_2;
-    var __moduleName = context_11 && context_11.id;
+    var __moduleName = context_10 && context_10.id;
     function distanceTo(a, b) {
         return Math.sqrt((a[0] - b[0]) ** 2 +
             (a[1] - b[1]) ** 2);
     }
-    exports_11("distanceTo", distanceTo);
+    exports_10("distanceTo", distanceTo);
     function createTextObject(text, x, y) {
         const colors = new ObjectSkin_2.ObjectSkin(text, ''.padEnd(text.length, '.'), { '.': [undefined, undefined] });
         const t = new StaticGameObject_1.StaticGameObject([0, 0], colors, new ObjectPhysics_2.ObjectPhysics(), [x, y]);
         return t;
     }
-    exports_11("createTextObject", createTextObject);
+    exports_10("createTextObject", createTextObject);
+    function clone(o, params) {
+        return Object.assign(o.new(), deepCopy(o), params);
+    }
+    exports_10("clone", clone);
     function deepCopy(obj) {
         let copy;
         // Handle the 3 simple types, and null or undefined
@@ -636,7 +600,7 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
         }
         throw new Error("Unable to copy obj! Its type isn't supported.");
     }
-    exports_11("deepCopy", deepCopy);
+    exports_10("deepCopy", deepCopy);
     return {
         setters: [
             function (ObjectSkin_2_1) {
@@ -653,22 +617,62 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
         }
     };
 });
-System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics", "utils/misc", "engine/EventLoop", "engine/GameEvent"], function (exports_12, context_12) {
-    var ObjectSkin_3, SceneObject_3, ObjectPhysics_3, misc_2, EventLoop_2, GameEvent_2, Npc;
-    var __moduleName = context_12 && context_12.id;
+System.register("engine/SceneObject", ["engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_11, context_11) {
+    var ObjectSkin_3, ObjectPhysics_3, SceneObject;
+    var __moduleName = context_11 && context_11.id;
     return {
         setters: [
             function (ObjectSkin_3_1) {
                 ObjectSkin_3 = ObjectSkin_3_1;
             },
+            function (ObjectPhysics_3_1) {
+                ObjectPhysics_3 = ObjectPhysics_3_1;
+            }
+        ],
+        execute: function () {
+            SceneObject = class SceneObject {
+                constructor(originPoint, skin, physics, position) {
+                    this.originPoint = originPoint;
+                    this.skin = skin;
+                    this.physics = physics;
+                    this.position = position;
+                    this.enabled = true;
+                    this.important = false;
+                    this.parameters = {};
+                    this.actions = [];
+                    this.ticks = 0;
+                    //
+                }
+                new() { return new SceneObject([0, 0], new ObjectSkin_3.ObjectSkin(), new ObjectPhysics_3.ObjectPhysics(), [0, 0]); }
+                // add cb params
+                setAction(left, top, action) {
+                    this.actions.push([[left, top], action]);
+                }
+                handleEvent(ev) { }
+                update(ticks, scene) {
+                    this.ticks += ticks;
+                }
+            };
+            exports_11("SceneObject", SceneObject);
+        }
+    };
+});
+System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc", "engine/EventLoop", "engine/GameEvent"], function (exports_12, context_12) {
+    var SceneObject_3, ObjectSkin_4, ObjectPhysics_4, misc_1, EventLoop_2, GameEvent_2, Npc;
+    var __moduleName = context_12 && context_12.id;
+    return {
+        setters: [
             function (SceneObject_3_1) {
                 SceneObject_3 = SceneObject_3_1;
             },
-            function (ObjectPhysics_3_1) {
-                ObjectPhysics_3 = ObjectPhysics_3_1;
+            function (ObjectSkin_4_1) {
+                ObjectSkin_4 = ObjectSkin_4_1;
             },
-            function (misc_2_1) {
-                misc_2 = misc_2_1;
+            function (ObjectPhysics_4_1) {
+                ObjectPhysics_4 = ObjectPhysics_4_1;
+            },
+            function (misc_1_1) {
+                misc_1 = misc_1_1;
             },
             function (EventLoop_2_1) {
                 EventLoop_2 = EventLoop_2_1;
@@ -679,8 +683,8 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
         ],
         execute: function () {
             Npc = class Npc extends SceneObject_3.SceneObject {
-                constructor(skin = new ObjectSkin_3.ObjectSkin(), position = [0, 0], originPoint = [0, 0]) {
-                    super(originPoint, skin, new ObjectPhysics_3.ObjectPhysics(`.`, ``), position);
+                constructor(skin = new ObjectSkin_4.ObjectSkin(), position = [0, 0], originPoint = [0, 0]) {
+                    super(originPoint, skin, new ObjectPhysics_4.ObjectPhysics(`.`, ``), position);
                     this.type = "undefined";
                     this.direction = [0, 1];
                     this.showCursor = false;
@@ -704,6 +708,7 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                         this.position[1] + this.direction[1]
                     ];
                 }
+                new() { return new Npc(); }
                 update(ticks, scene) {
                     super.update(ticks, scene);
                     this.moveTick += ticks;
@@ -728,7 +733,7 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                     }
                 }
                 distanceTo(other) {
-                    return misc_2.distanceTo(this.position, other.position);
+                    return misc_1.distanceTo(this.position, other.position);
                 }
                 handleEvent(ev) {
                     super.handleEvent(ev);
@@ -743,34 +748,31 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                         }
                     }
                 }
-                new() {
-                    return new Npc();
-                }
-                static clone(o, params) {
-                    return Object.assign(o.new(), misc_2.deepCopy(o), params);
-                }
             };
             exports_12("Npc", Npc);
         }
     };
 });
-System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_13, context_13) {
-    var StaticGameObject_2, ObjectSkin_4, ObjectPhysics_4, house, tree, trees, bamboo, lamp, lamps, chest, flower, flowers;
+System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_13, context_13) {
+    var StaticGameObject_2, ObjectSkin_5, ObjectPhysics_5, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers;
     var __moduleName = context_13 && context_13.id;
     return {
         setters: [
             function (StaticGameObject_2_1) {
                 StaticGameObject_2 = StaticGameObject_2_1;
             },
-            function (ObjectSkin_4_1) {
-                ObjectSkin_4 = ObjectSkin_4_1;
+            function (ObjectSkin_5_1) {
+                ObjectSkin_5 = ObjectSkin_5_1;
             },
-            function (ObjectPhysics_4_1) {
-                ObjectPhysics_4 = ObjectPhysics_4_1;
+            function (ObjectPhysics_5_1) {
+                ObjectPhysics_5 = ObjectPhysics_5_1;
+            },
+            function (misc_2_1) {
+                misc_2 = misc_2_1;
             }
         ],
         execute: function () {
-            exports_13("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_4.ObjectSkin(` /^\\ 
+            exports_13("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_5.ObjectSkin(` /^\\ 
 ==*==
  ▓ ▓ `, ` BBB
 BBSBB
@@ -779,60 +781,70 @@ BBSBB
                 S: [undefined, '#004'],
                 W: ["black", "darkred"],
                 D: ["black", "saddlebrown"]
-            }), new ObjectPhysics_4.ObjectPhysics(`
+            }), new ObjectPhysics_5.ObjectPhysics(`
  ... 
  . .`, ''), [5, 10]));
-            exports_13("tree", tree = new StaticGameObject_2.StaticGameObject([1, 3], new ObjectSkin_4.ObjectSkin(` ░ 
+            Tree = class Tree extends StaticGameObject_2.StaticGameObject {
+                constructor() {
+                    super([1, 3], new ObjectSkin_5.ObjectSkin(` ░ 
 ░░░
 ░░░
  █`, ` o 
 o01
 01S
  H`, {
-                'o': ['#0c0', '#0a0'],
-                '0': ['#0a0', '#080'],
-                '1': ['#080', '#060'],
-                'S': ['#060', '#040'],
-                'H': ['sienna', 'transparent'],
-            }), new ObjectPhysics_4.ObjectPhysics(`
+                        'o': ['#0c0', '#0a0'],
+                        '0': ['#0a0', '#080'],
+                        '1': ['#080', '#060'],
+                        'S': ['#060', '#040'],
+                        'H': ['sienna', 'transparent'],
+                    }), new ObjectPhysics_5.ObjectPhysics(`
 
 
- .`, ''), [2, 12]));
-            // tree.addEventHandler((o, ev) => {
-            //     if (ev.type === 'wind_changed') {
-            //         o.parameters["animate"] = ev.args["to"];
-            //     } else if (ev.type === 'weather_changed') {
-            //         if (ev.args.to === 'snow') {
-            //             o.skin.raw_colors[0][1][1] = 'white';
-            //             o.skin.raw_colors[1][0][1] = 'white';
-            //             o.skin.raw_colors[1][1][1] = '#ccc';
-            //             o.skin.raw_colors[1][2][1] = '#ccc';
-            //         } else {
-            //             o.skin.raw_colors[0][1][1] = '#0a0';
-            //             o.skin.raw_colors[1][0][1] = '#0a0';
-            //             o.skin.raw_colors[1][1][1] = '#080';
-            //             o.skin.raw_colors[1][2][1] = '#080';
-            //         }
-            //     }
-            // });
-            // tree.onUpdate((ticks, o, scene) => {
-            //     o.ticks += ticks;
-            //     if (o.ticks > 300) {
-            //         if (o.parameters["animate"]) {
-            //             o.parameters["tick"] = !o.parameters["tick"];
-            //             o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
-            //             o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-            //             o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-            //         }
-            //         o.ticks = 0;
-            //     }
-            // });
-            exports_13("trees", trees = [
-            //{...tree, position: [5, 11]} as StaticGameObject,
-            //{...tree, position: [11, 8]} as StaticGameObject,
-            //{...tree, position: [10, 10]} as StaticGameObject,
-            ]);
-            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], new ObjectSkin_4.ObjectSkin(`▄
+ .`, ''), [2, 12]);
+                }
+                new() { return new Tree(); }
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    //
+                    const o = this;
+                    if (o.ticks > 300) {
+                        o.ticks = 0;
+                        if (o.parameters["animate"]) {
+                            o.parameters["tick"] = !o.parameters["tick"];
+                            o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+                            o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+                            o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+                        }
+                    }
+                }
+                handleEvent(ev) {
+                    super.handleEvent(ev);
+                    //
+                    const o = this;
+                    if (ev.type === 'wind_changed') {
+                        o.parameters["animate"] = ev.args["to"];
+                    }
+                    else if (ev.type === 'weather_changed') {
+                        if (ev.args.to === 'snow') {
+                            o.skin.raw_colors[0][1][1] = 'white';
+                            o.skin.raw_colors[1][0][1] = 'white';
+                            o.skin.raw_colors[1][1][1] = '#ccc';
+                            o.skin.raw_colors[1][2][1] = '#ccc';
+                        }
+                        else {
+                            o.skin.raw_colors[0][1][1] = '#0a0';
+                            o.skin.raw_colors[1][0][1] = '#0a0';
+                            o.skin.raw_colors[1][1][1] = '#080';
+                            o.skin.raw_colors[1][2][1] = '#080';
+                        }
+                    }
+                }
+            };
+            ;
+            exports_13("tree", tree = new Tree());
+            exports_13("trees", trees = []);
+            bamboo = new StaticGameObject_2.StaticGameObject([0, 4], new ObjectSkin_5.ObjectSkin(`▄
 █
 █
 █
@@ -848,7 +860,7 @@ D`, {
                 'L': ['#517201', 'transparent'],
                 'H': ['#394902', 'transparent'],
                 'D': ['#574512', 'transparent'],
-            }), new ObjectPhysics_4.ObjectPhysics(` 
+            }), new ObjectPhysics_5.ObjectPhysics(` 
  
  
  
@@ -857,9 +869,9 @@ D`, {
             if (true) { // random trees
                 for (let y = 6; y < 18; y++) {
                     const x = (Math.random() * 8 + 1) | 0;
-                    trees.push(Object.assign(StaticGameObject_2.StaticGameObject.createEmpty(), bamboo, { position: [x, y] }));
+                    trees.push(misc_2.clone(bamboo, { position: [x, y] }));
                     const x2 = (Math.random() * 8 + 8) | 0;
-                    trees.push(Object.assign(StaticGameObject_2.StaticGameObject.createEmpty(), bamboo, { position: [x2, y] }));
+                    trees.push(misc_2.clone(bamboo, { position: [x2, y] }));
                 }
                 for (let tree of trees) {
                     tree.setAction(0, 5, (obj) => {
@@ -868,14 +880,14 @@ D`, {
                     });
                 }
             }
-            lamp = new StaticGameObject_2.StaticGameObject([0, 2], new ObjectSkin_4.ObjectSkin(`⬤
+            lamp = new StaticGameObject_2.StaticGameObject([0, 2], new ObjectSkin_5.ObjectSkin(`⬤
 █
 █`, `L
 H
 H`, {
                 'L': ['yellow', 'transparent'],
                 'H': ['#666', 'transparent'],
-            }), new ObjectPhysics_4.ObjectPhysics(` 
+            }), new ObjectPhysics_5.ObjectPhysics(` 
  
 . `, `B`), [0, 0]);
             lamp.parameters["is_on"] = true;
@@ -885,17 +897,17 @@ H`, {
                 o.physics.lights[0] = o.parameters["is_on"] ? 'F' : '0';
             });
             exports_13("lamps", lamps = [
-                StaticGameObject_2.StaticGameObject.clone(lamp, { position: [2, 5] }),
+                misc_2.clone(lamp, { position: [2, 5] }),
             ]);
-            exports_13("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_4.ObjectSkin(`S`, `V`, {
+            exports_13("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`S`, `V`, {
                 V: ['yellow', 'violet'],
-            }), new ObjectPhysics_4.ObjectPhysics(`.`, ''), [2, 10]));
-            flower = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_4.ObjectSkin(`❁`, `V`, {
+            }), new ObjectPhysics_5.ObjectPhysics(`.`, ''), [2, 10]));
+            flower = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`❁`, `V`, {
                 V: ['red', 'transparent'],
-            }), new ObjectPhysics_4.ObjectPhysics(` `, 'F'), [2, 10]);
+            }), new ObjectPhysics_5.ObjectPhysics(` `, 'F'), [2, 10]);
             exports_13("flowers", flowers = []);
             // for (let i = 0; i < 10; i++) {
-            //     const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
+            //     const fl = clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
             //     flowers.push(fl);
             //     fl.onUpdate((ticks, o, scene) => {
             //         if (!o.parameters["inited"]) { 
@@ -908,21 +920,21 @@ H`, {
     };
 });
 System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects"], function (exports_14, context_14) {
-    var Npc_3, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, wolves, fences, Sheep, sheep, wolf, tree2, sheepLevel;
+    var Npc_3, ObjectSkin_6, StaticGameObject_3, ObjectPhysics_6, misc_3, objects_1, vFence, hFence, sheeps, wolves, fences, Sheep, sheep, wolf, tree2, sheepLevel;
     var __moduleName = context_14 && context_14.id;
     return {
         setters: [
             function (Npc_3_1) {
                 Npc_3 = Npc_3_1;
             },
-            function (ObjectSkin_5_1) {
-                ObjectSkin_5 = ObjectSkin_5_1;
+            function (ObjectSkin_6_1) {
+                ObjectSkin_6 = ObjectSkin_6_1;
             },
             function (StaticGameObject_3_1) {
                 StaticGameObject_3 = StaticGameObject_3_1;
             },
-            function (ObjectPhysics_5_1) {
-                ObjectPhysics_5 = ObjectPhysics_5_1;
+            function (ObjectPhysics_6_1) {
+                ObjectPhysics_6 = ObjectPhysics_6_1;
             },
             function (misc_3_1) {
                 misc_3 = misc_3_1;
@@ -932,14 +944,14 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
             }
         ],
         execute: function () {
-            vFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_5.ObjectPhysics('.'), [0, 0]);
-            hFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_5.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_5.ObjectPhysics('.'), [0, 0]);
+            vFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_6.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_6.ObjectPhysics('.'), [0, 0]);
+            hFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_6.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_6.ObjectPhysics('.'), [0, 0]);
             sheeps = [];
             wolves = [];
             fences = [];
             Sheep = class Sheep extends Npc_3.Npc {
                 constructor() {
-                    super(new ObjectSkin_5.ObjectSkin(`🐑`, `.`, {
+                    super(new ObjectSkin_6.ObjectSkin(`🐑`, `.`, {
                         '.': [undefined, 'transparent'],
                     }), [0, 0]);
                     this.type = "sheep";
@@ -1070,12 +1082,12 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
             sheep = new Sheep();
             if (true) { // add fence
                 for (let x = 1; x < 19; x++) {
-                    fences.push(StaticGameObject_3.StaticGameObject.clone(hFence, { position: [x, 1] }));
-                    fences.push(StaticGameObject_3.StaticGameObject.clone(hFence, { position: [x, 18] }));
+                    fences.push(misc_3.clone(hFence, { position: [x, 1] }));
+                    fences.push(misc_3.clone(hFence, { position: [x, 18] }));
                 }
                 for (let y = 2; y < 18; y++) {
-                    fences.push(StaticGameObject_3.StaticGameObject.clone(vFence, { position: [1, y] }));
-                    fences.push(StaticGameObject_3.StaticGameObject.clone(vFence, { position: [18, y] }));
+                    fences.push(misc_3.clone(vFence, { position: [1, y] }));
+                    fences.push(misc_3.clone(vFence, { position: [18, y] }));
                 }
             }
             if (true) { // random sheeps
@@ -1083,14 +1095,14 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     const parts = 4;
                     for (let p = 0; p < parts; p++) {
                         const x = 1 + (16 / parts * p) + (Math.random() * (16 / parts) + 1) | 0;
-                        const newSheep = Npc_3.Npc.clone(sheep, { position: [x, y] });
+                        const newSheep = misc_3.clone(sheep, { position: [x, y] });
                         sheeps.push(newSheep);
                     }
                 }
             }
             wolf = new class extends Npc_3.Npc {
                 constructor() {
-                    super(new ObjectSkin_5.ObjectSkin(`🐺`, `.`, {
+                    super(new ObjectSkin_6.ObjectSkin(`🐺`, `.`, {
                         '.': [undefined, 'transparent'],
                     }), [15, 15]);
                     this.type = "wolf";
@@ -1156,41 +1168,41 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                 }
             };
             wolves.push(wolf);
-            tree2 = StaticGameObject_3.StaticGameObject.clone(objects_1.tree, { position: [7, 9] });
+            tree2 = misc_3.clone(objects_1.tree, { position: [7, 9] });
             exports_14("sheepLevel", sheepLevel = [...sheeps, ...wolves, ...fences, tree2]);
         }
     };
 });
 System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_15, context_15) {
-    var Item_1, ObjectSkin_6, ObjectPhysics_6, lamp;
+    var Item_1, ObjectSkin_7, ObjectPhysics_7, lamp;
     var __moduleName = context_15 && context_15.id;
     return {
         setters: [
             function (Item_1_1) {
                 Item_1 = Item_1_1;
             },
-            function (ObjectSkin_6_1) {
-                ObjectSkin_6 = ObjectSkin_6_1;
+            function (ObjectSkin_7_1) {
+                ObjectSkin_7 = ObjectSkin_7_1;
             },
-            function (ObjectPhysics_6_1) {
-                ObjectPhysics_6 = ObjectPhysics_6_1;
+            function (ObjectPhysics_7_1) {
+                ObjectPhysics_7 = ObjectPhysics_7_1;
             }
         ],
         execute: function () {
-            exports_15("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_6.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_6.ObjectPhysics(` `, `f`), [0, 0]));
+            exports_15("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_7.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(` `, `f`), [0, 0]));
         }
     };
 });
 System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"], function (exports_16, context_16) {
-    var Npc_4, ObjectSkin_7, items_1, hero;
+    var Npc_4, ObjectSkin_8, items_1, hero;
     var __moduleName = context_16 && context_16.id;
     return {
         setters: [
             function (Npc_4_1) {
                 Npc_4 = Npc_4_1;
             },
-            function (ObjectSkin_7_1) {
-                ObjectSkin_7 = ObjectSkin_7_1;
+            function (ObjectSkin_8_1) {
+                ObjectSkin_8 = ObjectSkin_8_1;
             },
             function (items_1_1) {
                 items_1 = items_1_1;
@@ -1199,7 +1211,7 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"]
         execute: function () {
             exports_16("hero", hero = new class extends Npc_4.Npc {
                 constructor() {
-                    super(new ObjectSkin_7.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]);
+                    super(new ObjectSkin_8.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]);
                     this.type = "human";
                     this.moveSpeed = 10;
                     this.showCursor = true;
@@ -1492,12 +1504,12 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
     };
 });
 System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_19, context_19) {
-    var ObjectSkin_8, EventLoop_4, GameEvent_4, Npc_6, ulan, npcs;
+    var ObjectSkin_9, EventLoop_4, GameEvent_4, Npc_6, ulan, npcs;
     var __moduleName = context_19 && context_19.id;
     return {
         setters: [
-            function (ObjectSkin_8_1) {
-                ObjectSkin_8 = ObjectSkin_8_1;
+            function (ObjectSkin_9_1) {
+                ObjectSkin_9 = ObjectSkin_9_1;
             },
             function (EventLoop_4_1) {
                 EventLoop_4 = EventLoop_4_1;
@@ -1510,7 +1522,7 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
             }
         ],
         execute: function () {
-            ulan = new Npc_6.Npc(new ObjectSkin_8.ObjectSkin('🐻', `.`, {
+            ulan = new Npc_6.Npc(new ObjectSkin_9.ObjectSkin('🐻', `.`, {
                 '.': [undefined, 'transparent'],
             }), [4, 4]);
             ulan.setAction(0, 0, (o) => {

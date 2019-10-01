@@ -1,6 +1,7 @@
 import { ObjectSkin } from "../engine/ObjectSkin";
 import { StaticGameObject } from "../engine/StaticGameObject";
 import { ObjectPhysics } from "../engine/ObjectPhysics";
+import { SceneObject } from "../engine/SceneObject";
 
 export function distanceTo(a: [number, number], b: [number, number]): number {
     return Math.sqrt(
@@ -15,6 +16,10 @@ export function createTextObject(text: string, x: number, y: number) {
         {'.': [undefined, undefined]});
     const t = new StaticGameObject([0, 0], colors, new ObjectPhysics(), [x, y]);
     return t;
+}
+
+export function clone<T extends SceneObject>(o: T, params: {}): T {
+    return Object.assign(o.new(), deepCopy(o), params);
 }
 
 export function deepCopy(obj: any): any {

@@ -2,6 +2,7 @@ import { GameEvent, GameEventHandler } from "./GameEvent";
 import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
 import { Scene } from "./Scene";
+import { deepCopy } from "../utils/misc";
 
 export type GameObjectAction = (obj: SceneObject) => void;
 export type UpdateHandler = (ticks: number, obj: SceneObject, scene: Scene) => void;
@@ -26,6 +27,9 @@ export class SceneObject implements GameEventHandler {
         
         //
     }
+
+    new() { return new SceneObject([0, 0], new ObjectSkin(), new ObjectPhysics(), [0, 0]); }
+
     // add cb params
     setAction(left: number, top: number, action: GameObjectAction) {
         this.actions.push([[left, top], action]);
