@@ -21,9 +21,9 @@ export class PlayerUi {
         }
         if (this.objectUnderCursor) {
             if (this.objectUnderCursor instanceof Npc) {
-                drawObjectAt(ctx, this.objectUnderCursor, [viewWidth - this.npc.maxHealth - 1, 0]);
-                for (let i = 0; i < this.npc.maxHealth; i++) {
-                    drawCell(ctx, new Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), viewWidth - this.npc.maxHealth + i, 0);
+                drawObjectAt(ctx, this.objectUnderCursor, [viewWidth - 1, 0]);
+                for (let i = 0; i < this.objectUnderCursor.maxHealth; i++) {
+                    drawCell(ctx, new Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), viewWidth - this.objectUnderCursor.maxHealth + i - 1, 0);
                 }
             }
         }
@@ -32,6 +32,7 @@ export class PlayerUi {
     update(ticks: number, scene: Scene) {
         this.objectUnderCursor = null;
         for (let o of scene.objects) {
+            if (!o.enabled) continue;
             if (o instanceof Npc) {
                 if (o.position[0] === this.npc.cursorPosition[0] 
                     && o.position[1] === this.npc.cursorPosition[1]) {

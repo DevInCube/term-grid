@@ -36,35 +36,36 @@ o01
 
 
  .`, ''), [2, 12]);
-tree.addEventHandler((o, ev) => {
-    if (ev.type === 'wind_changed') {
-        o.parameters["animate"] = ev.args["to"];
-    } else if (ev.type === 'weather_changed') {
-        if (ev.args.to === 'snow') {
-            o.skin.raw_colors[0][1][1] = 'white';
-            o.skin.raw_colors[1][0][1] = 'white';
-            o.skin.raw_colors[1][1][1] = '#ccc';
-            o.skin.raw_colors[1][2][1] = '#ccc';
-        } else {
-            o.skin.raw_colors[0][1][1] = '#0a0';
-            o.skin.raw_colors[1][0][1] = '#0a0';
-            o.skin.raw_colors[1][1][1] = '#080';
-            o.skin.raw_colors[1][2][1] = '#080';
-        }
-    }
-});
-tree.onUpdate((ticks, o, scene) => {
-    o.ticks += ticks;
-    if (o.ticks > 300) {
-        if (o.parameters["animate"]) {
-            o.parameters["tick"] = !o.parameters["tick"];
-            o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
-            o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-            o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-        }
-        o.ticks = 0;
-    }
-});
+
+// tree.addEventHandler((o, ev) => {
+//     if (ev.type === 'wind_changed') {
+//         o.parameters["animate"] = ev.args["to"];
+//     } else if (ev.type === 'weather_changed') {
+//         if (ev.args.to === 'snow') {
+//             o.skin.raw_colors[0][1][1] = 'white';
+//             o.skin.raw_colors[1][0][1] = 'white';
+//             o.skin.raw_colors[1][1][1] = '#ccc';
+//             o.skin.raw_colors[1][2][1] = '#ccc';
+//         } else {
+//             o.skin.raw_colors[0][1][1] = '#0a0';
+//             o.skin.raw_colors[1][0][1] = '#0a0';
+//             o.skin.raw_colors[1][1][1] = '#080';
+//             o.skin.raw_colors[1][2][1] = '#080';
+//         }
+//     }
+// });
+// tree.onUpdate((ticks, o, scene) => {
+//     o.ticks += ticks;
+//     if (o.ticks > 300) {
+//         if (o.parameters["animate"]) {
+//             o.parameters["tick"] = !o.parameters["tick"];
+//             o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+//             o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+//             o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+//         }
+//         o.ticks = 0;
+//     }
+// });
 
 export const trees: StaticGameObject[] = [
     //{...tree, position: [5, 11]} as StaticGameObject,
@@ -142,13 +143,13 @@ const flower = new StaticGameObject([0, 0], new ObjectSkin(`❁`, `V`, {
 }), new ObjectPhysics(` `, 'F'), [2, 10]);
 
 export const flowers: StaticGameObject[] = [];
-for (let i = 0; i < 10; i++) {
-    const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
-    flowers.push(fl);
-    fl.onUpdate((ticks, o, scene) => {
-        if (!o.parameters["inited"]) { 
-            o.parameters["inited"] = true;
-            o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]
-        }
-    })
-}
+// for (let i = 0; i < 10; i++) {
+//     const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
+//     flowers.push(fl);
+//     fl.onUpdate((ticks, o, scene) => {
+//         if (!o.parameters["inited"]) { 
+//             o.parameters["inited"] = true;
+//             o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]
+//         }
+//     })
+// }

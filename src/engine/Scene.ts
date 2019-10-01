@@ -29,10 +29,10 @@ export class Scene implements GameEventHandler {
     
     update(ticks: number) {
         this.weatherTicks += ticks;
+        // update all enabled objects
         for (const obj of this.objects) {
-            if (obj.updateHandler) {
-                obj.updateHandler(ticks, obj, this);
-            }
+            if (!obj.enabled) continue;
+            obj.update(ticks, this);
         }
         
         const scene = this;

@@ -3,6 +3,9 @@ import { SceneObject } from "./SceneObject";
 import { ObjectPhysics } from "./ObjectPhysics";
 import { deepCopy, distanceTo } from "../utils/misc";
 import { Item } from "./Item";
+import { emitEvent } from "./EventLoop";
+import { GameEvent, GameEventHandler } from "./GameEvent";
+import { Scene } from "./Scene";
 
 export class Npc extends SceneObject {
     type: string = "undefined";
@@ -14,6 +17,13 @@ export class Npc extends SceneObject {
     objectInSecondaryHand: Item | null = null;
     health: number = 1;
     maxHealth: number = 3;
+    basicAttack: number = 1;
+    attackTick: number = 0;
+    attackSpeed: number = 1; // atk per second
+
+    get attackValue(): number {
+        return this.basicAttack;  // @todo
+    }
 
     get cursorPosition(): [number, number] {
         return [
@@ -25,6 +35,11 @@ export class Npc extends SceneObject {
         super(originPoint, skin, new ObjectPhysics(`.`, ``), position);
         this.important = true;
     }
+    update(ticks: number, scene: Scene) { 
+        super.update(ticks, scene);
+        this.moveTick += ticks;
+        this.attackTick += ticks;
+    }
     move(): void {
         const obj = this;
         if (obj.moveTick >= 1000 / obj.moveSpeed) {
@@ -34,13 +49,36 @@ export class Npc extends SceneObject {
             obj.moveTick = 0;
         }
     }
+    attack(target: Npc): void {
+        if (this.attackTick > 1000 / this.attackSpeed) {
+            this.attackTick = 0;
+            emitEvent(new GameEvent(this, "attack", {
+                object: this,
+                subject: target,
+            }));
+        }
+    }
     distanceTo(other: Npc): number {
         return distanceTo(this.position, other.position);
     }
-    static createEmpty() {
+    handleEvent(ev: GameEvent) {
+        super.handleEvent(ev);
+        if (ev.type === "attack" && ev.args.subject === this) {
+            const damage = ev.args.object.attackValue;
+            this.health -= damage;
+            emitEvent(new GameEvent(ev.args.object, "damage", Object.create(ev.args)));
+            if (this.health <= 0) {
+                // @todo add death cause to this event
+                this.enabled = false;
+                emitEvent(new GameEvent(this, "death", { object: this }));
+            }
+        }
+    }
+
+    new() {
         return new Npc();
     }
-    static clone(o: Npc, params: {}): Npc {
-        return Object.assign(this.createEmpty(), deepCopy(o), params);
+    static clone<T extends Npc>(o: T, params: {}): T {
+        return Object.assign(o.new(), deepCopy(o), params);
     }
 }

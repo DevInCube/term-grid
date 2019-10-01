@@ -364,10 +364,11 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                 }
                 update(ticks) {
                     this.weatherTicks += ticks;
+                    // update all enabled objects
                     for (const obj of this.objects) {
-                        if (obj.updateHandler) {
-                            obj.updateHandler(ticks, obj, this);
-                        }
+                        if (!obj.enabled)
+                            continue;
+                        obj.update(ticks, this);
                     }
                     const scene = this;
                     updateWeather();
@@ -541,7 +542,6 @@ System.register("engine/SceneObject", [], function (exports_9, context_9) {
                     this.important = false;
                     this.parameters = {};
                     this.actions = [];
-                    this.eventHandlers = [];
                     this.ticks = 0;
                     //
                 }
@@ -549,16 +549,9 @@ System.register("engine/SceneObject", [], function (exports_9, context_9) {
                 setAction(left, top, action) {
                     this.actions.push([[left, top], action]);
                 }
-                addEventHandler(handler) {
-                    this.eventHandlers.push(handler);
-                }
-                handleEvent(ev) {
-                    for (const eh of this.eventHandlers) {
-                        eh(this, ev);
-                    }
-                }
-                onUpdate(handler) {
-                    this.updateHandler = handler;
+                handleEvent(ev) { }
+                update(ticks, scene) {
+                    this.ticks += ticks;
                 }
             };
             exports_9("SceneObject", SceneObject);
@@ -660,8 +653,8 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
         }
     };
 });
-System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics", "utils/misc"], function (exports_12, context_12) {
-    var ObjectSkin_3, SceneObject_3, ObjectPhysics_3, misc_2, Npc;
+System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engine/ObjectPhysics", "utils/misc", "engine/EventLoop", "engine/GameEvent"], function (exports_12, context_12) {
+    var ObjectSkin_3, SceneObject_3, ObjectPhysics_3, misc_2, EventLoop_2, GameEvent_2, Npc;
     var __moduleName = context_12 && context_12.id;
     return {
         setters: [
@@ -676,6 +669,12 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
             },
             function (misc_2_1) {
                 misc_2 = misc_2_1;
+            },
+            function (EventLoop_2_1) {
+                EventLoop_2 = EventLoop_2_1;
+            },
+            function (GameEvent_2_1) {
+                GameEvent_2 = GameEvent_2_1;
             }
         ],
         execute: function () {
@@ -691,13 +690,24 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                     this.objectInSecondaryHand = null;
                     this.health = 1;
                     this.maxHealth = 3;
+                    this.basicAttack = 1;
+                    this.attackTick = 0;
+                    this.attackSpeed = 1; // atk per second
                     this.important = true;
+                }
+                get attackValue() {
+                    return this.basicAttack; // @todo
                 }
                 get cursorPosition() {
                     return [
                         this.position[0] + this.direction[0],
                         this.position[1] + this.direction[1]
                     ];
+                }
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    this.moveTick += ticks;
+                    this.attackTick += ticks;
                 }
                 move() {
                     const obj = this;
@@ -708,14 +718,36 @@ System.register("engine/Npc", ["engine/ObjectSkin", "engine/SceneObject", "engin
                         obj.moveTick = 0;
                     }
                 }
+                attack(target) {
+                    if (this.attackTick > 1000 / this.attackSpeed) {
+                        this.attackTick = 0;
+                        EventLoop_2.emitEvent(new GameEvent_2.GameEvent(this, "attack", {
+                            object: this,
+                            subject: target,
+                        }));
+                    }
+                }
                 distanceTo(other) {
                     return misc_2.distanceTo(this.position, other.position);
                 }
-                static createEmpty() {
+                handleEvent(ev) {
+                    super.handleEvent(ev);
+                    if (ev.type === "attack" && ev.args.subject === this) {
+                        const damage = ev.args.object.attackValue;
+                        this.health -= damage;
+                        EventLoop_2.emitEvent(new GameEvent_2.GameEvent(ev.args.object, "damage", Object.create(ev.args)));
+                        if (this.health <= 0) {
+                            // @todo add death cause to this event
+                            this.enabled = false;
+                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent(this, "death", { object: this }));
+                        }
+                    }
+                }
+                new() {
                     return new Npc();
                 }
                 static clone(o, params) {
-                    return Object.assign(this.createEmpty(), misc_2.deepCopy(o), params);
+                    return Object.assign(o.new(), misc_2.deepCopy(o), params);
                 }
             };
             exports_12("Npc", Npc);
@@ -766,37 +798,35 @@ o01
 
 
  .`, ''), [2, 12]));
-            tree.addEventHandler((o, ev) => {
-                if (ev.type === 'wind_changed') {
-                    o.parameters["animate"] = ev.args["to"];
-                }
-                else if (ev.type === 'weather_changed') {
-                    if (ev.args.to === 'snow') {
-                        o.skin.raw_colors[0][1][1] = 'white';
-                        o.skin.raw_colors[1][0][1] = 'white';
-                        o.skin.raw_colors[1][1][1] = '#ccc';
-                        o.skin.raw_colors[1][2][1] = '#ccc';
-                    }
-                    else {
-                        o.skin.raw_colors[0][1][1] = '#0a0';
-                        o.skin.raw_colors[1][0][1] = '#0a0';
-                        o.skin.raw_colors[1][1][1] = '#080';
-                        o.skin.raw_colors[1][2][1] = '#080';
-                    }
-                }
-            });
-            tree.onUpdate((ticks, o, scene) => {
-                o.ticks += ticks;
-                if (o.ticks > 300) {
-                    if (o.parameters["animate"]) {
-                        o.parameters["tick"] = !o.parameters["tick"];
-                        o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
-                        o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-                        o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
-                    }
-                    o.ticks = 0;
-                }
-            });
+            // tree.addEventHandler((o, ev) => {
+            //     if (ev.type === 'wind_changed') {
+            //         o.parameters["animate"] = ev.args["to"];
+            //     } else if (ev.type === 'weather_changed') {
+            //         if (ev.args.to === 'snow') {
+            //             o.skin.raw_colors[0][1][1] = 'white';
+            //             o.skin.raw_colors[1][0][1] = 'white';
+            //             o.skin.raw_colors[1][1][1] = '#ccc';
+            //             o.skin.raw_colors[1][2][1] = '#ccc';
+            //         } else {
+            //             o.skin.raw_colors[0][1][1] = '#0a0';
+            //             o.skin.raw_colors[1][0][1] = '#0a0';
+            //             o.skin.raw_colors[1][1][1] = '#080';
+            //             o.skin.raw_colors[1][2][1] = '#080';
+            //         }
+            //     }
+            // });
+            // tree.onUpdate((ticks, o, scene) => {
+            //     o.ticks += ticks;
+            //     if (o.ticks > 300) {
+            //         if (o.parameters["animate"]) {
+            //             o.parameters["tick"] = !o.parameters["tick"];
+            //             o.skin.characters[0] = o.parameters["tick"] ? ` ░ ` : ` ▒ `;
+            //             o.skin.characters[1] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+            //             o.skin.characters[2] = o.parameters["tick"] ? `░░░` : `▒▒▒`;
+            //         }
+            //         o.ticks = 0;
+            //     }
+            // });
             exports_13("trees", trees = [
             //{...tree, position: [5, 11]} as StaticGameObject,
             //{...tree, position: [11, 8]} as StaticGameObject,
@@ -864,21 +894,21 @@ H`, {
                 V: ['red', 'transparent'],
             }), new ObjectPhysics_4.ObjectPhysics(` `, 'F'), [2, 10]);
             exports_13("flowers", flowers = []);
-            for (let i = 0; i < 10; i++) {
-                const fl = StaticGameObject_2.StaticGameObject.clone(flower, { position: [Math.random() * 20 | 0, Math.random() * 20 | 0] });
-                flowers.push(fl);
-                fl.onUpdate((ticks, o, scene) => {
-                    if (!o.parameters["inited"]) {
-                        o.parameters["inited"] = true;
-                        o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0];
-                    }
-                });
-            }
+            // for (let i = 0; i < 10; i++) {
+            //     const fl = StaticGameObject.clone(flower, {position: [Math.random() * 20 | 0, Math.random() * 20 | 0]});
+            //     flowers.push(fl);
+            //     fl.onUpdate((ticks, o, scene) => {
+            //         if (!o.parameters["inited"]) { 
+            //             o.parameters["inited"] = true;
+            //             o.skin.raw_colors[0][0][0] = ['red', 'yellow', 'violet'][(Math.random() * 3) | 0]
+            //         }
+            //     })
+            // }
         }
     };
 });
 System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects"], function (exports_14, context_14) {
-    var Npc_3, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, wolves, fences, sheep, wolf, tree2, sheepLevel;
+    var Npc_3, ObjectSkin_5, StaticGameObject_3, ObjectPhysics_5, misc_3, objects_1, vFence, hFence, sheeps, wolves, fences, Sheep, sheep, wolf, tree2, sheepLevel;
     var __moduleName = context_14 && context_14.id;
     return {
         setters: [
@@ -907,10 +937,137 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
             sheeps = [];
             wolves = [];
             fences = [];
-            sheep = new Npc_3.Npc(new ObjectSkin_5.ObjectSkin(`🐑`, `.`, {
-                '.': [undefined, 'transparent'],
-            }), [0, 0]);
-            sheep.type = "sheep";
+            Sheep = class Sheep extends Npc_3.Npc {
+                constructor() {
+                    super(new ObjectSkin_5.ObjectSkin(`🐑`, `.`, {
+                        '.': [undefined, 'transparent'],
+                    }), [0, 0]);
+                    this.type = "sheep";
+                    this.maxHealth = 1;
+                    this.health = 1;
+                }
+                new() {
+                    return new Sheep();
+                }
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    //
+                    const sheep = this;
+                    const state = sheep.parameters["state"];
+                    if (!state) {
+                        //sheep.parameters["state"] = (Math.random() * 2 | 0) === 0 ? "wandering" : "still";
+                    }
+                    sheep.direction = [0, 0];
+                    //
+                    let enemiesNearby = getEnemiesNearby(5);
+                    const fearedSheeps = getFearedSheepNearby(2);
+                    if (enemiesNearby.length || fearedSheeps.length) {
+                        if (enemiesNearby.length) {
+                            sheep.parameters["state"] = "feared";
+                            sheep.parameters["stress"] = 3;
+                            sheep.parameters["enemies"] = enemiesNearby;
+                        }
+                        else { // if (fearedSheeps.length) 
+                            const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
+                            //console.log(sheepsStress);
+                            sheep.parameters["stress"] = sheepsStress - 1;
+                            if (sheep.parameters["stress"] === 0) {
+                                sheep.parameters["state"] = "still";
+                                sheep.parameters["enemies"] = [];
+                            }
+                            else {
+                                sheep.parameters["state"] = "feared_2";
+                                sheep.parameters["enemies"] = fearedSheeps[0].parameters["enemies"];
+                                enemiesNearby = fearedSheeps[0].parameters["enemies"];
+                            }
+                        }
+                    }
+                    else {
+                        sheep.parameters["state"] = "still";
+                        sheep.parameters["stress"] = 0;
+                        sheep.parameters["enemies"] = [];
+                    }
+                    if (state === "wandering") {
+                        if ((Math.random() * 3 | 0) === 0) {
+                            moveRandomly();
+                        }
+                    }
+                    if (!scene.isPositionBlocked(sheep.cursorPosition)) {
+                        sheep.move();
+                    }
+                    else if (sheep.parameters["stress"] > 0) {
+                        const possibleDirs = [
+                            { direction: [-1, 0] },
+                            { direction: [+1, 0] },
+                            { direction: [0, -1] },
+                            { direction: [0, +1] },
+                        ];
+                        for (let pd of possibleDirs) {
+                            const position = [
+                                sheep.position[0] + pd.direction[0],
+                                sheep.position[1] + pd.direction[1],
+                            ];
+                            pd.available = !scene.isPositionBlocked(position);
+                            if (enemiesNearby.length)
+                                pd.distance = misc_3.distanceTo(position, enemiesNearby[0].position);
+                        }
+                        const direction = possibleDirs.filter(x => x.available);
+                        direction.sort((x, y) => y.distance - x.distance);
+                        if (direction.length) {
+                            sheep.direction = direction[0].direction;
+                            sheep.move();
+                        }
+                    }
+                    if (sheep.parameters["state"] === "feared") {
+                        sheep.skin.raw_colors[0][0] = [undefined, "#FF000055"];
+                    }
+                    else if (sheep.parameters["stress"] > 1) {
+                        sheep.skin.raw_colors[0][0] = [undefined, "#FF8C0055"];
+                    }
+                    else if (sheep.parameters["stress"] > 0) {
+                        sheep.skin.raw_colors[0][0] = [undefined, "#FFFF0055"];
+                    }
+                    else {
+                        sheep.skin.raw_colors[0][0] = [undefined, "transparent"];
+                    }
+                    function moveRandomly() {
+                        sheep.direction[0] = (Math.random() * 3 | 0) - 1;
+                        sheep.direction[1] = (Math.random() * 3 | 0) - 1;
+                    }
+                    function getEnemiesNearby(radius) {
+                        const enemies = [];
+                        for (const object of scene.objects) {
+                            if (!object.enabled)
+                                continue;
+                            if (object === sheep)
+                                continue; // self check
+                            if (object instanceof Npc_3.Npc && object.type !== "sheep") {
+                                if (sheep.distanceTo(object) < radius) {
+                                    enemies.push(object);
+                                }
+                            }
+                        }
+                        return enemies;
+                    }
+                    function getFearedSheepNearby(radius) {
+                        const sheepsNearby = [];
+                        for (const object of scene.objects) {
+                            if (!object.enabled)
+                                continue;
+                            if (object === sheep)
+                                continue; // self check
+                            if (object instanceof Npc_3.Npc && object.type === "sheep") {
+                                if (sheep.distanceTo(object) < radius
+                                    && (object.parameters["stress"] | 0) > 0) {
+                                    sheepsNearby.push(object);
+                                }
+                            }
+                        }
+                        return sheepsNearby;
+                    }
+                }
+            };
+            sheep = new Sheep();
             if (true) { // add fence
                 for (let x = 1; x < 19; x++) {
                     fences.push(StaticGameObject_3.StaticGameObject.clone(hFence, { position: [x, 1] }));
@@ -926,191 +1083,78 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     const parts = 4;
                     for (let p = 0; p < parts; p++) {
                         const x = 1 + (16 / parts * p) + (Math.random() * (16 / parts) + 1) | 0;
-                        sheeps.push(Npc_3.Npc.clone(sheep, { position: [x, y] }));
+                        const newSheep = Npc_3.Npc.clone(sheep, { position: [x, y] });
+                        sheeps.push(newSheep);
                     }
-                }
-                for (let sheep1 of sheeps) {
-                    sheep1.setAction(0, 5, (obj) => {
-                        //
-                    });
-                    sheep1.onUpdate((ticks, obj, scene) => {
-                        const sheep = obj;
-                        if (!sheep.enabled)
-                            return;
-                        sheep.moveTick += ticks;
-                        const state = sheep.parameters["state"];
-                        if (!state) {
-                            //sheep.parameters["state"] = (Math.random() * 2 | 0) === 0 ? "wandering" : "still";
-                        }
-                        sheep.direction = [0, 0];
-                        //
-                        let enemiesNearby = getEnemiesNearby(5);
-                        const fearedSheeps = getFearedSheepNearby(2);
-                        if (enemiesNearby.length || fearedSheeps.length) {
-                            if (enemiesNearby.length) {
-                                sheep.parameters["state"] = "feared";
-                                sheep.parameters["stress"] = 3;
-                                sheep.parameters["enemies"] = enemiesNearby;
-                            }
-                            else { // if (fearedSheeps.length) 
-                                const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
-                                //console.log(sheepsStress);
-                                sheep.parameters["stress"] = sheepsStress - 1;
-                                if (sheep.parameters["stress"] === 0) {
-                                    sheep.parameters["state"] = "still";
-                                    sheep.parameters["enemies"] = [];
-                                }
-                                else {
-                                    sheep.parameters["state"] = "feared_2";
-                                    sheep.parameters["enemies"] = fearedSheeps[0].parameters["enemies"];
-                                    enemiesNearby = fearedSheeps[0].parameters["enemies"];
-                                }
-                            }
-                        }
-                        else {
-                            sheep.parameters["state"] = "still";
-                            sheep.parameters["stress"] = 0;
-                            sheep.parameters["enemies"] = [];
-                        }
-                        if (state === "wandering") {
-                            if ((Math.random() * 3 | 0) === 0) {
-                                moveRandomly();
-                            }
-                        }
-                        if (!scene.isPositionBlocked(sheep.cursorPosition)) {
-                            sheep.move();
-                        }
-                        else if (sheep.parameters["stress"] > 0) {
-                            const possibleDirs = [
-                                { direction: [-1, 0] },
-                                { direction: [+1, 0] },
-                                { direction: [0, -1] },
-                                { direction: [0, +1] },
-                            ];
-                            for (let pd of possibleDirs) {
-                                const position = [
-                                    sheep.position[0] + pd.direction[0],
-                                    sheep.position[1] + pd.direction[1],
-                                ];
-                                pd.available = !scene.isPositionBlocked(position);
-                                if (enemiesNearby.length)
-                                    pd.distance = misc_3.distanceTo(position, enemiesNearby[0].position);
-                            }
-                            const direction = possibleDirs.filter(x => x.available);
-                            direction.sort((x, y) => y.distance - x.distance);
-                            if (direction.length) {
-                                sheep.direction = direction[0].direction;
-                                sheep.move();
-                            }
-                        }
-                        if (sheep.parameters["state"] === "feared") {
-                            sheep.skin.raw_colors[0][0] = [undefined, "#FF000055"];
-                        }
-                        else if (sheep.parameters["stress"] > 1) {
-                            sheep.skin.raw_colors[0][0] = [undefined, "#FF8C0055"];
-                        }
-                        else if (sheep.parameters["stress"] > 0) {
-                            sheep.skin.raw_colors[0][0] = [undefined, "#FFFF0055"];
-                        }
-                        else {
-                            sheep.skin.raw_colors[0][0] = [undefined, "transparent"];
-                        }
-                        function moveRandomly() {
-                            sheep.direction[0] = (Math.random() * 3 | 0) - 1;
-                            sheep.direction[1] = (Math.random() * 3 | 0) - 1;
-                        }
-                        function getEnemiesNearby(radius) {
-                            const enemies = [];
-                            for (const object of scene.objects) {
-                                if (!object.enabled)
-                                    continue;
-                                if (object === sheep)
-                                    continue; // self check
-                                if (object instanceof Npc_3.Npc && object.type !== "sheep") {
-                                    if (sheep.distanceTo(object) < radius) {
-                                        enemies.push(object);
-                                    }
-                                }
-                            }
-                            return enemies;
-                        }
-                        function getFearedSheepNearby(radius) {
-                            const sheepsNearby = [];
-                            for (const object of scene.objects) {
-                                if (!object.enabled)
-                                    continue;
-                                if (object === sheep)
-                                    continue; // self check
-                                if (object instanceof Npc_3.Npc && object.type === "sheep") {
-                                    if (sheep.distanceTo(object) < radius
-                                        && (object.parameters["stress"] | 0) > 0) {
-                                        sheepsNearby.push(object);
-                                    }
-                                }
-                            }
-                            return sheepsNearby;
-                        }
-                    });
                 }
             }
-            wolf = new Npc_3.Npc(new ObjectSkin_5.ObjectSkin(`🐺`, `.`, {
-                '.': [undefined, 'transparent'],
-            }), [15, 15]);
-            wolf.type = "wolf";
-            wolf.moveSpeed = 4;
-            wolf.onUpdate((ticks, obj, scene) => {
-                const wolf = obj;
-                wolf.moveTick += ticks;
-                wolf.direction = [0, 0];
-                //
-                const prayList = getPrayNearby(6);
-                if (prayList.length) {
-                    wolf.parameters["target"] = prayList[0];
+            wolf = new class extends Npc_3.Npc {
+                constructor() {
+                    super(new ObjectSkin_5.ObjectSkin(`🐺`, `.`, {
+                        '.': [undefined, 'transparent'],
+                    }), [15, 15]);
+                    this.type = "wolf";
+                    this.moveSpeed = 4;
                 }
-                const target = wolf.parameters["target"];
-                if (target) {
-                    if (wolf.distanceTo(target) <= 1) {
-                        target.enabled = false; // eat prey
-                        console.log("Wolf ate sheep");
-                        wolf.parameters["target"] = null;
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    //
+                    const wolf = this;
+                    wolf.direction = [0, 0];
+                    //
+                    const prayList = getPrayNearby(this, 6);
+                    if (!wolf.parameters["target"] && prayList.length) {
+                        wolf.parameters["target"] = prayList[0];
                     }
-                    const possibleDirs = [
-                        { direction: [-1, 0] },
-                        { direction: [+1, 0] },
-                        { direction: [0, -1] },
-                        { direction: [0, +1] },
-                    ];
-                    for (let pd of possibleDirs) {
-                        const position = [
-                            wolf.position[0] + pd.direction[0],
-                            wolf.position[1] + pd.direction[1],
+                    const target = wolf.parameters["target"];
+                    if (target) {
+                        if (wolf.distanceTo(target) <= 1) {
+                            wolf.attack(target);
+                        }
+                        const possibleDirs = [
+                            { direction: [-1, 0] },
+                            { direction: [+1, 0] },
+                            { direction: [0, -1] },
+                            { direction: [0, +1] },
                         ];
-                        pd.available = !scene.isPositionBlocked(position);
-                        pd.distance = misc_3.distanceTo(position, target.position);
-                    }
-                    const direction = possibleDirs.filter(x => x.available);
-                    direction.sort((x, y) => x.distance - y.distance);
-                    if (direction.length) {
-                        wolf.direction = direction[0].direction;
-                        wolf.move();
-                    }
-                }
-                function getPrayNearby(radius) {
-                    const enemies = [];
-                    for (const object of scene.objects) {
-                        if (!object.enabled)
-                            continue;
-                        if (object === wolf)
-                            continue; // self check
-                        if (object instanceof Npc_3.Npc && object.type === "sheep") {
-                            if (wolf.distanceTo(object) < radius) {
-                                enemies.push(object);
-                            }
+                        for (let pd of possibleDirs) {
+                            const position = [
+                                wolf.position[0] + pd.direction[0],
+                                wolf.position[1] + pd.direction[1],
+                            ];
+                            pd.available = !scene.isPositionBlocked(position);
+                            pd.distance = misc_3.distanceTo(position, target.position);
+                        }
+                        const direction = possibleDirs.filter(x => x.available);
+                        direction.sort((x, y) => x.distance - y.distance);
+                        if (direction.length) {
+                            wolf.direction = direction[0].direction;
+                            wolf.move();
                         }
                     }
-                    return enemies;
+                    function getPrayNearby(self, radius) {
+                        const enemies = [];
+                        for (const object of scene.objects) {
+                            if (!object.enabled)
+                                continue;
+                            if (object === self)
+                                continue; // self check
+                            if (object instanceof Npc_3.Npc && object.type === "sheep") {
+                                if (wolf.distanceTo(object) < radius) {
+                                    enemies.push(object);
+                                }
+                            }
+                        }
+                        return enemies;
+                    }
                 }
-            });
+                handleEvent(ev) {
+                    super.handleEvent(ev);
+                    if (ev.type === "death" && ev.args.object === this.parameters["target"]) {
+                        this.parameters["target"] = null;
+                    }
+                }
+            };
             wolves.push(wolf);
             tree2 = StaticGameObject_3.StaticGameObject.clone(objects_1.tree, { position: [7, 9] });
             exports_14("sheepLevel", sheepLevel = [...sheeps, ...wolves, ...fences, tree2]);
@@ -1153,21 +1197,28 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"]
             }
         ],
         execute: function () {
-            exports_16("hero", hero = new Npc_4.Npc(new ObjectSkin_7.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]));
-            hero.moveSpeed = 10;
-            hero.showCursor = true;
-            hero.objectInSecondaryHand = items_1.lamp;
-            hero.onUpdate((ticks, o, scene) => {
-                const obj = o;
-                obj.moveTick += ticks;
-                if (obj.objectInMainHand) {
-                    obj.objectInMainHand.position = obj.cursorPosition;
+            exports_16("hero", hero = new class extends Npc_4.Npc {
+                constructor() {
+                    super(new ObjectSkin_7.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]);
+                    this.type = "human";
+                    this.moveSpeed = 10;
+                    this.showCursor = true;
+                    this.objectInSecondaryHand = items_1.lamp;
                 }
-                if (obj.objectInSecondaryHand) {
-                    obj.objectInSecondaryHand.position = [
-                        obj.position[0] + obj.direction[1],
-                        obj.position[1] - obj.direction[0],
-                    ];
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    //
+                    const obj = this;
+                    obj.moveTick += ticks;
+                    if (obj.objectInMainHand) {
+                        obj.objectInMainHand.position = obj.cursorPosition;
+                    }
+                    if (obj.objectInSecondaryHand) {
+                        obj.objectInSecondaryHand.position = [
+                            obj.position[0] + obj.direction[1],
+                            obj.position[1] - obj.direction[0],
+                        ];
+                    }
                 }
             });
         }
@@ -1206,9 +1257,9 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                     }
                     if (this.objectUnderCursor) {
                         if (this.objectUnderCursor instanceof Npc_5.Npc) {
-                            GraphicsEngine_2.drawObjectAt(ctx, this.objectUnderCursor, [main_2.viewWidth - this.npc.maxHealth - 1, 0]);
-                            for (let i = 0; i < this.npc.maxHealth; i++) {
-                                GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), main_2.viewWidth - this.npc.maxHealth + i, 0);
+                            GraphicsEngine_2.drawObjectAt(ctx, this.objectUnderCursor, [main_2.viewWidth - 1, 0]);
+                            for (let i = 0; i < this.objectUnderCursor.maxHealth; i++) {
+                                GraphicsEngine_2.drawCell(ctx, new Cell_3.Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), main_2.viewWidth - this.objectUnderCursor.maxHealth + i - 1, 0);
                             }
                         }
                     }
@@ -1216,6 +1267,8 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                 update(ticks, scene) {
                     this.objectUnderCursor = null;
                     for (let o of scene.objects) {
+                        if (!o.enabled)
+                            continue;
                         if (o instanceof Npc_5.Npc) {
                             if (o.position[0] === this.npc.cursorPosition[0]
                                 && o.position[1] === this.npc.cursorPosition[1]) {
@@ -1231,7 +1284,7 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
     };
 });
 System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi"], function (exports_18, context_18) {
-    var sheep_1, GameEvent_2, EventLoop_2, Scene_1, Cell_4, GraphicsEngine_3, hero_1, playerUi_1, canvas, ctx, Game, game, scene, viewWidth, viewHeight, heroUi, ticksPerStep;
+    var sheep_1, GameEvent_3, EventLoop_3, Scene_1, Cell_4, GraphicsEngine_3, hero_1, playerUi_1, canvas, ctx, Game, game, scene, viewWidth, viewHeight, heroUi, ticksPerStep;
     var __moduleName = context_18 && context_18.id;
     function getActionUnderCursor() {
         const npc = hero_1.hero;
@@ -1265,7 +1318,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
     }
     function onInterval() {
         game.update(ticksPerStep);
-        EventLoop_2.eventLoop([game, scene, ...scene.objects]);
+        EventLoop_3.eventLoop([game, scene, ...scene.objects]);
         game.draw();
     }
     return {
@@ -1273,11 +1326,11 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
             function (sheep_1_1) {
                 sheep_1 = sheep_1_1;
             },
-            function (GameEvent_2_1) {
-                GameEvent_2 = GameEvent_2_1;
+            function (GameEvent_3_1) {
+                GameEvent_3 = GameEvent_3_1;
             },
-            function (EventLoop_2_1) {
-                EventLoop_2 = EventLoop_2_1;
+            function (EventLoop_3_1) {
+                EventLoop_3 = EventLoop_3_1;
             },
             function (Scene_1_1) {
                 Scene_1 = Scene_1_1;
@@ -1341,7 +1394,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                 }
                 else if (game.mode === 'dialog') {
                     if (key_code === "Escape") {
-                        EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "switch_mode", { from: game.mode, to: "scene" }));
+                        EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "switch_mode", { from: game.mode, to: "scene" }));
                     }
                 }
             });
@@ -1396,7 +1449,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                             scene.weatherType = 'mist';
                         }
                         if (oldWeatherType !== scene.weatherType) {
-                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "weather_changed", {
+                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", {
                                 from: oldWeatherType,
                                 to: scene.weatherType,
                             }));
@@ -1404,7 +1457,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                         // wind
                         if (raw_key === 'e') {
                             scene.isWindy = !scene.isWindy;
-                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "wind_changed", {
+                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", {
                                 from: !scene.isWindy,
                                 to: scene.isWindy,
                             }));
@@ -1413,7 +1466,7 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
                         if (raw_key === 'q') { // debug
                             scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
                             //
-                            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "time_changed", {
+                            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
                                 from: scene.timePeriod === 'day' ? 'night' : 'day',
                                 to: scene.timePeriod,
                             }));
@@ -1429,9 +1482,9 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
             });
             ticksPerStep = 33;
             // initial events
-            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
-            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
-            EventLoop_2.emitEvent(new GameEvent_2.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "weather_changed", { from: scene.weatherType, to: scene.weatherType }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "wind_changed", { from: scene.isWindy, to: scene.isWindy }));
+            EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", { from: scene.timePeriod, to: scene.timePeriod }));
             //
             onInterval(); // initial run
             setInterval(onInterval, ticksPerStep);
@@ -1439,18 +1492,18 @@ System.register("main", ["world/levels/sheep", "engine/GameEvent", "engine/Event
     };
 });
 System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_19, context_19) {
-    var ObjectSkin_8, EventLoop_3, GameEvent_3, Npc_6, ulan, npcs;
+    var ObjectSkin_8, EventLoop_4, GameEvent_4, Npc_6, ulan, npcs;
     var __moduleName = context_19 && context_19.id;
     return {
         setters: [
             function (ObjectSkin_8_1) {
                 ObjectSkin_8 = ObjectSkin_8_1;
             },
-            function (EventLoop_3_1) {
-                EventLoop_3 = EventLoop_3_1;
+            function (EventLoop_4_1) {
+                EventLoop_4 = EventLoop_4_1;
             },
-            function (GameEvent_3_1) {
-                GameEvent_3 = GameEvent_3_1;
+            function (GameEvent_4_1) {
+                GameEvent_4 = GameEvent_4_1;
             },
             function (Npc_6_1) {
                 Npc_6 = Npc_6_1;
@@ -1461,7 +1514,7 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
                 '.': [undefined, 'transparent'],
             }), [4, 4]);
             ulan.setAction(0, 0, (o) => {
-                EventLoop_3.emitEvent(new GameEvent_3.GameEvent(o, "user_action", {
+                EventLoop_4.emitEvent(new GameEvent_4.GameEvent(o, "user_action", {
                     subtype: "npc_talk",
                     object: o,
                 }));
@@ -1473,7 +1526,7 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
     };
 });
 System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_20, context_20) {
-    var objects_2, misc_4, EventLoop_4, GameEvent_4, npcs_1, introLevel;
+    var objects_2, misc_4, EventLoop_5, GameEvent_5, npcs_1, introLevel;
     var __moduleName = context_20 && context_20.id;
     return {
         setters: [
@@ -1483,11 +1536,11 @@ System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/Ev
             function (misc_4_1) {
                 misc_4 = misc_4_1;
             },
-            function (EventLoop_4_1) {
-                EventLoop_4 = EventLoop_4_1;
+            function (EventLoop_5_1) {
+                EventLoop_5 = EventLoop_5_1;
             },
-            function (GameEvent_4_1) {
-                GameEvent_4 = GameEvent_4_1;
+            function (GameEvent_5_1) {
+                GameEvent_5 = GameEvent_5_1;
             },
             function (npcs_1_1) {
                 npcs_1 = npcs_1_1;
@@ -1497,7 +1550,7 @@ System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/Ev
             exports_20("introLevel", introLevel = [...objects_2.flowers, objects_2.house, objects_2.chest, objects_2.tree, ...objects_2.trees, ...objects_2.lamps, ...npcs_1.npcs]);
             // scripts
             objects_2.chest.setAction(0, 0, function () {
-                EventLoop_4.emitEvent(new GameEvent_4.GameEvent(objects_2.chest, "add_object", { object: misc_4.createTextObject(`VICTORY!`, 6, 6) }));
+                EventLoop_5.emitEvent(new GameEvent_5.GameEvent(objects_2.chest, "add_object", { object: misc_4.createTextObject(`VICTORY!`, 6, 6) }));
             });
         }
     };

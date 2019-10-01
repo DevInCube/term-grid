@@ -16,8 +16,6 @@ export class SceneObject implements GameEventHandler {
     public important = false;
     public parameters: {[key: string]: any} = {};
     public actions: [[number, number], GameObjectAction][] = [];
-    public eventHandlers: GameObjectEventHandler[] = [];
-    public updateHandler: UpdateHandler;
     ticks: number = 0;
 
     constructor(
@@ -33,17 +31,9 @@ export class SceneObject implements GameEventHandler {
         this.actions.push([[left, top], action]);
     }
 
-    addEventHandler(handler: GameObjectEventHandler) {
-        this.eventHandlers.push(handler);
-    }
+    handleEvent(ev: GameEvent) { }
 
-    handleEvent(ev: GameEvent) {
-        for (const eh of this.eventHandlers) {
-            eh(this, ev);
-        }
-    }
-
-    onUpdate(handler: UpdateHandler) {
-        this.updateHandler = handler;
+    update(ticks: number, scene: Scene) { 
+        this.ticks += ticks;
     }
 }
