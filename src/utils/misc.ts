@@ -18,7 +18,7 @@ export function createTextObject(text: string, x: number, y: number) {
     return t;
 }
 
-export function clone<T extends SceneObject>(o: T, params: {}): T {
+export function clone<T extends SceneObject>(o: T, params: {} = {}): T {
     return Object.assign(o.new(), deepCopy(o), params);
 }
 

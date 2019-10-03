@@ -1,5 +1,5 @@
 import { sheepLevel } from "./world/levels/sheep";
-import { Npc } from "./engine/Npc";
+import { lamp, sword } from "./world/items";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 import { emitEvent, eventLoop } from "./engine/EventLoop";
@@ -9,6 +9,8 @@ import { drawCell } from "./engine/GraphicsEngine";
 import { ObjectSkin } from "./engine/ObjectSkin";
 import { hero } from "./world/hero";
 import { PlayerUi } from "./ui/playerUi";
+import { Npc } from "./engine/Npc";
+import { clone } from "./utils/misc";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -89,6 +91,16 @@ document.addEventListener("keypress", function (code) {
         } else if (raw_key === 'd') {
             hero.direction = [+1, 0];
         } else if (raw_key === ' ') {
+            if (hero.objectInMainHand === sword) {
+                const npc = getNpcUnderCursor(hero);
+                if (npc) {
+                    emitEvent(new GameEvent(hero, 'attack', {
+                        object: hero,
+                        subject: npc
+                    }));
+                }
+                return;
+            }
             const actionData = getActionUnderCursor();
             if (actionData) {
                 actionData.action(actionData.object);
@@ -154,6 +166,8 @@ document.addEventListener("keypress", function (code) {
 function getActionUnderCursor(): {object: SceneObject, action: GameObjectAction} | undefined {
     const npc = hero;
     for (let object of scene.objects) {
+        if (!object.enabled) continue;
+        //
         const left = npc.position[0] + npc.direction[0];
         const top = npc.position[1] + npc.direction[1];
         //
@@ -164,6 +178,21 @@ function getActionUnderCursor(): {object: SceneObject, action: GameObjectAction}
                 const actionFunc = action[1];
                 return {object, action: actionFunc};
             }
+        }
+    }
+    return undefined;
+}
+
+function getNpcUnderCursor(npc: Npc): SceneObject | undefined {
+    for (let object of scene.objects) {
+        if (!object.enabled) continue;
+        if (!(object instanceof Npc)) continue;
+        //
+        const left = npc.cursorPosition[0];
+        const top = npc.cursorPosition[1];
+        //
+        if (object.position[0] === left && object.position[1] === top) {
+            return object;
         }
     }
     return undefined;
@@ -198,4 +227,28 @@ emitEvent(new GameEvent("system", "time_changed", {from: scene.timePeriod, to: s
 //
 onInterval(); // initial run
 setInterval(onInterval, ticksPerStep);
+
+// commands
+declare global {
+    interface Window { command: any; }
+}
+window.command = new class {
+    getItem (itemName: string) {
+        console.log('Not implemented yet')
+    }
+    takeItem (itemName: string) {
+        if (itemName === 'sword') {
+            hero.objectInMainHand = clone(sword);
+        } else if (itemName === 'lamp') {
+            hero.objectInMainHand = clone(lamp);
+        }
+    }
+    takeItem2 (itemName: string) {
+        if (itemName === 'lamp') {
+            hero.objectInSecondaryHand = clone(lamp);
+        } else {
+            hero.objectInSecondaryHand = null;
+        }
+    }
+}
 
