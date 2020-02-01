@@ -187,7 +187,7 @@ B`, {
  
  
 . `), [0, 0]);
- 
+
 
 
 export const arc = new StaticGameObject([2, 3],
@@ -213,3 +213,8 @@ export const duck = new StaticGameObject([0, 0],
     }),
     new ObjectPhysics(` `), [0, 0]);
 
+export const wheat = new StaticGameObject([0, 0],
+    new ObjectSkin(`𐅱`, `R`, {
+        'R': ['yellow', 'transparent'],
+    }),
+    new ObjectPhysics(` `), [0, 0]);

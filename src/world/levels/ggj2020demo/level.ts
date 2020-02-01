@@ -4,7 +4,7 @@ import { Scene, SceneBase } from "../../../engine/Scene";
 import { StaticGameObject } from "../../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../../utils/misc";
-import { tree, house, pillar, arc, duck, flower, bamboo } from "../../objects";
+import { tree, house, pillar, arc, duck, flower, bamboo, wheat } from "../../objects";
 import { GameEvent } from "../../../engine/GameEvent";
 import { SceneObject } from "../../../engine/SceneObject";
 import { glitch } from "../glitch";
@@ -12,6 +12,7 @@ import { viewWidth } from "../../../main";
 import { Cell } from "../../../engine/Cell";
 import { tiles } from "./tiles";
 import { glitchyNpc } from "./npc";
+import { lamp } from "../../items";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -116,6 +117,13 @@ if (true) {  // add fence
     }
 }
 
+const extraFences = [
+    clone(vFence, { position: [28, 7] }),
+    clone(vFence, { position: [29, 7] }),
+    clone(vFence, { position: [30, 7] }),
+    clone(vFence, { position: [31, 7] }),
+]
+
 const trees = [
     clone(tree, { position: [7, 9] }),
     clone(tree, { position: [27, 19] }),
@@ -125,11 +133,26 @@ const trees = [
     clone(tree, { position: [47, 2] }),
     clone(tree, { position: [11, 16] }),
     clone(tree, { position: [12, 24] }),
+    clone(tree, { position: [17, 3] }),
+    clone(tree, { position: [23, 5] }),
+    clone(tree, { position: [27, 5] }),
+    clone(tree, { position: [33, 8] }),
+    clone(tree, { position: [37, 7] }),
+    clone(tree, { position: [42, 9] }),
 ];
 
 const houses = [
     clone(house, { position: [25, 5] }),
     clone(house, { position: [15, 25] }),
+    clone(house, { position: [13, 3] }),
+    clone(house, { position: [3, 10] }),
+]
+
+const lamps = [
+    clone(lamp, { position: [27, 5] }),
+    clone(lamp, { position: [13, 25] }),
+    clone(lamp, { position: [15, 3] }),
+    clone(lamp, { position: [1, 10] }),
 ]
 
 const pillars = [
@@ -151,27 +174,39 @@ const ducks = [
     clone(duck, { position: [7, 28] }),
 ];
 
+const wheats = [
+    clone(wheat, { position: [31, 4] }),
+    clone(wheat, { position: [31, 5] }),
+    clone(wheat, { position: [30, 3] }),
+    clone(wheat, { position: [31, 3] }),
+    clone(wheat, { position: [28, 2] }),
+    clone(wheat, { position: [29, 2] }),
+    clone(wheat, { position: [29, 3] }),
+    clone(wheat, { position: [29, 5] }),
+    clone(wheat, { position: [28, 6] }),
+];
+
 const flowers = [
-    clone(flower, {position: [7, 4]}),
-    clone(flower, {position: [37, 5]}),
-    clone(flower, {position: [46, 4]}),
-    clone(flower, {position: [44, 7]}),
+    clone(flower, { position: [7, 4] }),
+    clone(flower, { position: [37, 5] }),
+    clone(flower, { position: [46, 4] }),
+    clone(flower, { position: [44, 7] }),
 ];
 
 const bamboos = [
-    clone(bamboo, {position: [4, 17]}),
-    clone(bamboo, {position: [6, 19]}),
-    clone(bamboo, {position: [3, 22]}),
-    clone(bamboo, {position: [2, 27]}),
-    clone(bamboo, {position: [1, 15 ]}),
+    clone(bamboo, { position: [4, 17] }),
+    clone(bamboo, { position: [6, 19] }),
+    clone(bamboo, { position: [3, 22] }),
+    clone(bamboo, { position: [2, 27] }),
+    clone(bamboo, { position: [1, 15] }),
 ];
 
 export const level = {
     sceneObjects: [
-        ...fences,
+        ...fences, ...extraFences,
         ...trees, ...bamboos,
         ...arcs, ...houses, ...pillars,
-        ...ducks, ...flowers],
-    glitches: [glitchyNpc, clone(glitch, { position: [7, 7] })],
+        ...ducks, ...flowers, ...lamps, ...wheats],
+    glitches: [/*glitchyNpc,*/ clone(glitch, { position: [7, 7] })],
     tiles: tiles,
 };

@@ -1028,7 +1028,7 @@ oEE`;
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_15, context_15) {
     var __moduleName = context_15 && context_15.id;
-    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers, pillar, arc, duck;
+    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers, pillar, arc, duck, wheat;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -1219,6 +1219,9 @@ B   B`, {
 .   .`), [0, 0]));
             exports_15("duck", duck = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`🦆`, `R`, {
                 'R': ['white', 'transparent'],
+            }), new ObjectPhysics_6.ObjectPhysics(` `), [0, 0]));
+            exports_15("wheat", wheat = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`𐅱`, `R`, {
+                'R': ['yellow', 'transparent'],
             }), new ObjectPhysics_6.ObjectPhysics(` `), [0, 0]));
         }
     };
@@ -1432,28 +1435,28 @@ System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exp
             }
         ],
         execute: function () {
-            exports_19("tiles", tiles = parseTiles(`gggggggGGggggggggggggggggggGGgggg ggggggggGGgg ggG
-gggggggGGGGggggggg  gggggggggggggg gggggggggggg ggg
-gggggg g gg gggggggggggggggg g  g g  g  g g gg g gg
-gg  gg gg gggg gggg gggg gg gg ggg g gggg gg ggggg 
-g ggg ggg g       gg    gg  gg ggg ggggGGGGg gggggg
-ggg                gg ggggg gggggg gggggggggGGGGGgg
-g                     ggGGGGgggg ggggggg gggggggggg
-gggg      ggG    GG   gg    ggg GGG       gggggg  g
-g      ggggg           g     g g gg   gggg    GGggg
-gg      ggGG   gg     gG    gGg GGssssssss  ggggggg
-g     gggg                       ssswwwWWWssgggGGgg
+            exports_19("tiles", tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
+gGGGgggGGGGggggggg  gggggggggggggg gggggggggggg ggg
+ggGgGGGg gg gggggggggggggggg    g g  g  g g gg g gg
+    gg gg gggg gggg gggg ggg    gg g gggg gg ggggg 
+      ggg g       gg    gggg    gg ggggGGGGg gggggg
+                   gg gggggg    gg gggggggggGGGGGgg
+g                     gg        ggggggg gggggggggg
+Gg        ggG    GG         ggggGGG       gggggg  g
+g      ggggg                   g gg   gggg    GGggg
+Gg      ggGG   gg     gG        GGssssssss  ggggggg
+G     gggg                       ssswwwWWWssgggGGgg
 g                                 bbbBBWWwwwsgggggg
 g           g        g             sswwwwWwsggg ggg
 g                                    ssssssgg   ggg
-   gggg    gg      gggggg             ggggggg ggggg
-g        GGGGG     gGGGGGGgg gggg          gGG  ggg
-gg       ggggg     gGgggGGGggg gggg     ggggGGGGggg
-ggg    gg            GGGgggg ggg gg     gg g gGG gg
-gggggggg            ggGGgg     gg           g g ggg
-gg  gg gg          ggggg GGGgg              g  gg g
-gggggggGG              GGGGgggggGGGgggG       ggGGg
-gGGGGgggG                       GGggg   GGG   gGGgg
+           gg      gggggg             ggggggg ggggg
+g g      GGGGG     gGGGGGGgg gggg          gGG  ggg
+gg g     ggggg     gGgggGGGggg gggg     ggggGGGGggg
+ggggg  gg            GGGgggg ggg gg     gg g gGG gg
+ggGGGggg            ggGGgg     gg           g g ggg
+gg  gg gg          ggggg GGGgg                 gg g
+gggggggGG              GGGGgggggGGGgggG            
+gGGGGgggG                       GGggg   GGG        
 gg   gGG    gggg                 gg  g g g gssssssg
 g   gg     gGGgggggg gg gggg      gGGg ggsssssswwws
    g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwwwwww
@@ -1535,9 +1538,9 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
         }
     };
 });
-System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/levels/ggj2020demo/npc"], function (exports_21, context_21) {
+System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/items"], function (exports_21, context_21) {
     var __moduleName = context_21 && context_21.id;
-    var Npc_5, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitch_1, tiles_1, npc_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, trees, houses, pillars, arcs, ducks, flowers, bamboos, level;
+    var Npc_5, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitch_1, tiles_1, items_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, extraFences, trees, houses, lamps, pillars, arcs, ducks, wheats, flowers, bamboos, level;
     return {
         setters: [
             function (Npc_5_1) {
@@ -1564,8 +1567,8 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
             function (tiles_1_1) {
                 tiles_1 = tiles_1_1;
             },
-            function (npc_1_1) {
-                npc_1 = npc_1_1;
+            function (items_1_1) {
+                items_1 = items_1_1;
             }
         ],
         execute: function () {
@@ -1657,6 +1660,12 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
                     fences.push(misc_3.clone(vFence, { position: [levelWidth - 20 + 9, y] }));
                 }
             }
+            extraFences = [
+                misc_3.clone(vFence, { position: [28, 7] }),
+                misc_3.clone(vFence, { position: [29, 7] }),
+                misc_3.clone(vFence, { position: [30, 7] }),
+                misc_3.clone(vFence, { position: [31, 7] }),
+            ];
             trees = [
                 misc_3.clone(objects_1.tree, { position: [7, 9] }),
                 misc_3.clone(objects_1.tree, { position: [27, 19] }),
@@ -1666,10 +1675,24 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
                 misc_3.clone(objects_1.tree, { position: [47, 2] }),
                 misc_3.clone(objects_1.tree, { position: [11, 16] }),
                 misc_3.clone(objects_1.tree, { position: [12, 24] }),
+                misc_3.clone(objects_1.tree, { position: [17, 3] }),
+                misc_3.clone(objects_1.tree, { position: [23, 5] }),
+                misc_3.clone(objects_1.tree, { position: [27, 5] }),
+                misc_3.clone(objects_1.tree, { position: [33, 8] }),
+                misc_3.clone(objects_1.tree, { position: [37, 7] }),
+                misc_3.clone(objects_1.tree, { position: [42, 9] }),
             ];
             houses = [
                 misc_3.clone(objects_1.house, { position: [25, 5] }),
                 misc_3.clone(objects_1.house, { position: [15, 25] }),
+                misc_3.clone(objects_1.house, { position: [13, 3] }),
+                misc_3.clone(objects_1.house, { position: [3, 10] }),
+            ];
+            lamps = [
+                misc_3.clone(items_1.lamp, { position: [27, 5] }),
+                misc_3.clone(items_1.lamp, { position: [13, 25] }),
+                misc_3.clone(items_1.lamp, { position: [15, 3] }),
+                misc_3.clone(items_1.lamp, { position: [1, 10] }),
             ];
             pillars = [
                 misc_3.clone(objects_1.pillar, { position: [7, 21] }),
@@ -1687,6 +1710,17 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
                 misc_3.clone(objects_1.duck, { position: [40, 26] }),
                 misc_3.clone(objects_1.duck, { position: [7, 28] }),
             ];
+            wheats = [
+                misc_3.clone(objects_1.wheat, { position: [31, 4] }),
+                misc_3.clone(objects_1.wheat, { position: [31, 5] }),
+                misc_3.clone(objects_1.wheat, { position: [30, 3] }),
+                misc_3.clone(objects_1.wheat, { position: [31, 3] }),
+                misc_3.clone(objects_1.wheat, { position: [28, 2] }),
+                misc_3.clone(objects_1.wheat, { position: [29, 2] }),
+                misc_3.clone(objects_1.wheat, { position: [29, 3] }),
+                misc_3.clone(objects_1.wheat, { position: [29, 5] }),
+                misc_3.clone(objects_1.wheat, { position: [28, 6] }),
+            ];
             flowers = [
                 misc_3.clone(objects_1.flower, { position: [7, 4] }),
                 misc_3.clone(objects_1.flower, { position: [37, 5] }),
@@ -1702,12 +1736,12 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
             ];
             exports_21("level", level = {
                 sceneObjects: [
-                    ...fences,
+                    ...fences, ...extraFences,
                     ...trees, ...bamboos,
                     ...arcs, ...houses, ...pillars,
-                    ...ducks, ...flowers
+                    ...ducks, ...flowers, ...lamps, ...wheats
                 ],
-                glitches: [npc_1.glitchyNpc, misc_3.clone(glitch_1.glitch, { position: [7, 7] })],
+                glitches: [/*glitchyNpc,*/ misc_3.clone(glitch_1.glitch, { position: [7, 7] })],
                 tiles: tiles_1.tiles,
             });
         }
@@ -1872,14 +1906,14 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
-    var level_1, items_1, GameEvent_3, EventLoop_3, Scene_2, Cell_6, GraphicsEngine_4, hero_2, playerUi_1, Npc_7, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
+    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_2, Cell_6, GraphicsEngine_4, hero_2, playerUi_1, Npc_7, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (level_1_1) {
                 level_1 = level_1_1;
             },
-            function (items_1_1) {
-                items_1 = items_1_1;
+            function (items_2_1) {
+                items_2 = items_2_1;
             },
             function (GameEvent_3_1) {
                 GameEvent_3 = GameEvent_3_1;
@@ -1995,7 +2029,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                         hero_2.hero.direction = [+1, 0];
                     }
                     else if (raw_key === ' ') {
-                        if (hero_2.hero.objectInMainHand === items_1.sword) {
+                        if (hero_2.hero.objectInMainHand === items_2.sword) {
                             const npc = getNpcUnderCursor(hero_2.hero);
                             if (npc) {
                                 EventLoop_3.emitEvent(new GameEvent_3.GameEvent(hero_2.hero, 'attack', {
@@ -2076,15 +2110,15 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                 }
                 takeItem(itemName) {
                     if (itemName === 'sword') {
-                        hero_2.hero.objectInMainHand = misc_4.clone(items_1.sword);
+                        hero_2.hero.objectInMainHand = misc_4.clone(items_2.sword);
                     }
                     else if (itemName === 'lamp') {
-                        hero_2.hero.objectInMainHand = misc_4.clone(items_1.lamp);
+                        hero_2.hero.objectInMainHand = misc_4.clone(items_2.lamp);
                     }
                 }
                 takeItem2(itemName) {
                     if (itemName === 'lamp') {
-                        hero_2.hero.objectInSecondaryHand = misc_4.clone(items_1.lamp);
+                        hero_2.hero.objectInSecondaryHand = misc_4.clone(items_2.lamp);
                     }
                     else {
                         hero_2.hero.objectInSecondaryHand = null;
