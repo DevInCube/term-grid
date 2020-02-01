@@ -56,7 +56,7 @@ class Sheep extends Npc {
                 sheep.parameters["state"] = "feared";
                 sheep.parameters["stress"] = 3;
                 sheep.parameters["enemies"] = enemiesNearby;
-            } else {  // if (fearedSheeps.length) 
+            } else {  // if (fearedSheeps.length)
                 const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
                 //console.log(sheepsStress);
                 sheep.parameters["stress"] = sheepsStress - 1;
@@ -109,10 +109,7 @@ if (true) {  // add fence
     }
 }
 
-
 const tree2 = clone(tree, { position: [7, 9] });
-
-
 
 class Glitch extends StaticGameObject {
     constructor() {
