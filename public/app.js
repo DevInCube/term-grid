@@ -297,7 +297,7 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
                     width: 24,
                     height: 24,
                 },
-                charSize: 20,
+                charSize: 18,
             });
             emptyCollisionChar = ' ';
         }
@@ -1160,22 +1160,22 @@ AEMEAttAEMEAttAEMEAtt
 '''t''''''t''''''t'''
 'AEMEA''AEMEA''AEMEA'
 '''''''''''''''''''''`;
-            glitchySprite = `width:7
+            glitchySprite = `width:3
 height:3
 name:  
 empty:'
-color:A,#000f,#aaaf
-color:E,#00ff,#aaff
-color:M,#0f0f,#afaf
-color:t,#f00f,#faaf
+color:A,#000f,#ff0f
+color:E,#ffff,#aaf0
+color:t,#f8ff,#faa0
+color:o,#f000,#faa0
 
   move right
-'''''''''''''''''''''
---[•~•]-~[•-•]~-[•.•]
-'''''''''''''''''''''
-'''''''''''''''''''''
-ttAEMEAttAEMEAttAEMEA
-'''''''''''''''''''''`;
+'--
+>••
+'__'
+oEE
+tAA
+oEE`;
             exports_15("sprite", sprite = SpriteLoader_1.Sprite.parse(glitchySprite));
             console.log(sprite.frames);
         }
@@ -1828,6 +1828,12 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                     }
                 }
             };
+            canvas.addEventListener("click", ev => {
+                EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "click", {
+                    x: Math.floor((ev.clientX - leftPad) / GraphicsEngine_4.cellStyle.size.width),
+                    y: Math.floor((ev.clientY - topPad) / GraphicsEngine_4.cellStyle.size.height)
+                }));
+            });
         }
     };
 });

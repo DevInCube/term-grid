@@ -18,7 +18,7 @@ export const cellStyle = {
         width: 24,
         height: 24,
     },
-    charSize: 20,
+    charSize: 18,
 };
 
 export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[]) {

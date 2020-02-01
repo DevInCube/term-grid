@@ -261,8 +261,6 @@ window.command = new class {
         }
     }
 }
-<<<<<<< HEAD
-=======
 
 canvas.addEventListener("click", ev => {
     emitEvent(new GameEvent("system", "click", {
@@ -272,4 +270,3 @@ canvas.addEventListener("click", ev => {
 });
 
 
->>>>>>> 53a98b50f4194c1e501cb3c8d4ac3d0dba383c12
