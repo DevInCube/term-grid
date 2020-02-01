@@ -618,7 +618,7 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "main"], function (expo
                         ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size.width, cellStyle.size.height);
                     }
                     // cell borders
-                    addObjectBorders();
+                    // addObjectBorders();
                     function addObjectBorders() {
                         const borderWidth = 1.5;
                         ctx.lineWidth = borderWidth;
