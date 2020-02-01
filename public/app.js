@@ -1181,22 +1181,208 @@ oEE`;
         }
     };
 });
-System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/sprites/glitchy"], function (exports_16, context_16) {
+System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_16, context_16) {
     var __moduleName = context_16 && context_16.id;
-    var Npc_3, ObjectSkin_8, StaticGameObject_3, ObjectPhysics_7, misc_3, objects_1, glitchy_1, vFence, hFence, fences, Sheep, tree2, Glitch, glitch, glitchySprite, glitchy, level;
+    var Item_1, ObjectSkin_8, ObjectPhysics_7, lamp, sword;
+    return {
+        setters: [
+            function (Item_1_1) {
+                Item_1 = Item_1_1;
+            },
+            function (ObjectSkin_8_1) {
+                ObjectSkin_8 = ObjectSkin_8_1;
+            },
+            function (ObjectPhysics_7_1) {
+                ObjectPhysics_7 = ObjectPhysics_7_1;
+            }
+        ],
+        execute: function () {
+            exports_16("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(` `, `f`), [0, 0]));
+            exports_16("sword", sword = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🗡`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(), [0, 0]));
+        }
+    };
+});
+System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"], function (exports_17, context_17) {
+    var __moduleName = context_17 && context_17.id;
+    var Npc_3, ObjectSkin_9, items_1, hero;
     return {
         setters: [
             function (Npc_3_1) {
                 Npc_3 = Npc_3_1;
             },
-            function (ObjectSkin_8_1) {
-                ObjectSkin_8 = ObjectSkin_8_1;
+            function (ObjectSkin_9_1) {
+                ObjectSkin_9 = ObjectSkin_9_1;
             },
+            function (items_1_1) {
+                items_1 = items_1_1;
+            }
+        ],
+        execute: function () {
+            exports_17("hero", hero = new class extends Npc_3.Npc {
+                constructor() {
+                    super(new ObjectSkin_9.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]);
+                    this.type = "human";
+                    this.moveSpeed = 10;
+                    this.showCursor = true;
+                    this.objectInMainHand = items_1.sword;
+                    this.objectInSecondaryHand = items_1.lamp;
+                }
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    //
+                    const obj = this;
+                    obj.moveTick += ticks;
+                }
+            });
+        }
+    };
+});
+System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_18, context_18) {
+    var __moduleName = context_18 && context_18.id;
+    var StaticGameObject_3, ObjectSkin_10, ObjectPhysics_8, hero_1, Glitch, glitch;
+    return {
+        setters: [
             function (StaticGameObject_3_1) {
                 StaticGameObject_3 = StaticGameObject_3_1;
             },
-            function (ObjectPhysics_7_1) {
-                ObjectPhysics_7 = ObjectPhysics_7_1;
+            function (ObjectSkin_10_1) {
+                ObjectSkin_10 = ObjectSkin_10_1;
+            },
+            function (ObjectPhysics_8_1) {
+                ObjectPhysics_8 = ObjectPhysics_8_1;
+            },
+            function (hero_1_1) {
+                hero_1 = hero_1_1;
+            }
+        ],
+        execute: function () {
+            Glitch = class Glitch extends StaticGameObject_3.StaticGameObject {
+                constructor() {
+                    super([0, 0], new ObjectSkin_10.ObjectSkin(`AA
+ A`, `aa
+ a`, {
+                        'a': ['#f0f', '#0fff'],
+                    }), new ObjectPhysics_8.ObjectPhysics(`.`, ''), [0, 0]);
+                    this.isDestroyed = false;
+                    this.hiddenFrames = {
+                        450: [
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }]
+                        ],
+                    };
+                    this.idleFrames = {
+                        450: [
+                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        500: [
+                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        530: [
+                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
+                        ],
+                        950: [
+                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                    };
+                    this.clickFrames = {
+                        450: [
+                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        500: [
+                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        530: [
+                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
+                        ],
+                        950: [
+                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                    };
+                    this.frames = this.clickFrames;
+                    this.parameters["animate"] = true;
+                }
+                new() {
+                    return new Glitch();
+                }
+                getFrame() {
+                    const keys = Object.keys(this.frames).map(k => Number(k)).sort();
+                    const frameKey = (() => {
+                        while (true) {
+                            const key = keys.find(k => k > this.ticks);
+                            if ("undefined" === typeof key) {
+                                this.ticks -= keys[keys.length - 1];
+                            }
+                            else {
+                                return key;
+                            }
+                        }
+                    })();
+                    return this.frames[frameKey];
+                }
+                update(ticks, scene) {
+                    super.update(ticks, scene);
+                    this.frames = (() => {
+                        if (this.isDestroyed) {
+                            return this.hiddenFrames;
+                        }
+                        if (hero_1.hero.position[0] === 10 && hero_1.hero.position[1] === 10) {
+                            return this.clickFrames;
+                        }
+                        if (hero_1.hero.position[0] >= 10 - 2 && hero_1.hero.position[0] <= 10 + 2
+                            && hero_1.hero.position[1] >= 10 - 2 && hero_1.hero.position[1] <= 10 + 2) {
+                            return this.idleFrames;
+                        }
+                        return this.hiddenFrames;
+                    })();
+                    const frame = this.getFrame();
+                    const o = this;
+                    for (let x = 0; x < frame.length; x++) {
+                        o.skin.characters[x] = frame[x].map(s => s.c).join("");
+                        for (let y = 0; y < frame[x].length; y++) {
+                            o.skin.raw_colors[x][y][0] = frame[x][y].f;
+                            o.skin.raw_colors[x][y][1] = frame[x][y].b;
+                        }
+                    }
+                }
+                handleEvent(ev) {
+                    super.handleEvent(ev);
+                    //
+                    if (ev.type === "click") {
+                        if (this.frames === this.clickFrames && ev.args.x === 8 && ev.args.y === 7) {
+                            this.isDestroyed = true;
+                        }
+                    }
+                }
+            };
+            exports_18("Glitch", Glitch);
+            exports_18("glitch", glitch = new Glitch());
+        }
+    };
+});
+System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/sprites/glitchy", "world/levels/glitch"], function (exports_19, context_19) {
+    var __moduleName = context_19 && context_19.id;
+    var Npc_4, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitchy_1, glitch_1, vFence, hFence, fences, Sheep, tree2, glitchySprite, glitchy, level;
+    return {
+        setters: [
+            function (Npc_4_1) {
+                Npc_4 = Npc_4_1;
+            },
+            function (ObjectSkin_11_1) {
+                ObjectSkin_11 = ObjectSkin_11_1;
+            },
+            function (StaticGameObject_4_1) {
+                StaticGameObject_4 = StaticGameObject_4_1;
+            },
+            function (ObjectPhysics_9_1) {
+                ObjectPhysics_9 = ObjectPhysics_9_1;
             },
             function (misc_3_1) {
                 misc_3 = misc_3_1;
@@ -1206,15 +1392,18 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
             },
             function (glitchy_1_1) {
                 glitchy_1 = glitchy_1_1;
+            },
+            function (glitch_1_1) {
+                glitch_1 = glitch_1_1;
             }
         ],
         execute: function () {
-            vFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_8.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_7.ObjectPhysics('.'), [0, 0]);
-            hFence = new StaticGameObject_3.StaticGameObject([0, 0], new ObjectSkin_8.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_7.ObjectPhysics('.'), [0, 0]);
+            vFence = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_11.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_9.ObjectPhysics('.'), [0, 0]);
+            hFence = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_11.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_9.ObjectPhysics('.'), [0, 0]);
             fences = [];
-            Sheep = class Sheep extends Npc_3.Npc {
+            Sheep = class Sheep extends Npc_4.Npc {
                 constructor() {
-                    super(new ObjectSkin_8.ObjectSkin(`🐑`, `.`, {
+                    super(new ObjectSkin_11.ObjectSkin(`🐑`, `.`, {
                         '.': [undefined, 'transparent'],
                     }), [0, 0]);
                     this.type = "glitch";
@@ -1296,55 +1485,8 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                 }
             }
             tree2 = misc_3.clone(objects_1.tree, { position: [7, 9] });
-            Glitch = class Glitch extends StaticGameObject_3.StaticGameObject {
-                constructor() {
-                    super([0, 0], new ObjectSkin_8.ObjectSkin(`AA
-A`, `aa
-a`, {
-                        'a': ['#f0f', '#0fff'],
-                    }), new ObjectPhysics_7.ObjectPhysics(`.`, ''), [0, 0]);
-                    this.parameters["animate"] = true;
-                }
-                new() { return new Glitch(); }
-                update(ticks, scene) {
-                    super.update(ticks, scene);
-                    //
-                    const o = this;
-                    if (o.ticks > 50) {
-                        o.ticks = 0;
-                        if (o.parameters["animate"]) {
-                            function getRandGlitchSym() {
-                                const str = "^%&$#";
-                                const index = Math.floor(Math.random() * str.length);
-                                return str[index];
-                            }
-                            o.parameters["tick"] = !o.parameters["tick"];
-                            o.skin.characters[0] = `${getRandGlitchSym()}${getRandGlitchSym()}`;
-                            o.skin.characters[1] = getRandGlitchSym();
-                        }
-                    }
-                }
-                handleEvent(ev) {
-                    super.handleEvent(ev);
-                    //
-                    const o = this;
-                    if (ev.type === 'wind_changed') {
-                        o.parameters["animate"] = ev.args["to"];
-                    }
-                    else if (ev.type === 'weather_changed') {
-                        if (ev.args.to === 'snow') {
-                            o.skin.raw_colors[0][0][0] = 'white';
-                        }
-                        else {
-                            o.skin.raw_colors[0][0][0] = '#0a0';
-                        }
-                    }
-                }
-            };
-            ;
-            exports_16("glitch", glitch = new Glitch());
             glitchySprite = glitchy_1.sprite;
-            glitchy = new class extends Npc_3.Npc {
+            glitchy = new class extends Npc_4.Npc {
                 constructor() {
                     super(glitchySprite.frames["move right"][0], [20, 15]);
                     this.type = "glitchy";
@@ -1374,7 +1516,7 @@ a`, {
                                 continue;
                             if (object === self)
                                 continue; // self check
-                            if (object instanceof Npc_3.Npc && object.type === "sheep") {
+                            if (object instanceof Npc_4.Npc && object.type === "sheep") {
                                 if (self.distanceTo(object) < radius) {
                                     enemies.push(object);
                                 }
@@ -1390,71 +1532,15 @@ a`, {
                     }
                 }
             };
-            exports_16("level", level = {
+            exports_19("level", level = {
                 sceneObjects: [...fences, tree2],
-                glitches: [glitchy, misc_3.clone(glitch, { position: [7, 7] })],
+                glitches: [glitchy, misc_3.clone(glitch_1.glitch, { position: [7, 7] })],
             });
         }
     };
 });
-System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_17, context_17) {
-    var __moduleName = context_17 && context_17.id;
-    var Item_1, ObjectSkin_9, ObjectPhysics_8, lamp, sword;
-    return {
-        setters: [
-            function (Item_1_1) {
-                Item_1 = Item_1_1;
-            },
-            function (ObjectSkin_9_1) {
-                ObjectSkin_9 = ObjectSkin_9_1;
-            },
-            function (ObjectPhysics_8_1) {
-                ObjectPhysics_8 = ObjectPhysics_8_1;
-            }
-        ],
-        execute: function () {
-            exports_17("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_9.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_8.ObjectPhysics(` `, `f`), [0, 0]));
-            exports_17("sword", sword = new Item_1.Item([0, 0], new ObjectSkin_9.ObjectSkin(`🗡`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_8.ObjectPhysics(), [0, 0]));
-        }
-    };
-});
-System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"], function (exports_18, context_18) {
-    var __moduleName = context_18 && context_18.id;
-    var Npc_4, ObjectSkin_10, items_1, hero;
-    return {
-        setters: [
-            function (Npc_4_1) {
-                Npc_4 = Npc_4_1;
-            },
-            function (ObjectSkin_10_1) {
-                ObjectSkin_10 = ObjectSkin_10_1;
-            },
-            function (items_1_1) {
-                items_1 = items_1_1;
-            }
-        ],
-        execute: function () {
-            exports_18("hero", hero = new class extends Npc_4.Npc {
-                constructor() {
-                    super(new ObjectSkin_10.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]);
-                    this.type = "human";
-                    this.moveSpeed = 10;
-                    this.showCursor = true;
-                    this.objectInMainHand = items_1.sword;
-                    this.objectInSecondaryHand = items_1.lamp;
-                }
-                update(ticks, scene) {
-                    super.update(ticks, scene);
-                    //
-                    const obj = this;
-                    obj.moveTick += ticks;
-                }
-            });
-        }
-    };
-});
-System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_19, context_19) {
-    var __moduleName = context_19 && context_19.id;
+System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_20, context_20) {
+    var __moduleName = context_20 && context_20.id;
     var GraphicsEngine_2, Cell_3, main_3, Npc_5, PlayerUi;
     return {
         setters: [
@@ -1513,12 +1599,12 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                     }
                 }
             };
-            exports_19("PlayerUi", PlayerUi);
+            exports_20("PlayerUi", PlayerUi);
         }
     };
 });
-System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Scene"], function (exports_20, context_20) {
-    var __moduleName = context_20 && context_20.id;
+System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Scene"], function (exports_21, context_21) {
+    var __moduleName = context_21 && context_21.id;
     var GraphicsEngine_3, Cell_4, main_4, Scene_1, GlitchField;
     return {
         setters: [
@@ -1550,14 +1636,14 @@ System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main
                     super.update(ticks);
                 }
             };
-            exports_20("GlitchField", GlitchField);
+            exports_21("GlitchField", GlitchField);
         }
     };
 });
-System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi", "engine/Npc", "utils/misc", "ui/glitchField"], function (exports_21, context_21) {
-    var __moduleName = context_21 && context_21.id;
+System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi", "engine/Npc", "utils/misc", "ui/glitchField"], function (exports_22, context_22) {
+    var __moduleName = context_22 && context_22.id;
     function getActionUnderCursor() {
-        const npc = hero_1.hero;
+        const npc = hero_2.hero;
         for (let object of scene.objects) {
             if (!object.enabled)
                 continue;
@@ -1610,7 +1696,7 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
-    var sheep_1, items_2, GameEvent_3, EventLoop_3, Scene_2, Cell_5, GraphicsEngine_4, hero_1, playerUi_1, Npc_6, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
+    var sheep_1, items_2, GameEvent_3, EventLoop_3, Scene_2, Cell_5, GraphicsEngine_4, hero_2, playerUi_1, Npc_6, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (sheep_1_1) {
@@ -1634,8 +1720,8 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
             function (GraphicsEngine_4_1) {
                 GraphicsEngine_4 = GraphicsEngine_4_1;
             },
-            function (hero_1_1) {
-                hero_1 = hero_1_1;
+            function (hero_2_1) {
+                hero_2 = hero_2_1;
             },
             function (playerUi_1_1) {
                 playerUi_1 = playerUi_1_1;
@@ -1685,16 +1771,16 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                 }
             };
             game = new Game();
-            exports_21("viewWidth", viewWidth = 60);
-            exports_21("viewHeight", viewHeight = 30);
-            exports_21("leftPad", leftPad = (ctx.canvas.width - GraphicsEngine_4.cellStyle.size.width * viewWidth) / 2);
-            exports_21("topPad", topPad = (ctx.canvas.height - GraphicsEngine_4.cellStyle.size.height * viewHeight) / 2);
+            exports_22("viewWidth", viewWidth = 60);
+            exports_22("viewHeight", viewHeight = 30);
+            exports_22("leftPad", leftPad = (ctx.canvas.width - GraphicsEngine_4.cellStyle.size.width * viewWidth) / 2);
+            exports_22("topPad", topPad = (ctx.canvas.height - GraphicsEngine_4.cellStyle.size.height * viewHeight) / 2);
             scene = new Scene_2.Scene();
-            heroUi = new playerUi_1.PlayerUi(hero_1.hero);
+            heroUi = new playerUi_1.PlayerUi(hero_2.hero);
             glitchField = new glitchField_1.GlitchField();
             scene.objects = sheep_1.level.sceneObjects;
             glitchField.objects = sheep_1.level.glitches;
-            scene.objects.push(hero_1.hero);
+            scene.objects.push(hero_2.hero);
             document.addEventListener("keydown", function (ev) {
                 // const raw_key = ev.key.toLowerCase();
                 const key_code = ev.code;
@@ -1720,23 +1806,23 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                 onInterval();
                 function onSceneInput() {
                     if (raw_key === 'w') {
-                        hero_1.hero.direction = [0, -1];
+                        hero_2.hero.direction = [0, -1];
                     }
                     else if (raw_key === 's') {
-                        hero_1.hero.direction = [0, +1];
+                        hero_2.hero.direction = [0, +1];
                     }
                     else if (raw_key === 'a') {
-                        hero_1.hero.direction = [-1, 0];
+                        hero_2.hero.direction = [-1, 0];
                     }
                     else if (raw_key === 'd') {
-                        hero_1.hero.direction = [+1, 0];
+                        hero_2.hero.direction = [+1, 0];
                     }
                     else if (raw_key === ' ') {
-                        if (hero_1.hero.objectInMainHand === items_2.sword) {
-                            const npc = getNpcUnderCursor(hero_1.hero);
+                        if (hero_2.hero.objectInMainHand === items_2.sword) {
+                            const npc = getNpcUnderCursor(hero_2.hero);
                             if (npc) {
-                                EventLoop_3.emitEvent(new GameEvent_3.GameEvent(hero_1.hero, 'attack', {
-                                    object: hero_1.hero,
+                                EventLoop_3.emitEvent(new GameEvent_3.GameEvent(hero_2.hero, 'attack', {
+                                    object: hero_2.hero,
                                     subject: npc
                                 }));
                             }
@@ -1793,8 +1879,8 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                         return; // skip
                     }
                     if (!code.shiftKey) {
-                        if (!scene.isPositionBlocked(hero_1.hero.cursorPosition)) {
-                            hero_1.hero.move();
+                        if (!scene.isPositionBlocked(hero_2.hero.cursorPosition)) {
+                            hero_2.hero.move();
                         }
                     }
                 }
@@ -1813,18 +1899,18 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                 }
                 takeItem(itemName) {
                     if (itemName === 'sword') {
-                        hero_1.hero.objectInMainHand = misc_4.clone(items_2.sword);
+                        hero_2.hero.objectInMainHand = misc_4.clone(items_2.sword);
                     }
                     else if (itemName === 'lamp') {
-                        hero_1.hero.objectInMainHand = misc_4.clone(items_2.lamp);
+                        hero_2.hero.objectInMainHand = misc_4.clone(items_2.lamp);
                     }
                 }
                 takeItem2(itemName) {
                     if (itemName === 'lamp') {
-                        hero_1.hero.objectInSecondaryHand = misc_4.clone(items_2.lamp);
+                        hero_2.hero.objectInSecondaryHand = misc_4.clone(items_2.lamp);
                     }
                     else {
-                        hero_1.hero.objectInSecondaryHand = null;
+                        hero_2.hero.objectInSecondaryHand = null;
                     }
                 }
             };
@@ -1837,13 +1923,13 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
         }
     };
 });
-System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_22, context_22) {
-    var __moduleName = context_22 && context_22.id;
-    var ObjectSkin_11, EventLoop_4, GameEvent_4, Npc_7, ulan, npcs;
+System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_23, context_23) {
+    var __moduleName = context_23 && context_23.id;
+    var ObjectSkin_12, EventLoop_4, GameEvent_4, Npc_7, ulan, npcs;
     return {
         setters: [
-            function (ObjectSkin_11_1) {
-                ObjectSkin_11 = ObjectSkin_11_1;
+            function (ObjectSkin_12_1) {
+                ObjectSkin_12 = ObjectSkin_12_1;
             },
             function (EventLoop_4_1) {
                 EventLoop_4 = EventLoop_4_1;
@@ -1856,7 +1942,7 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
             }
         ],
         execute: function () {
-            ulan = new Npc_7.Npc(new ObjectSkin_11.ObjectSkin('🐻', `.`, {
+            ulan = new Npc_7.Npc(new ObjectSkin_12.ObjectSkin('🐻', `.`, {
                 '.': [undefined, 'transparent'],
             }), [4, 4]);
             ulan.setAction(0, 0, (o) => {
@@ -1865,139 +1951,9 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
                     object: o,
                 }));
             });
-            exports_22("npcs", npcs = [
+            exports_23("npcs", npcs = [
                 ulan,
             ]);
-        }
-    };
-});
-System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_23, context_23) {
-    var __moduleName = context_23 && context_23.id;
-    var StaticGameObject_4, ObjectSkin_12, ObjectPhysics_9, hero_2, Glitch, glitch;
-    return {
-        setters: [
-            function (StaticGameObject_4_1) {
-                StaticGameObject_4 = StaticGameObject_4_1;
-            },
-            function (ObjectSkin_12_1) {
-                ObjectSkin_12 = ObjectSkin_12_1;
-            },
-            function (ObjectPhysics_9_1) {
-                ObjectPhysics_9 = ObjectPhysics_9_1;
-            },
-            function (hero_2_1) {
-                hero_2 = hero_2_1;
-            }
-        ],
-        execute: function () {
-            Glitch = class Glitch extends StaticGameObject_4.StaticGameObject {
-                constructor() {
-                    super([0, 0], new ObjectSkin_12.ObjectSkin(`AA
- A`, `aa
- a`, {
-                        'a': ['#f0f', '#0fff'],
-                    }), new ObjectPhysics_9.ObjectPhysics(`.`, ''), [0, 0]);
-                    this.isDestroyed = false;
-                    this.hiddenFrames = {
-                        450: [
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }]
-                        ],
-                    };
-                    this.idleFrames = {
-                        450: [
-                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        500: [
-                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        530: [
-                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
-                        ],
-                        950: [
-                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                    };
-                    this.clickFrames = {
-                        450: [
-                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        500: [
-                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        530: [
-                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
-                        ],
-                        950: [
-                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                    };
-                    this.frames = this.clickFrames;
-                    this.parameters["animate"] = true;
-                }
-                new() {
-                    return new Glitch();
-                }
-                getFrame() {
-                    const keys = Object.keys(this.frames).map(k => Number(k)).sort();
-                    const frameKey = (() => {
-                        while (true) {
-                            const key = keys.find(k => k > this.ticks);
-                            if ("undefined" === typeof key) {
-                                this.ticks -= keys[keys.length - 1];
-                            }
-                            else {
-                                return key;
-                            }
-                        }
-                    })();
-                    return this.frames[frameKey];
-                }
-                update(ticks, scene) {
-                    super.update(ticks, scene);
-                    this.frames = (() => {
-                        if (this.isDestroyed) {
-                            return this.hiddenFrames;
-                        }
-                        if (hero_2.hero.position[0] === 10 && hero_2.hero.position[1] === 10) {
-                            return this.clickFrames;
-                        }
-                        if (hero_2.hero.position[0] >= 10 - 2 && hero_2.hero.position[0] <= 10 + 2
-                            && hero_2.hero.position[1] >= 10 - 2 && hero_2.hero.position[1] <= 10 + 2) {
-                            return this.idleFrames;
-                        }
-                        return this.hiddenFrames;
-                    })();
-                    const frame = this.getFrame();
-                    const o = this;
-                    for (let x = 0; x < frame.length; x++) {
-                        o.skin.characters[x] = frame[x].map(s => s.c).join("");
-                        for (let y = 0; y < frame[x].length; y++) {
-                            o.skin.raw_colors[x][y][0] = frame[x][y].f;
-                            o.skin.raw_colors[x][y][1] = frame[x][y].b;
-                        }
-                    }
-                }
-                handleEvent(ev) {
-                    super.handleEvent(ev);
-                    //
-                    if (ev.type === "click") {
-                        if (this.frames === this.clickFrames && ev.args.x === 8 && ev.args.y === 7) {
-                            this.isDestroyed = true;
-                        }
-                    }
-                }
-            };
-            exports_23("Glitch", Glitch);
-            exports_23("glitch", glitch = new Glitch());
         }
     };
 });
