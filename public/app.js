@@ -1202,9 +1202,9 @@ System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/Obje
         }
     };
 });
-System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"], function (exports_17, context_17) {
+System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_17, context_17) {
     var __moduleName = context_17 && context_17.id;
-    var Npc_3, ObjectSkin_9, items_1, hero;
+    var Npc_3, ObjectSkin_9, hero;
     return {
         setters: [
             function (Npc_3_1) {
@@ -1212,9 +1212,6 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"]
             },
             function (ObjectSkin_9_1) {
                 ObjectSkin_9 = ObjectSkin_9_1;
-            },
-            function (items_1_1) {
-                items_1 = items_1_1;
             }
         ],
         execute: function () {
@@ -1223,9 +1220,6 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin", "world/items"]
                     super(new ObjectSkin_9.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [9, 7]);
                     this.type = "human";
                     this.moveSpeed = 10;
-                    this.showCursor = true;
-                    this.objectInMainHand = items_1.sword;
-                    this.objectInSecondaryHand = items_1.lamp;
                 }
                 update(ticks, scene) {
                     super.update(ticks, scene);
@@ -1369,7 +1363,7 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
 });
 System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/sprites/glitchy", "world/levels/glitch"], function (exports_19, context_19) {
     var __moduleName = context_19 && context_19.id;
-    var Npc_4, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitchy_1, glitch_1, vFence, hFence, fences, Sheep, tree2, glitchySprite, glitchy, level;
+    var Npc_4, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitchy_1, glitch_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, tree2, glitchySprite, glitchy, level;
     return {
         setters: [
             function (Npc_4_1) {
@@ -1474,14 +1468,16 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     }
                 }
             };
+            levelWidth = 60;
+            levelHeight = 30;
             if (true) {
-                for (let x = 1; x < 19; x++) {
-                    fences.push(misc_3.clone(hFence, { position: [x, 1] }));
-                    fences.push(misc_3.clone(hFence, { position: [x, 18] }));
+                for (let x = 0; x < levelWidth; x++) {
+                    fences.push(misc_3.clone(hFence, { position: [x, 0] }));
+                    fences.push(misc_3.clone(hFence, { position: [x, levelHeight - 1] }));
                 }
-                for (let y = 2; y < 18; y++) {
-                    fences.push(misc_3.clone(vFence, { position: [1, y] }));
-                    fences.push(misc_3.clone(vFence, { position: [18, y] }));
+                for (let y = 1; y < levelHeight - 1; y++) {
+                    fences.push(misc_3.clone(vFence, { position: [0, y] }));
+                    fences.push(misc_3.clone(vFence, { position: [levelWidth - 20 + 9, y] }));
                 }
             }
             tree2 = misc_3.clone(objects_1.tree, { position: [7, 9] });
@@ -1696,14 +1692,14 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
-    var sheep_1, items_2, GameEvent_3, EventLoop_3, Scene_2, Cell_5, GraphicsEngine_4, hero_2, playerUi_1, Npc_6, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
+    var sheep_1, items_1, GameEvent_3, EventLoop_3, Scene_2, Cell_5, GraphicsEngine_4, hero_2, playerUi_1, Npc_6, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (sheep_1_1) {
                 sheep_1 = sheep_1_1;
             },
-            function (items_2_1) {
-                items_2 = items_2_1;
+            function (items_1_1) {
+                items_1 = items_1_1;
             },
             function (GameEvent_3_1) {
                 GameEvent_3 = GameEvent_3_1;
@@ -1818,7 +1814,7 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                         hero_2.hero.direction = [+1, 0];
                     }
                     else if (raw_key === ' ') {
-                        if (hero_2.hero.objectInMainHand === items_2.sword) {
+                        if (hero_2.hero.objectInMainHand === items_1.sword) {
                             const npc = getNpcUnderCursor(hero_2.hero);
                             if (npc) {
                                 EventLoop_3.emitEvent(new GameEvent_3.GameEvent(hero_2.hero, 'attack', {
@@ -1899,15 +1895,15 @@ System.register("main", ["world/levels/sheep", "world/items", "engine/GameEvent"
                 }
                 takeItem(itemName) {
                     if (itemName === 'sword') {
-                        hero_2.hero.objectInMainHand = misc_4.clone(items_2.sword);
+                        hero_2.hero.objectInMainHand = misc_4.clone(items_1.sword);
                     }
                     else if (itemName === 'lamp') {
-                        hero_2.hero.objectInMainHand = misc_4.clone(items_2.lamp);
+                        hero_2.hero.objectInMainHand = misc_4.clone(items_1.lamp);
                     }
                 }
                 takeItem2(itemName) {
                     if (itemName === 'lamp') {
-                        hero_2.hero.objectInSecondaryHand = misc_4.clone(items_2.lamp);
+                        hero_2.hero.objectInSecondaryHand = misc_4.clone(items_1.lamp);
                     }
                     else {
                         hero_2.hero.objectInSecondaryHand = null;

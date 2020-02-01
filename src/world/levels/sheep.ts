@@ -9,6 +9,7 @@ import { GameEvent } from "../../engine/GameEvent";
 import { SceneObject } from "../../engine/SceneObject";
 import { sprite } from "../sprites/glitchy";
 import {glitch} from "./glitch";
+import { viewWidth } from "../../main";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -99,14 +100,17 @@ class Sheep extends Npc {
     }
 }
 
+const levelWidth = 60;
+const levelHeight = 30;
+
 if (true) {  // add fence
-    for (let x = 1; x < 19; x++) {
-        fences.push(clone(hFence, { position: [x, 1] }));
-        fences.push(clone(hFence, { position: [x, 18] }));
+    for (let x = 0; x < levelWidth; x++) {
+        fences.push(clone(hFence, { position: [x, 0] }));
+        fences.push(clone(hFence, { position: [x, levelHeight - 1] }));
     }
-    for (let y = 2; y < 18; y++) {
-        fences.push(clone(vFence, { position: [1, y] }));
-        fences.push(clone(vFence, { position: [18, y] }));
+    for (let y = 1; y < levelHeight - 1; y++) {
+        fences.push(clone(vFence, { position: [0, y] }));
+        fences.push(clone(vFence, { position: [levelWidth - 20 + 9, y] }));
     }
 }
 
