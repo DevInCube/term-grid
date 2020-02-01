@@ -4,28 +4,18 @@ import { ObjectPhysics } from "../../engine/ObjectPhysics";
 import { GameEvent } from "../../engine/GameEvent";
 import { SceneBase } from "../../engine/Scene";
 
-export const flower = new StaticGameObject([0, 0], new ObjectSkin(`❁`, `V`, {
-    V: ['red', 'transparent'],
-}), new ObjectPhysics(` `, 'F'), [2, 10]);
+const createUnitSkin = (sym: string, color: string = 'black') => new ObjectSkin(sym, `u`, {
+    u: [color, 'transparent'],
+});
+const unitPhysics = new ObjectPhysics(` `);
+const createUnitStaticObject = (sym: string, color: string = 'black') => new StaticGameObject([0, 0],
+    createUnitSkin(sym, color),
+    unitPhysics)
 
-export const wheat = new StaticGameObject([0, 0],
-    new ObjectSkin(`♈`, `R`, {
-        'R': ['yellow', 'transparent'],
-    }),
-    new ObjectPhysics(` `), [0, 0]);
-
-export const hotspring = new StaticGameObject([0, 0],
-    new ObjectSkin(`♨`, `R`, {
-        'R': ['black', 'transparent'],
-    }),
-    new ObjectPhysics(` `), [0, 0]);
-
-export const duck = new StaticGameObject([0, 0],
-    new ObjectSkin(`🦆`, `R`, {
-        'R': ['white', 'transparent'],
-    }),
-    new ObjectPhysics(` `), [0, 0]);
-
+export const flower = createUnitStaticObject(`❁`, 'red');
+export const wheat = createUnitStaticObject(`♈`, 'yellow');
+export const hotspring = createUnitStaticObject(`♨`, 'lightblue');
+export const duck = createUnitStaticObject(`🦆`, 'white');
 
 export const bamboo = new StaticGameObject([0, 4],
     new ObjectSkin(`▄
@@ -55,20 +45,19 @@ D`, {
 
 class Tree extends StaticGameObject {
     constructor() {
-        super([1, 3],
-            new ObjectSkin(` ░ 
+        super([1, 3], new ObjectSkin(` ░ 
 ░░░
 ░░░
  █`, ` o 
 o01
 01S
  H`, {
-                'o': ['#0c0', '#0a0'],
-                '0': ['#0a0', '#080'],
-                '1': ['#080', '#060'],
-                'S': ['#060', '#040'],
-                'H': ['sienna', 'transparent'],
-            }),
+            'o': ['#0c0', '#0a0'],
+            '0': ['#0a0', '#080'],
+            '1': ['#080', '#060'],
+            'S': ['#060', '#040'],
+            'H': ['sienna', 'transparent'],
+        }),
             new ObjectPhysics(`
     
     
@@ -113,5 +102,4 @@ o01
         }
     }
 };
-
 export const tree = new Tree();

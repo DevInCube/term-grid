@@ -170,7 +170,7 @@ System.register("engine/StaticGameObject", ["engine/SceneObject", "engine/Object
         ],
         execute: function () {
             StaticGameObject = class StaticGameObject extends SceneObject_1.SceneObject {
-                constructor(originPoint, skin, physics, position) {
+                constructor(originPoint, skin, physics, position = [0, 0]) {
                     super(originPoint, skin, physics, position);
                 }
                 new() { return new StaticGameObject([0, 0], new ObjectSkin_2.ObjectSkin(), new ObjectPhysics_2.ObjectPhysics(), [0, 0]); }
@@ -1542,7 +1542,7 @@ System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/
 });
 System.register("world/objects/natural", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_23, context_23) {
     var __moduleName = context_23 && context_23.id;
-    var StaticGameObject_5, ObjectSkin_13, ObjectPhysics_10, flower, wheat, hotspring, duck, bamboo, Tree, tree;
+    var StaticGameObject_5, ObjectSkin_13, ObjectPhysics_10, createUnitSkin, unitPhysics, createUnitStaticObject, flower, wheat, hotspring, duck, bamboo, Tree, tree;
     return {
         setters: [
             function (StaticGameObject_5_1) {
@@ -1556,18 +1556,15 @@ System.register("world/objects/natural", ["engine/StaticGameObject", "engine/Obj
             }
         ],
         execute: function () {
-            exports_23("flower", flower = new StaticGameObject_5.StaticGameObject([0, 0], new ObjectSkin_13.ObjectSkin(`❁`, `V`, {
-                V: ['red', 'transparent'],
-            }), new ObjectPhysics_10.ObjectPhysics(` `, 'F'), [2, 10]));
-            exports_23("wheat", wheat = new StaticGameObject_5.StaticGameObject([0, 0], new ObjectSkin_13.ObjectSkin(`♈`, `R`, {
-                'R': ['yellow', 'transparent'],
-            }), new ObjectPhysics_10.ObjectPhysics(` `), [0, 0]));
-            exports_23("hotspring", hotspring = new StaticGameObject_5.StaticGameObject([0, 0], new ObjectSkin_13.ObjectSkin(`♨`, `R`, {
-                'R': ['black', 'transparent'],
-            }), new ObjectPhysics_10.ObjectPhysics(` `), [0, 0]));
-            exports_23("duck", duck = new StaticGameObject_5.StaticGameObject([0, 0], new ObjectSkin_13.ObjectSkin(`🦆`, `R`, {
-                'R': ['white', 'transparent'],
-            }), new ObjectPhysics_10.ObjectPhysics(` `), [0, 0]));
+            createUnitSkin = (sym, color = 'black') => new ObjectSkin_13.ObjectSkin(sym, `u`, {
+                u: [color, 'transparent'],
+            });
+            unitPhysics = new ObjectPhysics_10.ObjectPhysics(` `);
+            createUnitStaticObject = (sym, color = 'black') => new StaticGameObject_5.StaticGameObject([0, 0], createUnitSkin(sym, color), unitPhysics);
+            exports_23("flower", flower = createUnitStaticObject(`❁`, 'red'));
+            exports_23("wheat", wheat = createUnitStaticObject(`♈`, 'yellow'));
+            exports_23("hotspring", hotspring = createUnitStaticObject(`♨`, 'lightblue'));
+            exports_23("duck", duck = createUnitStaticObject(`🦆`, 'white'));
             exports_23("bamboo", bamboo = new StaticGameObject_5.StaticGameObject([0, 4], new ObjectSkin_13.ObjectSkin(`▄
 █
 █
