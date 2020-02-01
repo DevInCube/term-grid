@@ -4,7 +4,7 @@ import { viewWidth, viewHeight } from "../main";
 import { Npc } from "../engine/Npc";
 import { createTextObject } from "../utils/misc";
 import { SceneObject } from "../engine/SceneObject";
-import { SceneBase } from "../engine/Scene";
+import { SceneBase } from "../engine/SceneBase";
 
 const glitchFieldDefault = new Cell(' ', 'white', '#a001');
 

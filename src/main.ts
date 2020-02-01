@@ -6,13 +6,11 @@ import { emitEvent, eventLoop } from "./engine/EventLoop";
 import { Scene } from "./engine/Scene";
 import { Cell } from "./engine/Cell";
 import { drawCell, cellStyle } from "./engine/GraphicsEngine";
-import { ObjectSkin } from "./engine/ObjectSkin";
 import { hero } from "./world/hero";
 import { PlayerUi } from "./ui/playerUi";
 import { Npc } from "./engine/Npc";
 import { clone } from "./utils/misc";
 import { GlitchField } from "./ui/glitchField";
-import { Sprite } from "./engine/SpriteLoader";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;

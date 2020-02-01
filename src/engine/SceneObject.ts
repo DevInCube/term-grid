@@ -1,7 +1,7 @@
 import { GameEvent, GameEventHandler } from "./GameEvent";
 import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
-import { SceneBase } from "./Scene";
+import { SceneBase } from "./SceneBase";
 
 export type GameObjectAction = (obj: SceneObject) => void;
 export type UpdateHandler = (ticks: number, obj: SceneObject, scene: SceneBase) => void;
