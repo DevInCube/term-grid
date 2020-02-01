@@ -37,7 +37,7 @@ AEMEAttAEMEAttAEMEAtt
 '''t''''''t''''''t'''
 'AEMEA''AEMEA''AEMEA'
 '''''''''''''''''''''`;
-const glitchySprite = `width:3
+const glitchySpriteText = `width:3
 height:3
 name:  
 empty:'
@@ -53,5 +53,4 @@ color:o,#f000,#faa0
 oEE
 tAA
 oEE`;
-export const sprite = Sprite.parse(glitchySprite);
-console.log(sprite.frames);
+export const glitchySprite = Sprite.parse(glitchySpriteText);

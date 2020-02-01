@@ -42,6 +42,8 @@ export class SceneBase implements GameEventHandler {
     }
 }
 
+const bedrockCell = new Cell(' ', 'transparent', '#331');
+
 export class Scene extends SceneBase {
 
     weatherType = 'normal';
@@ -49,6 +51,7 @@ export class Scene extends SceneBase {
     temperature = 7;  // 0-15 @todo add effects
     isWindy = true;
     timePeriod = 'day';
+    tiles: (Cell | null)[][] = [];
     lightLayer: number[][] = [];
     weatherLayer: Cell[][] = [];
     dayLightLevel: number = 15;
@@ -179,10 +182,11 @@ export class Scene extends SceneBase {
 
     draw(ctx: CanvasRenderingContext2D) {
 
-        // bedrock
+        // tiles
         for (let y = 0; y < viewHeight; y++) {
             for (let x = 0; x < viewWidth; x++) {
-                drawCell(ctx, new Cell(' ', 'transparent', '#331'), x, y);
+                var cell = this.tiles[y] ? this.tiles[y][x] : null;
+                drawCell(ctx, cell ? cell : bedrockCell, x, y);
             }
         }
 

@@ -1,4 +1,4 @@
-import { level } from "./world/levels/sheep";
+import { level } from "./world/levels/ggj2020demo/level";
 import { lamp, sword } from "./world/items";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
@@ -62,6 +62,7 @@ const scene = new Scene();
 const heroUi = new PlayerUi(hero);
 const glitchField = new GlitchField();
 
+scene.tiles = level.tiles;
 scene.objects = level.sceneObjects;
 glitchField.objects = level.glitches;
 

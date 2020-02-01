@@ -1,15 +1,17 @@
-import { Npc } from "../../engine/Npc";
-import { ObjectSkin } from "../../engine/ObjectSkin";
-import { Scene, SceneBase } from "../../engine/Scene";
-import { StaticGameObject } from "../../engine/StaticGameObject";
-import { ObjectPhysics } from "../../engine/ObjectPhysics";
-import { distanceTo, clone } from "../../utils/misc";
-import { tree, test, roadBrick } from "../objects";
-import { GameEvent } from "../../engine/GameEvent";
-import { SceneObject } from "../../engine/SceneObject";
-import { sprite } from "../sprites/glitchy";
-import {glitch} from "./glitch";
-import { viewWidth } from "../../main";
+import { Npc } from "../../../engine/Npc";
+import { ObjectSkin } from "../../../engine/ObjectSkin";
+import { Scene, SceneBase } from "../../../engine/Scene";
+import { StaticGameObject } from "../../../engine/StaticGameObject";
+import { ObjectPhysics } from "../../../engine/ObjectPhysics";
+import { distanceTo, clone } from "../../../utils/misc";
+import { tree, house, pillar, arc, duck, flower, bamboo } from "../../objects";
+import { GameEvent } from "../../../engine/GameEvent";
+import { SceneObject } from "../../../engine/SceneObject";
+import { glitch } from "../glitch";
+import { viewWidth } from "../../../main";
+import { Cell } from "../../../engine/Cell";
+import { tiles } from "./tiles";
+import { glitchyNpc } from "./npc";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -121,60 +123,55 @@ const trees = [
     clone(tree, { position: [32, 22] }),
     clone(tree, { position: [34, 18] }),
     clone(tree, { position: [47, 2] }),
+    clone(tree, { position: [11, 16] }),
+    clone(tree, { position: [12, 24] }),
 ];
 
-const glitchySprite = sprite;
+const houses = [
+    clone(house, { position: [25, 5] }),
+    clone(house, { position: [15, 25] }),
+]
 
-const glitchy = new class extends Npc {
-    type = "glitchy";
-    moveSpeed = 4;
+const pillars = [
+    clone(pillar, { position: [7, 21] }),
+    clone(pillar, { position: [20, 24] }),
+    clone(pillar, { position: [30, 20] }),
+];
 
-    constructor() {
-        super(glitchySprite.frames["move right"][0], [20, 15]);
-    }
+const arcs = [
+    clone(arc, { position: [16, 16] }),
+    clone(arc, { position: [32, 25] }),
+]
 
-    update(ticks: number, scene: SceneBase) {
-        super.update(ticks, scene);
-        //
-        const self = this;
-        self.direction = [0, 0];
-        //
-        const prayList = getPrayNearby(this, 6);
-        if (!self.parameters["target"] && prayList.length) {
-            self.parameters["target"] = prayList[0];
-        }
-        const target = self.parameters["target"];
-        if (target) {
-            if (self.distanceTo(target) <= 1) {
-                self.attack(target);
-            }
-            self.approach(scene, target);
-        }
+const ducks = [
+    clone(duck, { position: [40, 10] }),
+    clone(duck, { position: [38, 12] }),
+    clone(duck, { position: [44, 25] }),
+    clone(duck, { position: [40, 26] }),
+    clone(duck, { position: [7, 28] }),
+];
 
-        function getPrayNearby(self: Npc, radius: number) {
-            const enemies = [];
-            for (const object of scene.objects) {
-                if (!object.enabled) continue;
-                if (object === self) continue;  // self check
-                if (object instanceof Npc && object.type === "sheep") {
-                    if (self.distanceTo(object) < radius) {
-                        enemies.push(object);
-                    }
-                }
-            }
-            return enemies;
-        }
-    }
+const flowers = [
+    clone(flower, {position: [7, 4]}),
+    clone(flower, {position: [37, 5]}),
+    clone(flower, {position: [46, 4]}),
+    clone(flower, {position: [44, 7]}),
+];
 
-    handleEvent(ev: GameEvent): void {
-        super.handleEvent(ev);
-        if (ev.type === "death" && ev.args.object === this.parameters["target"]) {
-            this.parameters["target"] = null;
-        }
-    }
-};
+const bamboos = [
+    clone(bamboo, {position: [4, 17]}),
+    clone(bamboo, {position: [6, 19]}),
+    clone(bamboo, {position: [3, 22]}),
+    clone(bamboo, {position: [2, 27]}),
+    clone(bamboo, {position: [1, 15 ]}),
+];
 
 export const level = {
-    sceneObjects: [...fences, ...trees, test,],
-    glitches: [glitchy, clone(glitch, { position: [7, 7] })],
+    sceneObjects: [
+        ...fences,
+        ...trees, ...bamboos,
+        ...arcs, ...houses, ...pillars,
+        ...ducks, ...flowers],
+    glitches: [glitchyNpc, clone(glitch, { position: [7, 7] })],
+    tiles: tiles,
 };

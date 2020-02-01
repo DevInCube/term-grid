@@ -6,6 +6,8 @@ import { createTextObject } from "../utils/misc";
 import { SceneObject } from "../engine/SceneObject";
 import { Scene } from "../engine/Scene";
 
+const uiBackground = new Cell(' ', 'white', '#003');
+
 export class PlayerUi {
     objectUnderCursor: SceneObject | null = null;
 
@@ -19,7 +21,7 @@ export class PlayerUi {
         const top = 0;
         for (let i = 0; i < uiHeight; i++)
             for (let j = 0; j < uiWidth; j++) {
-                drawCell(ctx, new Cell(' ', 'white', '#003'), left + j, top + i);
+                drawCell(ctx, uiBackground, left + j, top + i);
             }
         for (let i = 0; i < this.npc.maxHealth; i++) {
             drawCell(ctx, new Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), left + i, top + 0);

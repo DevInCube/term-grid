@@ -6,6 +6,8 @@ import { createTextObject } from "../utils/misc";
 import { SceneObject } from "../engine/SceneObject";
 import { SceneBase } from "../engine/Scene";
 
+const glitchFieldDefault = new Cell(' ', 'white', '#a001');
+
 export class GlitchField extends SceneBase {
 
     constructor() {
@@ -15,7 +17,7 @@ export class GlitchField extends SceneBase {
     draw(ctx: CanvasRenderingContext2D) {
         for (let i = 0; i < viewHeight; i++)
             for (let j = 0; j < viewWidth; j++)
-                drawCell(ctx, new Cell(' ', 'white', '#a001'), j, i);
+                drawCell(ctx, glitchFieldDefault, j, i);
         super.draw(ctx);
     }
 

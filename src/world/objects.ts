@@ -2,9 +2,12 @@ import { StaticGameObject } from "./../engine/StaticGameObject";
 import { ObjectSkin } from "../engine/ObjectSkin";
 import { ObjectPhysics } from "../engine/ObjectPhysics";
 import { GameEvent } from "../engine/GameEvent";
-import { Scene } from "../engine/Scene";
+import { Scene, SceneBase } from "../engine/Scene";
 import { SceneObject } from "../engine/SceneObject";
 import { clone } from "../utils/misc";
+import { Npc } from "../engine/Npc";
+import { glitchySprite } from "./sprites/glitchy";
+
 
 export const house = new StaticGameObject([2, 2],
     new ObjectSkin(` /^\\ 
@@ -87,7 +90,7 @@ export const tree = new Tree();
 
 export const trees: StaticGameObject[] = [];
 
-const bamboo = new StaticGameObject([0, 4],
+export const bamboo = new StaticGameObject([0, 4],
     new ObjectSkin(`▄
 █
 █
@@ -151,7 +154,7 @@ export const chest = new StaticGameObject([0, 0], new ObjectSkin(`S`, `V`, {
     V: ['yellow', 'violet'],
 }), new ObjectPhysics(`.`, ''), [2, 10]);
 
-const flower = new StaticGameObject([0, 0], new ObjectSkin(`❁`, `V`, {
+export const flower = new StaticGameObject([0, 0], new ObjectSkin(`❁`, `V`, {
     V: ['red', 'transparent'],
 }), new ObjectPhysics(` `, 'F'), [2, 10]);
 
@@ -187,25 +190,26 @@ B`, {
  
 
 
-export const test = new StaticGameObject([0, 3],
+export const arc = new StaticGameObject([2, 3],
     new ObjectSkin(`▟▄▄▄▙
 █   █
 █   █
-▓▓▓▓▓`, `LLLLL
+█   █`, `LLLLL
 H   H
 H   H
-BBBBB`, {
+B   B`, {
         'L': ['orange', 'brown'],
-        'H': ['gold', 'yellow'],
-        'B': ['brown', 'orange'],
+        'H': ['white', 'transparent'],
+        'B': ['gray', 'transparent'],
     }),
     new ObjectPhysics(`     
      
-.....
-.....`), [12, 10]);
+     
+.   .`), [0, 0]);
 
-export const roadBrick = new StaticGameObject([0, 0],
-    new ObjectSkin(` `, `R`, {
-        'R': ['transparent', 'darkgray'],
+export const duck = new StaticGameObject([0, 0],
+    new ObjectSkin(`🦆`, `R`, {
+        'R': ['white', 'transparent'],
     }),
     new ObjectPhysics(` `), [0, 0]);
+

@@ -9,7 +9,7 @@ export const hero = new class extends Npc{
     moveSpeed = 10;
 
     constructor() {
-        super(new ObjectSkin('🐱', '.', {'.': [undefined, 'transparent']}), [9, 7]);
+        super(new ObjectSkin('🐱', '.', {'.': [undefined, 'transparent']}), [17, 15]);
     }
 
     update(ticks: number, scene: Scene) {

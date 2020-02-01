@@ -4,7 +4,7 @@ import { Npc } from "./Npc";
 import { viewWidth, viewHeight, leftPad, topPad } from "../main";
 
 export class GraphicsEngine {
-    
+
 }
 
 export const cellStyle = {
@@ -30,7 +30,7 @@ export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[
     // draw cursors
     for (let object of objects) {
         if (object instanceof Npc
-            && (object.direction[0] || object.direction[1]) ) {
+            && (object.direction[0] || object.direction[1])) {
             if (object.showCursor) {
                 drawNpcCursor(ctx, object);
             }
@@ -57,13 +57,13 @@ function drawNpcCursor(ctx: CanvasRenderingContext2D, npc: Npc) {
     ctx.strokeRect(leftPad + left, topPad + top, cellStyle.size.width, cellStyle.size.height);
 }
 
-export function drawObjectAt(ctx: CanvasRenderingContext2D, obj: SceneObject, position: [number ,number]) {
+export function drawObjectAt(ctx: CanvasRenderingContext2D, obj: SceneObject, position: [number, number]) {
     for (let y = 0; y < obj.skin.characters.length; y++) {
         let x = 0;
         for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
             const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
             const codePoint = obj.skin.characters[y].codePointAt(charIndex);
-            
+
             let char = obj.skin.characters[y][charIndex] || ' ';
             if (codePoint && <number>codePoint > 0xffff) {
                 const next = obj.skin.characters[y][charIndex + 1];
@@ -91,7 +91,7 @@ function drawObject(ctx: CanvasRenderingContext2D, obj: SceneObject, importantOb
         for (let charIndex = 0; charIndex < obj.skin.characters[y].length; charIndex++) {
             const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x]) ? obj.skin.raw_colors[y][x] : ['', ''];
             const codePoint = obj.skin.characters[y].codePointAt(charIndex);
-            
+
             let char = obj.skin.characters[y][charIndex] || ' ';
             if (codePoint && <number>codePoint > 0xffff) {
                 const next = obj.skin.characters[y][charIndex + 1];
@@ -104,17 +104,25 @@ function drawObject(ctx: CanvasRenderingContext2D, obj: SceneObject, importantOb
             const cell = new Cell(char, cellColor[0], cellColor[1]);
             const transparent = (showOnlyCollisions && !isCollision(obj, x, y));
             if (cell.character !== ' ' || cell.textColor !== '' || cell.backgroundColor !== '') {
-                drawCell(ctx, cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, []);
-                /* [
+                const borders = (true) ? [
                     isEmptyCell(obj, x + 0, y - 1),  // top
                     isEmptyCell(obj, x + 1, y + 0),
                     isEmptyCell(obj, x + 0, y + 1),
                     isEmptyCell(obj, x - 1, y + 0),
-                ] */
+                ] : [];
+                drawCell(ctx, cell, obj.position[0] - obj.originPoint[0] + x, obj.position[1] - obj.originPoint[1] + y, transparent, borders);
+                /* */
             }
             x += 1;
         }
 
+    }
+
+    function isEmptyCell(obj: SceneObject, x: number, y: number) {
+        const cellColor = (obj.skin.raw_colors[y] && obj.skin.raw_colors[y][x])
+            ? obj.skin.raw_colors[y][x]
+            : ['', ''];
+        return cellColor[0] === '' && cellColor[1] === '';
     }
 
     function isInFrontOfImportantObject() {
@@ -129,8 +137,8 @@ function drawObject(ctx: CanvasRenderingContext2D, obj: SceneObject, importantOb
 const emptyCollisionChar = ' ';
 
 export function isCollision(object: SceneObject, left: number, top: number) {
-    const cchar = object.physics.collisions[top] && object.physics.collisions[top][left] 
-        ? object.physics.collisions[top][left] 
+    const cchar = object.physics.collisions[top] && object.physics.collisions[top][left]
+        ? object.physics.collisions[top][left]
         : emptyCollisionChar;
     return cchar !== emptyCollisionChar;
 }
@@ -141,23 +149,23 @@ export function isPositionBehindTheObject(object: SceneObject, left: number, top
     // check collisions
     if (isCollision(object, ptop, pleft)) return false;
     // check characters skin
-    const cchar = object.skin.characters[ptop] && object.skin.characters[ptop][pleft] 
-        ? object.skin.characters[ptop][pleft] 
+    const cchar = object.skin.characters[ptop] && object.skin.characters[ptop][pleft]
+        ? object.skin.characters[ptop][pleft]
         : emptyCollisionChar;
     // check color skin
-    const color = object.skin.raw_colors[ptop] && object.skin.raw_colors[ptop][pleft] 
-        ? object.skin.raw_colors[ptop] 
-        : [undefined, undefined];
-    return cchar !== emptyCollisionChar || !!color[0] || !!color[1];
+    // const color = object.skin.raw_colors[ptop] && object.skin.raw_colors[ptop][pleft]
+    //     ? object.skin.raw_colors[ptop]
+    //     : [undefined, undefined];
+    return (cchar !== emptyCollisionChar); //|| (!!color[0] || !!color[1])
 }
 
 export function drawCell(
     ctx: CanvasRenderingContext2D,
-    cell: Cell, 
-    leftPos: number, 
-    topPos: number, 
+    cell: Cell,
+    leftPos: number,
+    topPos: number,
     transparent: boolean = false,
-    border: boolean[] = [false, false, false, false]) { 
+    border: boolean[] = [false, false, false, false]) {
     if (leftPos < 0 || topPos < 0) return;
     const left = leftPad + leftPos * cellStyle.size.width;
     const top = topPad + topPos * cellStyle.size.height;
@@ -178,7 +186,7 @@ export function drawCell(
         ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size.width, cellStyle.size.height);
     }
     // cell borders
-    // addObjectBorders();
+    addObjectBorders();
 
     function addObjectBorders() {
         const borderWidth = 1.5;
