@@ -11,17 +11,21 @@ export class ObjectSkin {
     } = {}) {
 
         this.raw_colors = this.getRawColors();
-        this.characters = charactersMask.split('\n');
+        this.characters = charactersMask
+            .split('\n')
+            //.map(p => p.replace(/\s/g, '').replace(/\'/g, ' '));
         // console.log(charactersMask, this.characters);
     }
 
     private getRawColors() {
         let raw_colors: (string | undefined)[][][] = [];
-        const lines = this.colorsMask.split('\n');
+        const lines = this.colorsMask
+            .split('\n')
+            //.map(p => p.replace(/\s/g, '').replace(/\'/g, ' '));
         for (let y = 0; y < lines.length; y++) {
             raw_colors.push([]);
             for (let x = 0; x < lines[y].length; x++) {
-                const cellColor = lines[y][x] || ' ';
+                const cellColor = (lines[y] && lines[y][x]) || ' ';
                 const color = this.colors[cellColor];
                 raw_colors[y].push(color ? [...color] : ['', '']);
             }

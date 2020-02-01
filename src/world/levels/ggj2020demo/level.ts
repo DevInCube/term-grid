@@ -1,10 +1,9 @@
-import { Npc } from "../../../engine/Npc";
 import { ObjectSkin } from "../../../engine/ObjectSkin";
-import { Scene, SceneBase } from "../../../engine/Scene";
+import { SceneBase } from "../../../engine/Scene";
 import { StaticGameObject } from "../../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../../utils/misc";
-import { tree, house, pillar, arc, duck, flower, bamboo, wheat, beehive, bee } from "../../objects";
+import { house, pillar, arc } from "../../objects";
 import { GameEvent } from "../../../engine/GameEvent";
 import { SceneObject } from "../../../engine/SceneObject";
 import { glitch } from "../glitch";
@@ -13,99 +12,15 @@ import { Cell } from "../../../engine/Cell";
 import { tiles } from "./tiles";
 import { glitchyNpc } from "./npc";
 import { lamp } from "../../items";
-
-const vFence = new StaticGameObject(
-    [0, 0],
-    new ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }),
-    new ObjectPhysics('.'),
-    [0, 0]);
-const hFence = new StaticGameObject(
-    [0, 0],
-    new ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }),
-    new ObjectPhysics('.'),
-    [0, 0]);
-
-const fences: StaticGameObject[] = [];
-
-
-
-class Sheep extends Npc {
-    type = "glitch";
-    maxHealth = 1;
-    health = 1;
-
-    constructor() {
-        super(new ObjectSkin(`🐑`, `.`, {
-            '.': [undefined, 'transparent'],
-        }), [0, 0]);
-    }
-
-    new() {
-        return new Sheep();
-    }
-
-    update(ticks: number, scene: Scene) {
-        super.update(ticks, scene);
-        //
-        const sheep = this;
-        const state = sheep.parameters["state"];
-        if (!state) {
-            //sheep.parameters["state"] = (Math.random() * 2 | 0) === 0 ? "wandering" : "still";
-        }
-        sheep.direction = [0, 0];
-        //
-        let enemiesNearby = this.getMobsNearby(scene, 5, x => x.type !== 'sheep');
-        const fearedSheeps = this.getMobsNearby(scene, 2, x => x.type === "sheep" && (x.parameters["stress"] | 0) > 0);
-        if (enemiesNearby.length || fearedSheeps.length) {
-            if (enemiesNearby.length) {
-                sheep.parameters["state"] = "feared";
-                sheep.parameters["stress"] = 3;
-                sheep.parameters["enemies"] = enemiesNearby;
-            } else {  // if (fearedSheeps.length)
-                const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
-                //console.log(sheepsStress);
-                sheep.parameters["stress"] = sheepsStress - 1;
-                if (sheep.parameters["stress"] === 0) {
-                    sheep.parameters["state"] = "still";
-                    sheep.parameters["enemies"] = [];
-                } else {
-                    sheep.parameters["state"] = "feared_2";
-                    sheep.parameters["enemies"] = fearedSheeps[0].parameters["enemies"];
-                    enemiesNearby = fearedSheeps[0].parameters["enemies"];
-                }
-            }
-
-        } else {
-            sheep.parameters["state"] = "wandering";
-            sheep.parameters["stress"] = 0;
-            sheep.parameters["enemies"] = [];
-        }
-
-        if (state === "wandering") {
-            this.moveRandomly();
-        }
-
-        if (!scene.isPositionBlocked(sheep.cursorPosition)) {
-            sheep.move();
-        } else if (sheep.parameters["stress"] > 0) {
-            this.runAway(scene, enemiesNearby);
-        }
-
-        if (sheep.parameters["state"] === "feared") {
-            sheep.skin.raw_colors[0][0] = [undefined, "#FF000055"];
-        } else if (sheep.parameters["stress"] > 1) {
-            sheep.skin.raw_colors[0][0] = [undefined, "#FF8C0055"];
-        } else if (sheep.parameters["stress"] > 0) {
-            sheep.skin.raw_colors[0][0] = [undefined, "#FFFF0055"];
-        } else {
-            sheep.skin.raw_colors[0][0] = [undefined, "transparent"];
-        }
-    }
-}
+import { Sheep } from "../../npc/Sheep";
+import { hFence, vFence, beehive } from "../../objects/artificial";
+import { tree, duck, wheat, flower, bamboo, hotspring } from "../../objects/natural";
+import { bee } from "../../npc/Bee";
 
 const levelWidth = 60;
 const levelHeight = 30;
 
+const fences: StaticGameObject[] = [];
 if (true) {  // add fence
     for (let x = 0; x < levelWidth; x++) {
         fences.push(clone(hFence, { position: [x, 0] }));
@@ -125,21 +40,21 @@ const extraFences = [
 ]
 
 const trees = [
-    clone(tree, { position: [7, 9] }),
-    clone(tree, { position: [27, 19] }),
-    clone(tree, { position: [5, 28] }),
-    clone(tree, { position: [32, 22] }),
-    clone(tree, { position: [34, 18] }),
-    clone(tree, { position: [47, 2] }),
-    clone(tree, { position: [11, 16] }),
-    clone(tree, { position: [12, 24] }),
-    clone(tree, { position: [17, 3] }),
-    clone(tree, { position: [23, 5] }),
-    clone(tree, { position: [27, 5] }),
-    clone(tree, { position: [33, 8] }),
-    clone(tree, { position: [37, 7] }),
-    clone(tree, { position: [42, 9] }),
-];
+    { position: [7, 9] },
+    { position: [27, 19] },
+    { position: [5, 28] },
+    { position: [32, 22] },
+    { position: [34, 18] },
+    { position: [47, 2] },
+    { position: [11, 16] },
+    { position: [12, 24] },
+    { position: [17, 3] },
+    { position: [23, 5] },
+    { position: [27, 5] },
+    { position: [33, 8] },
+    { position: [37, 7] },
+    { position: [42, 9] },
+].map(x => clone(tree, x));
 
 const houses = [
     clone(house, { position: [25, 5] }),
@@ -167,31 +82,42 @@ const arcs = [
 ]
 
 const ducks = [
-    clone(duck, { position: [40, 10] }),
-    clone(duck, { position: [38, 12] }),
-    clone(duck, { position: [44, 25] }),
-    clone(duck, { position: [40, 26] }),
-    clone(duck, { position: [7, 28] }),
-];
+    { position: [40, 10] },
+    { position: [38, 12] },
+    { position: [44, 25] },
+    { position: [40, 26] },
+    { position: [7, 28] },
+].map(x => clone(duck, x));
+
+const sheep = new Sheep();
+const sheepList = [
+    { position: [44, 16] },
+    { position: [48, 16] },
+    { position: [43, 14] },
+    { position: [46, 12] },
+].map(x => clone(sheep, x));
 
 const wheats = [
-    clone(wheat, { position: [31, 4] }),
-    clone(wheat, { position: [31, 5] }),
-    clone(wheat, { position: [30, 3] }),
-    clone(wheat, { position: [31, 3] }),
-    clone(wheat, { position: [28, 2] }),
-    clone(wheat, { position: [29, 2] }),
-    clone(wheat, { position: [29, 3] }),
-    clone(wheat, { position: [29, 5] }),
-    clone(wheat, { position: [28, 6] }),
-];
+    { position: [31, 4] },
+    { position: [31, 5] },
+    { position: [30, 3] },
+    { position: [31, 3] },
+    { position: [28, 2] },
+    { position: [29, 2] },
+    { position: [29, 3] },
+    { position: [29, 5] },
+    { position: [28, 6] },
+].map(x => clone(wheat, x));
 
 const flowers = [
-    clone(flower, { position: [7, 4] }),
-    clone(flower, { position: [37, 5] }),
-    clone(flower, { position: [46, 4] }),
-    clone(flower, { position: [44, 7] }),
-];
+    { position: [7, 4] },
+    { position: [37, 5] },
+    { position: [46, 4] },
+    { position: [44, 7] },
+    { position: [34, 3] },
+    { position: [37, 3] },
+    { position: [38, 1] },
+].map(x => clone(flower, x));
 
 const bamboos = [
     { position: [4, 17] },
@@ -216,12 +142,21 @@ const bees = [
     { position: [40, 3] },
 ].map(x => clone(bee, x));
 
+const hotsprings = [
+    { position: [22, 18] },
+    { position: [21, 15] },
+    { position: [24, 19] },
+].map(x => clone(hotspring, x));
+
 export const level = {
     sceneObjects: [
         ...fences, ...extraFences,
         ...trees, ...bamboos,
         ...arcs, ...houses, ...pillars, ...beehives,
-        ...ducks, ...bees, ...flowers, ...lamps, ...wheats],
+        ...flowers, ...lamps, ...wheats,
+        ...hotsprings,
+        ...ducks, ...bees, ...sheepList,
+    ],
     glitches: [/*glitchyNpc,*/ clone(glitch, { position: [7, 7] })],
     tiles: tiles,
 };

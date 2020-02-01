@@ -15,11 +15,11 @@ g                                 bbbBBWWwwwsgggggg
 g           g        g             sswwwwWwsggg ggg
 g                                    ssssssgg   ggg
            gg      gggggg             ggggggg ggggg
-g g      GGGGG     gGGGGGGgg gggg          gGG  ggg
-gg g     ggggg     gGgggGGGggg gggg     ggggGGGGggg
-ggggg  gg            GGGgggg ggg gg     gg g gGG gg
-ggGGGggg            ggGGgg     gg           g g ggg
-gg  gg gg          ggggg GGGgg                 gg g
+g g      GGGGG     gGWwGWGgg gggg          gGG  ggg
+gg g     ggggg     gGggwGGwggg gggg     ggggGGGGggg
+ggggg  gg            GwGgwgg ggg gg     gg g gGG gg
+ggGGGggg            gwwGggw    gg           g g ggg
+gg  gg gg          gggggwGGGgg                 gg g
 gggggggGG              GGGGgggggGGGgggG            
 gGGGGgggG                       GGggg   GGG        
 gg   gGG    gggg                 gg  g g g gssssssg
