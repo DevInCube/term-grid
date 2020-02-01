@@ -2,13 +2,14 @@ import { GameEvent, GameEventHandler } from "./GameEvent";
 import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
 import { SceneBase } from "./SceneBase";
+import { CanvasContext } from "./GraphicsEngine";
 
 export type GameObjectAction = (obj: SceneObject) => void;
 export type UpdateHandler = (ticks: number, obj: SceneObject, scene: SceneBase) => void;
 export type GameObjectEventHandler = (obj: SceneObject, ev: GameEvent) => void;
 
 export interface Drawable {
-    draw(ctx: CanvasRenderingContext2D) : void;
+    draw(ctx: CanvasContext) : void;
 }
 
 export class SceneObject implements GameEventHandler {

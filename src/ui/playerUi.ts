@@ -1,20 +1,20 @@
-import { drawCell, drawObjects, drawObjectAt } from "../engine/GraphicsEngine";
+import { drawCell, drawObjects, drawObjectAt, CanvasContext } from "../engine/GraphicsEngine";
 import { Cell } from "../engine/Cell";
 import { viewWidth, viewHeight } from "../main";
 import { Npc } from "../engine/Npc";
 import { createTextObject } from "../utils/misc";
-import { SceneObject } from "../engine/SceneObject";
+import { SceneObject, Drawable } from "../engine/SceneObject";
 import { Scene } from "../engine/Scene";
 
 const uiBackground = new Cell(' ', 'white', '#003');
 
-export class PlayerUi {
+export class PlayerUi implements Drawable {
     objectUnderCursor: SceneObject | null = null;
 
     constructor(public npc: Npc) {
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasContext) {
         const uiHeight = viewHeight;
         const uiWidth = 10;
         const left = viewWidth - uiWidth;

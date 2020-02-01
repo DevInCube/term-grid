@@ -393,7 +393,7 @@ System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engin
         }
     };
 });
-System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], function (exports_9, context_9) {
+System.register("engine/GraphicsEngine", ["engine/Cell", "main"], function (exports_9, context_9) {
     var __moduleName = context_9 && context_9.id;
     function drawObjects(ctx, objects) {
         for (let object of objects) {
@@ -402,34 +402,34 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
             drawObject(ctx, object, objects.filter(x => x.important));
         }
         // draw cursors
-        for (let object of objects) {
-            if (object instanceof Npc_1.Npc
-                && (object.direction[0] || object.direction[1])) {
-                if (object.showCursor) {
-                    drawNpcCursor(ctx, object);
-                }
-                if (object.objectInMainHand) {
-                    drawObject(ctx, object.objectInMainHand, []);
-                }
-                if (object.objectInSecondaryHand) {
-                    drawObject(ctx, object.objectInSecondaryHand, []);
-                }
-            }
-        }
+        // for (let object of objects) {
+        //     if (object instanceof Npc
+        //         && (object.direction[0] || object.direction[1])) {
+        //         if (object.showCursor) {
+        //             drawNpcCursor(ctx, object);
+        //         }
+        //         if (object.objectInMainHand) {
+        //             drawObject(ctx, object.objectInMainHand, []);
+        //         }
+        //         if (object.objectInSecondaryHand) {
+        //             drawObject(ctx, object.objectInSecondaryHand, []);
+        //         }
+        //     }
+        // }
     }
     exports_9("drawObjects", drawObjects);
-    function drawNpcCursor(ctx, npc) {
-        const leftPos = npc.position[0] + npc.direction[0];
-        const topPos = npc.position[1] + npc.direction[1];
-        drawCell(ctx, new Cell_1.Cell(' ', 'black', 'yellow'), leftPos, topPos, true);
-        // palette borders
-        const left = leftPos * cellStyle.size.width;
-        const top = topPos * cellStyle.size.height;
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = 'yellow';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(main_1.leftPad + left, main_1.topPad + top, cellStyle.size.width, cellStyle.size.height);
-    }
+    // function drawNpcCursor(ctx: CanvasContext, npc: Npc) {
+    //     const leftPos = npc.position[0] + npc.direction[0];
+    //     const topPos = npc.position[1] + npc.direction[1];
+    //     drawCell(ctx, new Cell(' ', 'black', 'yellow'), leftPos, topPos, true);
+    //     // palette borders
+    //     const left = leftPos * cellStyle.size.width;
+    //     const top = topPos * cellStyle.size.height;
+    //     ctx.globalAlpha = 1;
+    //     ctx.strokeStyle = 'yellow';
+    //     ctx.lineWidth = 2;
+    //     ctx.strokeRect(leftPad + left, topPad + top, cellStyle.size.width, cellStyle.size.height);
+    // }
     function drawObjectAt(ctx, obj, position) {
         for (let y = 0; y < obj.skin.characters.length; y++) {
             let x = 0;
@@ -527,49 +527,14 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
     function drawCell(ctx, cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
         if (leftPos < 0 || topPos < 0)
             return;
-        const left = main_1.leftPad + leftPos * cellStyle.size.width;
-        const top = main_1.topPad + topPos * cellStyle.size.height;
-        //
-        ctx.globalAlpha = transparent ? 0.2 : 1;
-        ctx.strokeStyle = cellStyle.borderColor;
-        ctx.fillStyle = cell.backgroundColor;
-        ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
-        ctx.font = `${cellStyle.charSize}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        // ctx.globalAlpha = 1;
-        ctx.fillStyle = cell.textColor;
-        ctx.fillText(cell.character, left + cellStyle.size.width / 2, top + cellStyle.size.height / 2 + 2);
-        if (cellStyle.borderWidth > 0) {
-            ctx.lineWidth = cellStyle.borderWidth;
-            // palette borders
-            ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size.width, cellStyle.size.height);
-        }
-        // cell borders
-        addObjectBorders();
-        function addObjectBorders() {
-            const borderWidth = 1.5;
-            ctx.lineWidth = borderWidth;
-            ctx.globalAlpha = transparent ? 0.4 : 0.7;
-            if (border[0])
-                ctx.strokeRect(left, top, cellStyle.size.width, borderWidth);
-            if (border[1])
-                ctx.strokeRect(left + cellStyle.size.width, top, borderWidth, cellStyle.size.height);
-            if (border[2])
-                ctx.strokeRect(left, top + cellStyle.size.height, cellStyle.size.width, borderWidth);
-            if (border[3])
-                ctx.strokeRect(left, top, borderWidth, cellStyle.size.height);
-        }
+        ctx.add([topPos, leftPos], { cell, transparent, border });
     }
     exports_9("drawCell", drawCell);
-    var Cell_1, Npc_1, main_1, GraphicsEngine, cellStyle, emptyCollisionChar;
+    var Cell_1, main_1, GraphicsEngine, CanvasContext, cellStyle, emptyCollisionChar;
     return {
         setters: [
             function (Cell_1_1) {
                 Cell_1 = Cell_1_1;
-            },
-            function (Npc_1_1) {
-                Npc_1 = Npc_1_1;
             },
             function (main_1_1) {
                 main_1 = main_1_1;
@@ -579,6 +544,97 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
             GraphicsEngine = class GraphicsEngine {
             };
             exports_9("GraphicsEngine", GraphicsEngine);
+            CanvasContext = class CanvasContext {
+                constructor(context) {
+                    this.context = context;
+                    this.previous = [];
+                    this.current = [];
+                }
+                add(position, cellInfo) {
+                    if (!this.current[position[0]])
+                        this.current[position[0]] = [];
+                    if (!this.current[position[0]][position[1]])
+                        this.current[position[0]][position[1]] = [];
+                    this.current[position[0]][position[1]].push(cellInfo);
+                }
+                draw() {
+                    for (let y = 0; y < this.current.length; y++)
+                        for (let x = 0; x < this.current[y].length; x++) {
+                            if (!(this.previous[y] && this.previous[y][x])
+                                || !(CanvasContext.compare(this.current[y][x], this.previous[y][x]))) {
+                                if (this.previous[y] && this.previous[y][x] && CanvasContext.compare(this.current[y][x], this.previous[y][x]) == true)
+                                    console.log('ok');
+                                for (let c of this.current[y][x])
+                                    this.drawCellInfo(y, x, c);
+                            }
+                        }
+                    this.previous = this.current;
+                    this.current = [];
+                }
+                static compare(_this, array) {
+                    // if the other array is a falsy value, return
+                    if (!_this || !array)
+                        return false;
+                    // compare lengths - can save a lot of time 
+                    if (_this.length != array.length)
+                        return false;
+                    for (var i = 0, l = _this.length; i < l; i++) {
+                        if (!compare(_this[i], array[i])) {
+                            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                            return false;
+                        }
+                    }
+                    return true;
+                    function compare(a, b) {
+                        return a.transparent == b.transparent
+                            && a.border[0] == b.border[0]
+                            && a.border[1] == b.border[1]
+                            && a.border[2] == b.border[2]
+                            && a.border[3] == b.border[3]
+                            && a.cell.character == b.cell.character
+                            && a.cell.textColor == b.cell.textColor
+                            && a.cell.backgroundColor == b.cell.backgroundColor;
+                    }
+                }
+                drawCellInfo(topPos, leftPos, cellInfo) {
+                    const ctx = this.context;
+                    //
+                    const left = main_1.leftPad + leftPos * cellStyle.size.width;
+                    const top = main_1.topPad + topPos * cellStyle.size.height;
+                    //
+                    ctx.globalAlpha = cellInfo.transparent ? 0.2 : 1;
+                    ctx.strokeStyle = cellStyle.borderColor;
+                    ctx.fillStyle = cellInfo.cell.backgroundColor;
+                    ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
+                    ctx.font = `${cellStyle.charSize}px monospace`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    // ctx.globalAlpha = 1;
+                    ctx.fillStyle = cellInfo.cell.textColor;
+                    ctx.fillText(cellInfo.cell.character, left + cellStyle.size.width / 2, top + cellStyle.size.height / 2 + 2);
+                    if (cellStyle.borderWidth > 0) {
+                        ctx.lineWidth = cellStyle.borderWidth;
+                        // palette borders
+                        ctx.strokeRect(left - cellStyle.borderWidth / 2, top - cellStyle.borderWidth / 2, cellStyle.size.width, cellStyle.size.height);
+                    }
+                    // cell borders
+                    addObjectBorders();
+                    function addObjectBorders() {
+                        const borderWidth = 1.5;
+                        ctx.lineWidth = borderWidth;
+                        ctx.globalAlpha = cellInfo.transparent ? 0.4 : 0.7;
+                        if (cellInfo.border[0])
+                            ctx.strokeRect(left, top, cellStyle.size.width, borderWidth);
+                        if (cellInfo.border[1])
+                            ctx.strokeRect(left + cellStyle.size.width, top, borderWidth, cellStyle.size.height);
+                        if (cellInfo.border[2])
+                            ctx.strokeRect(left, top + cellStyle.size.height, cellStyle.size.width, borderWidth);
+                        if (cellInfo.border[3])
+                            ctx.strokeRect(left, top, borderWidth, cellStyle.size.height);
+                    }
+                }
+            };
+            exports_9("CanvasContext", CanvasContext);
             exports_9("cellStyle", cellStyle = {
                 borderColor: "#1114",
                 borderWidth: 0.5,
@@ -701,7 +757,7 @@ System.register("engine/GameEvent", [], function (exports_12, context_12) {
 });
 System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "engine/EventLoop", "engine/GraphicsEngine", "engine/Npc", "engine/SceneBase"], function (exports_13, context_13) {
     var __moduleName = context_13 && context_13.id;
-    var GameEvent_2, main_2, Cell_2, EventLoop_2, GraphicsEngine_2, Npc_2, SceneBase_1, defaultLightLevelAtNight, bedrockCell, Scene;
+    var GameEvent_2, main_2, Cell_2, EventLoop_2, GraphicsEngine_2, Npc_1, SceneBase_1, defaultLightLevelAtNight, bedrockCell, Scene;
     return {
         setters: [
             function (GameEvent_2_1) {
@@ -719,8 +775,8 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
             function (GraphicsEngine_2_1) {
                 GraphicsEngine_2 = GraphicsEngine_2_1;
             },
-            function (Npc_2_1) {
-                Npc_2 = Npc_2_1;
+            function (Npc_1_1) {
+                Npc_1 = Npc_1_1;
             },
             function (SceneBase_1_1) {
                 SceneBase_1 = SceneBase_1_1;
@@ -824,10 +880,10 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                         const lightObjects = [
                             ...scene.objects,
                             ...scene.objects
-                                .filter(x => (x instanceof Npc_2.Npc) && x.objectInMainHand)
+                                .filter(x => (x instanceof Npc_1.Npc) && x.objectInMainHand)
                                 .map((x) => x.objectInMainHand),
                             ...scene.objects
-                                .filter(x => (x instanceof Npc_2.Npc) && x.objectInSecondaryHand)
+                                .filter(x => (x instanceof Npc_1.Npc) && x.objectInSecondaryHand)
                                 .map((x) => x.objectInSecondaryHand)
                         ];
                         for (let obj of lightObjects) {
@@ -896,166 +952,16 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
         }
     };
 });
-System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_14, context_14) {
+System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_14, context_14) {
     var __moduleName = context_14 && context_14.id;
-    var ObjectSkin_6, SpriteInfo, Sprite;
-    return {
-        setters: [
-            function (ObjectSkin_6_1) {
-                ObjectSkin_6 = ObjectSkin_6_1;
-            }
-        ],
-        execute: function () {
-            SpriteInfo = class SpriteInfo {
-            };
-            Sprite = class Sprite {
-                constructor() {
-                    this.frames = {};
-                }
-                static parse(str) {
-                    var info = new SpriteInfo();
-                    var lines = str.split(`\n`);
-                    var i = 0;
-                    var colorsDict = {};
-                    // read headers (sprite info)
-                    while (lines[i] !== '') {
-                        var [key, value] = lines[i].split(':');
-                        if (key === 'width')
-                            info.width = Number(value);
-                        else if (key === 'height')
-                            info.height = Number(value);
-                        else if (key === 'name')
-                            info.name = value;
-                        else if (key === 'empty')
-                            info.empty = value;
-                        else if (key === 'color') {
-                            let colorParts = value.split(',');
-                            colorsDict[colorParts[0]] = [colorParts[1], colorParts[2]];
-                        }
-                        else
-                            throw new Error(`unknown key: '${key}'`);
-                        i++;
-                    }
-                    i++;
-                    console.log(info);
-                    var sprite = new Sprite();
-                    while (i < lines.length) {
-                        if (lines[i].startsWith(info.name)) {
-                            var name = lines[i].substr(info.name.length);
-                            console.log(name);
-                            i++;
-                            const framesCount = lines[i].length / info.width;
-                            var bodies = Array(framesCount).fill(``);
-                            for (let y = 0; y < info.height; y++) {
-                                for (let x = 0; x < framesCount; x++) {
-                                    const part = lines[i + y].substr(x * info.width, info.width);
-                                    bodies[x] += `${part}\n`.replace(new RegExp(`${info.empty}`, 'g'), ' ');
-                                }
-                            }
-                            i += info.height;
-                            //
-                            var colors = Array(framesCount).fill(``);
-                            for (let y = 0; y < info.height; y++) {
-                                for (let x = 0; x < framesCount; x++) {
-                                    const part = lines[i + y].substr(x * info.width, info.width);
-                                    colors[x] += `${part}\n`.replace(new RegExp(`${info.empty}`, 'g'), ' ');
-                                }
-                            }
-                            i += info.height;
-                            for (let k = 0; k < framesCount; k++) {
-                                if (k === 0)
-                                    sprite.frames[name] = [];
-                                sprite.frames[name].push(new ObjectSkin_6.ObjectSkin(bodies[k], colors[k], colorsDict));
-                            }
-                        }
-                        else {
-                            i += 1;
-                        }
-                    }
-                    return sprite;
-                }
-            };
-            exports_14("Sprite", Sprite);
-        }
-    };
-});
-System.register("world/sprites/glitchy", ["engine/SpriteLoader"], function (exports_15, context_15) {
-    var __moduleName = context_15 && context_15.id;
-    var SpriteLoader_1, glitchySprite_old, glitchySpriteText, glitchySprite;
-    return {
-        setters: [
-            function (SpriteLoader_1_1) {
-                SpriteLoader_1 = SpriteLoader_1_1;
-            }
-        ],
-        execute: function () {
-            glitchySprite_old = `width:7
-height:3
-name:  
-empty:'
-color:A,#000f,#aaaf
-color:E,#00ff,#aaff
-color:M,#0f0f,#afaf
-color:t,#f00f,#faaf
-
-  move right
-'''''''''''''''''''''
---[•~•]-~[•-•]~-[•.•]
-'''''''''''''''''''''
-'''''''''''''''''''''
-ttAEMEAttAEMEAttAEMEA
-'''''''''''''''''''''
-  move left
-'''''''''''''''''''''
-[•~•]--[•-•]~-[•.•]-~
-'''''''''''''''''''''
-'''''''''''''''''''''
-AEMEAttAEMEAttAEMEAtt
-'''''''''''''''''''''
-  move up
-'''''''''''''''''''''
-'[•~•]''[•-•]''[•.•]'
-'''|'''''')''''''('''
-'''''''''''''''''''''
-'AEMEA''AEMEA''AEMEA'
-'''t''''''t''''''t'''
-  move down
-'''|''''''('''''')'''
-'[•~•]''[•-•]''[•.•]'
-'''''''''''''''''''''
-'''t''''''t''''''t'''
-'AEMEA''AEMEA''AEMEA'
-'''''''''''''''''''''`;
-            glitchySpriteText = `width:3
-height:3
-name:  
-empty:'
-color:A,#000f,#ff0f
-color:E,#ffff,#aaf0
-color:t,#f8ff,#faa0
-color:o,#f000,#faa0
-
-  move right
-'--
->••
-'__'
-oEE
-tAA
-oEE`;
-            exports_15("glitchySprite", glitchySprite = SpriteLoader_1.Sprite.parse(glitchySpriteText));
-        }
-    };
-});
-System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_16, context_16) {
-    var __moduleName = context_16 && context_16.id;
-    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc, shop;
+    var StaticGameObject_2, ObjectSkin_6, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc, shop;
     return {
         setters: [
             function (StaticGameObject_2_1) {
                 StaticGameObject_2 = StaticGameObject_2_1;
             },
-            function (ObjectSkin_7_1) {
-                ObjectSkin_7 = ObjectSkin_7_1;
+            function (ObjectSkin_6_1) {
+                ObjectSkin_6 = ObjectSkin_6_1;
             },
             function (ObjectPhysics_6_1) {
                 ObjectPhysics_6 = ObjectPhysics_6_1;
@@ -1065,7 +971,7 @@ System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin"
             }
         ],
         execute: function () {
-            exports_16("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_7.ObjectSkin(` /^\\ 
+            exports_14("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_6.ObjectSkin(` /^\\ 
 ==*==
  ▓ ▓ `, ` BBB
 BBSBB
@@ -1077,7 +983,7 @@ BBSBB
             }), new ObjectPhysics_6.ObjectPhysics(`
  ... 
  . .`, ''), [5, 10]));
-            lamp = new StaticGameObject_2.StaticGameObject([0, 2], new ObjectSkin_7.ObjectSkin(`⬤
+            lamp = new StaticGameObject_2.StaticGameObject([0, 2], new ObjectSkin_6.ObjectSkin(`⬤
 █
 █`, `L
 H
@@ -1093,13 +999,13 @@ H`, {
                 o.skin.raw_colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
                 o.physics.lights[0] = o.parameters["is_on"] ? 'F' : '0';
             });
-            exports_16("lamps", lamps = [
+            exports_14("lamps", lamps = [
                 misc_2.clone(lamp, { position: [2, 5] }),
             ]);
-            exports_16("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`S`, `V`, {
+            exports_14("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_6.ObjectSkin(`S`, `V`, {
                 V: ['yellow', 'violet'],
             }), new ObjectPhysics_6.ObjectPhysics(`.`, ''), [2, 10]));
-            exports_16("pillar", pillar = new StaticGameObject_2.StaticGameObject([0, 3], new ObjectSkin_7.ObjectSkin(`▄
+            exports_14("pillar", pillar = new StaticGameObject_2.StaticGameObject([0, 3], new ObjectSkin_6.ObjectSkin(`▄
 █
 █
 ▓`, `L
@@ -1113,7 +1019,7 @@ B`, {
  
  
 . `), [0, 0]));
-            exports_16("arc", arc = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▟▄▄▄▙
+            exports_14("arc", arc = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_6.ObjectSkin(`▟▄▄▄▙
 █   █
 █   █
 █   █`, `LLLLL
@@ -1127,7 +1033,7 @@ B   B`, {
      
      
 .   .`), [0, 0]));
-            exports_16("shop", shop = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▄▟▄▄▄▙▄
+            exports_14("shop", shop = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_6.ObjectSkin(`▄▟▄▄▄▙▄
  █   █
  █████`, `LLLLLLL
  H   H
@@ -1138,48 +1044,47 @@ B   B`, {
                 'T': ['orange', 'brown'],
             }), new ObjectPhysics_6.ObjectPhysics(`       
        
-       
  ..... `), [0, 0]));
         }
     };
 });
-System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_17, context_17) {
-    var __moduleName = context_17 && context_17.id;
-    var Item_1, ObjectSkin_8, ObjectPhysics_7, lamp, sword;
+System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_15, context_15) {
+    var __moduleName = context_15 && context_15.id;
+    var Item_1, ObjectSkin_7, ObjectPhysics_7, lamp, sword;
     return {
         setters: [
             function (Item_1_1) {
                 Item_1 = Item_1_1;
             },
-            function (ObjectSkin_8_1) {
-                ObjectSkin_8 = ObjectSkin_8_1;
+            function (ObjectSkin_7_1) {
+                ObjectSkin_7 = ObjectSkin_7_1;
             },
             function (ObjectPhysics_7_1) {
                 ObjectPhysics_7 = ObjectPhysics_7_1;
             }
         ],
         execute: function () {
-            exports_17("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(` `, `f`), [0, 0]));
-            exports_17("sword", sword = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🗡`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(), [0, 0]));
+            exports_15("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_7.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(` `, `f`), [0, 0]));
+            exports_15("sword", sword = new Item_1.Item([0, 0], new ObjectSkin_7.ObjectSkin(`🗡`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(), [0, 0]));
         }
     };
 });
-System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_18, context_18) {
-    var __moduleName = context_18 && context_18.id;
-    var Npc_3, ObjectSkin_9, hero;
+System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_16, context_16) {
+    var __moduleName = context_16 && context_16.id;
+    var Npc_2, ObjectSkin_8, hero;
     return {
         setters: [
-            function (Npc_3_1) {
-                Npc_3 = Npc_3_1;
+            function (Npc_2_1) {
+                Npc_2 = Npc_2_1;
             },
-            function (ObjectSkin_9_1) {
-                ObjectSkin_9 = ObjectSkin_9_1;
+            function (ObjectSkin_8_1) {
+                ObjectSkin_8 = ObjectSkin_8_1;
             }
         ],
         execute: function () {
-            exports_18("hero", hero = new class extends Npc_3.Npc {
+            exports_16("hero", hero = new class extends Npc_2.Npc {
                 constructor() {
-                    super(new ObjectSkin_9.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [17, 15]);
+                    super(new ObjectSkin_8.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [17, 15]);
                     this.type = "human";
                     this.moveSpeed = 10;
                 }
@@ -1193,16 +1098,16 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exp
         }
     };
 });
-System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_19, context_19) {
-    var __moduleName = context_19 && context_19.id;
-    var StaticGameObject_3, ObjectSkin_10, ObjectPhysics_8, hero_1, Glitch, glitch;
+System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_17, context_17) {
+    var __moduleName = context_17 && context_17.id;
+    var StaticGameObject_3, ObjectSkin_9, ObjectPhysics_8, hero_1, Glitch, glitch;
     return {
         setters: [
             function (StaticGameObject_3_1) {
                 StaticGameObject_3 = StaticGameObject_3_1;
             },
-            function (ObjectSkin_10_1) {
-                ObjectSkin_10 = ObjectSkin_10_1;
+            function (ObjectSkin_9_1) {
+                ObjectSkin_9 = ObjectSkin_9_1;
             },
             function (ObjectPhysics_8_1) {
                 ObjectPhysics_8 = ObjectPhysics_8_1;
@@ -1214,7 +1119,7 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
         execute: function () {
             Glitch = class Glitch extends StaticGameObject_3.StaticGameObject {
                 constructor() {
-                    super([0, 0], new ObjectSkin_10.ObjectSkin(`AA
+                    super([0, 0], new ObjectSkin_9.ObjectSkin(`AA
  A`, `aa
  a`, {
                         'a': ['#f0f', '#0fff'],
@@ -1318,13 +1223,13 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
                     }
                 }
             };
-            exports_19("Glitch", Glitch);
-            exports_19("glitch", glitch = new Glitch());
+            exports_17("Glitch", Glitch);
+            exports_17("glitch", glitch = new Glitch());
         }
     };
 });
-System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exports_20, context_20) {
-    var __moduleName = context_20 && context_20.id;
+System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exports_18, context_18) {
+    var __moduleName = context_18 && context_18.id;
     function parseTiles(str, colors) {
         let common = {};
         return str
@@ -1352,7 +1257,7 @@ System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exp
             }
         ],
         execute: function () {
-            exports_20("tiles", tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
+            exports_18("tiles", tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
 gGGGgggGGGGggggggg  ggggggggggggggGgggggggggggg ggg
 ggGgGGGg gg gggggggggggggggg    gGgGGgGGg g gg g gg
     gg gg gggg gggg gggg ggg    ggGgggggg gg ggggg 
@@ -1393,20 +1298,170 @@ gggggwwwwwwwwwwwww gggg gggggggg  gg  ggssswwwWWWWW`, {
         }
     };
 });
+System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_19, context_19) {
+    var __moduleName = context_19 && context_19.id;
+    var ObjectSkin_10, SpriteInfo, Sprite;
+    return {
+        setters: [
+            function (ObjectSkin_10_1) {
+                ObjectSkin_10 = ObjectSkin_10_1;
+            }
+        ],
+        execute: function () {
+            SpriteInfo = class SpriteInfo {
+            };
+            Sprite = class Sprite {
+                constructor() {
+                    this.frames = {};
+                }
+                static parse(str) {
+                    var info = new SpriteInfo();
+                    var lines = str.split(`\n`);
+                    var i = 0;
+                    var colorsDict = {};
+                    // read headers (sprite info)
+                    while (lines[i] !== '') {
+                        var [key, value] = lines[i].split(':');
+                        if (key === 'width')
+                            info.width = Number(value);
+                        else if (key === 'height')
+                            info.height = Number(value);
+                        else if (key === 'name')
+                            info.name = value;
+                        else if (key === 'empty')
+                            info.empty = value;
+                        else if (key === 'color') {
+                            let colorParts = value.split(',');
+                            colorsDict[colorParts[0]] = [colorParts[1], colorParts[2]];
+                        }
+                        else
+                            throw new Error(`unknown key: '${key}'`);
+                        i++;
+                    }
+                    i++;
+                    console.log(info);
+                    var sprite = new Sprite();
+                    while (i < lines.length) {
+                        if (lines[i].startsWith(info.name)) {
+                            var name = lines[i].substr(info.name.length);
+                            console.log(name);
+                            i++;
+                            const framesCount = lines[i].length / info.width;
+                            var bodies = Array(framesCount).fill(``);
+                            for (let y = 0; y < info.height; y++) {
+                                for (let x = 0; x < framesCount; x++) {
+                                    const part = lines[i + y].substr(x * info.width, info.width);
+                                    bodies[x] += `${part}\n`.replace(new RegExp(`${info.empty}`, 'g'), ' ');
+                                }
+                            }
+                            i += info.height;
+                            //
+                            var colors = Array(framesCount).fill(``);
+                            for (let y = 0; y < info.height; y++) {
+                                for (let x = 0; x < framesCount; x++) {
+                                    const part = lines[i + y].substr(x * info.width, info.width);
+                                    colors[x] += `${part}\n`.replace(new RegExp(`${info.empty}`, 'g'), ' ');
+                                }
+                            }
+                            i += info.height;
+                            for (let k = 0; k < framesCount; k++) {
+                                if (k === 0)
+                                    sprite.frames[name] = [];
+                                sprite.frames[name].push(new ObjectSkin_10.ObjectSkin(bodies[k], colors[k], colorsDict));
+                            }
+                        }
+                        else {
+                            i += 1;
+                        }
+                    }
+                    return sprite;
+                }
+            };
+            exports_19("Sprite", Sprite);
+        }
+    };
+});
+System.register("world/sprites/glitchy", ["engine/SpriteLoader"], function (exports_20, context_20) {
+    var __moduleName = context_20 && context_20.id;
+    var SpriteLoader_1, glitchySprite_old, glitchySpriteText, glitchySprite;
+    return {
+        setters: [
+            function (SpriteLoader_1_1) {
+                SpriteLoader_1 = SpriteLoader_1_1;
+            }
+        ],
+        execute: function () {
+            glitchySprite_old = `width:7
+height:3
+name:  
+empty:'
+color:A,#000f,#aaaf
+color:E,#00ff,#aaff
+color:M,#0f0f,#afaf
+color:t,#f00f,#faaf
+
+  move right
+'''''''''''''''''''''
+--[•~•]-~[•-•]~-[•.•]
+'''''''''''''''''''''
+'''''''''''''''''''''
+ttAEMEAttAEMEAttAEMEA
+'''''''''''''''''''''
+  move left
+'''''''''''''''''''''
+[•~•]--[•-•]~-[•.•]-~
+'''''''''''''''''''''
+'''''''''''''''''''''
+AEMEAttAEMEAttAEMEAtt
+'''''''''''''''''''''
+  move up
+'''''''''''''''''''''
+'[•~•]''[•-•]''[•.•]'
+'''|'''''')''''''('''
+'''''''''''''''''''''
+'AEMEA''AEMEA''AEMEA'
+'''t''''''t''''''t'''
+  move down
+'''|''''''('''''')'''
+'[•~•]''[•-•]''[•.•]'
+'''''''''''''''''''''
+'''t''''''t''''''t'''
+'AEMEA''AEMEA''AEMEA'
+'''''''''''''''''''''`;
+            glitchySpriteText = `width:3
+height:3
+name:  
+empty:'
+color:A,#000f,#ff0f
+color:E,#ffff,#aaf0
+color:t,#f8ff,#faa0
+color:o,#f000,#faa0
+
+  move right
+'--
+>••
+'__'
+oEE
+tAA
+oEE`;
+            exports_20("glitchySprite", glitchySprite = SpriteLoader_1.Sprite.parse(glitchySpriteText));
+        }
+    };
+});
 System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engine/Npc"], function (exports_21, context_21) {
     var __moduleName = context_21 && context_21.id;
-    var glitchy_1, Npc_4, glitchyNpc;
+    var glitchy_1, Npc_3, glitchyNpc;
     return {
         setters: [
             function (glitchy_1_1) {
                 glitchy_1 = glitchy_1_1;
             },
-            function (Npc_4_1) {
-                Npc_4 = Npc_4_1;
+            function (Npc_3_1) {
+                Npc_3 = Npc_3_1;
             }
         ],
         execute: function () {
-            exports_21("glitchyNpc", glitchyNpc = new class extends Npc_4.Npc {
+            exports_21("glitchyNpc", glitchyNpc = new class extends Npc_3.Npc {
                 constructor() {
                     super(glitchy_1.glitchySprite.frames["move right"][0], [20, 15]);
                     this.type = "glitchy";
@@ -1436,7 +1491,7 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
                                 continue;
                             if (object === self)
                                 continue; // self check
-                            if (object instanceof Npc_4.Npc && object.type === "sheep") {
+                            if (object instanceof Npc_3.Npc && object.type === "sheep") {
                                 if (self.distanceTo(object) < radius) {
                                     enemies.push(object);
                                 }
@@ -1457,18 +1512,18 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
 });
 System.register("world/npc/Sheep", ["engine/Npc", "engine/ObjectSkin"], function (exports_22, context_22) {
     var __moduleName = context_22 && context_22.id;
-    var Npc_5, ObjectSkin_11, Sheep;
+    var Npc_4, ObjectSkin_11, Sheep;
     return {
         setters: [
-            function (Npc_5_1) {
-                Npc_5 = Npc_5_1;
+            function (Npc_4_1) {
+                Npc_4 = Npc_4_1;
             },
             function (ObjectSkin_11_1) {
                 ObjectSkin_11 = ObjectSkin_11_1;
             }
         ],
         execute: function () {
-            Sheep = class Sheep extends Npc_5.Npc {
+            Sheep = class Sheep extends Npc_4.Npc {
                 constructor() {
                     super(new ObjectSkin_11.ObjectSkin(`🐑`, `.`, {
                         '.': [undefined, 'transparent'],
@@ -1703,18 +1758,18 @@ o01o
 });
 System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (exports_25, context_25) {
     var __moduleName = context_25 && context_25.id;
-    var Npc_6, ObjectSkin_14, Bee, bee;
+    var Npc_5, ObjectSkin_14, Bee, bee;
     return {
         setters: [
-            function (Npc_6_1) {
-                Npc_6 = Npc_6_1;
+            function (Npc_5_1) {
+                Npc_5 = Npc_5_1;
             },
             function (ObjectSkin_14_1) {
                 ObjectSkin_14 = ObjectSkin_14_1;
             }
         ],
         execute: function () {
-            Bee = class Bee extends Npc_6.Npc {
+            Bee = class Bee extends Npc_5.Npc {
                 constructor() {
                     super(new ObjectSkin_14.ObjectSkin(`🐝`, `.`, {
                         '.': ['yellow', 'transparent'],
@@ -1919,7 +1974,7 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
 });
 System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_27, context_27) {
     var __moduleName = context_27 && context_27.id;
-    var GraphicsEngine_3, Cell_4, main_3, Npc_7, uiBackground, PlayerUi;
+    var GraphicsEngine_3, Cell_4, main_3, Npc_6, uiBackground, PlayerUi;
     return {
         setters: [
             function (GraphicsEngine_3_1) {
@@ -1931,8 +1986,8 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
             function (main_3_1) {
                 main_3 = main_3_1;
             },
-            function (Npc_7_1) {
-                Npc_7 = Npc_7_1;
+            function (Npc_6_1) {
+                Npc_6 = Npc_6_1;
             }
         ],
         execute: function () {
@@ -1955,7 +2010,7 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                         GraphicsEngine_3.drawCell(ctx, new Cell_4.Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), left + i, top + 0);
                     }
                     if (this.objectUnderCursor) {
-                        if (this.objectUnderCursor instanceof Npc_7.Npc) {
+                        if (this.objectUnderCursor instanceof Npc_6.Npc) {
                             GraphicsEngine_3.drawObjectAt(ctx, this.objectUnderCursor, [main_3.viewWidth - 1, 0]);
                             for (let i = 0; i < this.objectUnderCursor.maxHealth; i++) {
                                 GraphicsEngine_3.drawCell(ctx, new Cell_4.Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), main_3.viewWidth - this.objectUnderCursor.maxHealth + i - 1, 0);
@@ -1968,7 +2023,7 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                     for (let o of scene.objects) {
                         if (!o.enabled)
                             continue;
-                        if (o instanceof Npc_7.Npc) {
+                        if (o instanceof Npc_6.Npc) {
                             if (o.position[0] === this.npc.cursorPosition[0]
                                 && o.position[1] === this.npc.cursorPosition[1]) {
                                 this.objectUnderCursor = o;
@@ -2046,7 +2101,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         for (let object of scene.objects) {
             if (!object.enabled)
                 continue;
-            if (!(object instanceof Npc_8.Npc))
+            if (!(object instanceof Npc_7.Npc))
                 continue;
             //
             const left = npc.cursorPosition[0];
@@ -2076,7 +2131,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
-    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_1, Cell_6, GraphicsEngine_5, hero_2, playerUi_1, Npc_8, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
+    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_1, Cell_6, GraphicsEngine_5, hero_2, playerUi_1, Npc_7, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (level_1_1) {
@@ -2106,8 +2161,8 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
             function (playerUi_1_1) {
                 playerUi_1 = playerUi_1_1;
             },
-            function (Npc_8_1) {
-                Npc_8 = Npc_8_1;
+            function (Npc_7_1) {
+                Npc_7 = Npc_7_1;
             },
             function (misc_4_1) {
                 misc_4 = misc_4_1;
@@ -2120,7 +2175,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
             canvas = document.getElementById("canvas");
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
-            ctx = canvas.getContext("2d");
+            ctx = new GraphicsEngine_5.CanvasContext(canvas.getContext("2d"));
             Game = class Game {
                 constructor() {
                     this.mode = "scene"; // "dialog", "inventory", ...
@@ -2141,6 +2196,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                     if (this.mode === "dialog") {
                         drawDialog();
                     }
+                    ctx.draw();
                 }
                 update(ticks) {
                     heroUi.update(ticks, scene);
@@ -2153,8 +2209,8 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
             game = new Game();
             exports_29("viewWidth", viewWidth = 60);
             exports_29("viewHeight", viewHeight = 30);
-            exports_29("leftPad", leftPad = (ctx.canvas.width - GraphicsEngine_5.cellStyle.size.width * viewWidth) / 2);
-            exports_29("topPad", topPad = (ctx.canvas.height - GraphicsEngine_5.cellStyle.size.height * viewHeight) / 2);
+            exports_29("leftPad", leftPad = (ctx.context.canvas.width - GraphicsEngine_5.cellStyle.size.width * viewWidth) / 2);
+            exports_29("topPad", topPad = (ctx.context.canvas.height - GraphicsEngine_5.cellStyle.size.height * viewHeight) / 2);
             scene = new Scene_1.Scene();
             heroUi = new playerUi_1.PlayerUi(hero_2.hero);
             glitchField = new glitchField_1.GlitchField();
@@ -2306,7 +2362,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
 });
 System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_30, context_30) {
     var __moduleName = context_30 && context_30.id;
-    var ObjectSkin_15, EventLoop_4, GameEvent_4, Npc_9, ulan, npcs;
+    var ObjectSkin_15, EventLoop_4, GameEvent_4, Npc_8, ulan, npcs;
     return {
         setters: [
             function (ObjectSkin_15_1) {
@@ -2318,12 +2374,12 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
             function (GameEvent_4_1) {
                 GameEvent_4 = GameEvent_4_1;
             },
-            function (Npc_9_1) {
-                Npc_9 = Npc_9_1;
+            function (Npc_8_1) {
+                Npc_8 = Npc_8_1;
             }
         ],
         execute: function () {
-            ulan = new Npc_9.Npc(new ObjectSkin_15.ObjectSkin('🐻', `.`, {
+            ulan = new Npc_8.Npc(new ObjectSkin_15.ObjectSkin('🐻', `.`, {
                 '.': [undefined, 'transparent'],
             }), [4, 4]);
             ulan.setAction(0, 0, (o) => {

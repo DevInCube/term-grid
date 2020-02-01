@@ -2,7 +2,7 @@ import { GameEvent } from "./GameEvent";
 import { viewHeight, viewWidth } from "../main";
 import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
-import { drawCell } from "./GraphicsEngine";
+import { drawCell, CanvasContext } from "./GraphicsEngine";
 import { Npc } from "./Npc";
 import { Item } from "./Item";
 import { SceneBase } from "./SceneBase";
@@ -146,7 +146,7 @@ export class Scene extends SceneBase {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasContext) {
 
         // tiles
         for (let y = 0; y < viewHeight; y++) {

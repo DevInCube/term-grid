@@ -1,5 +1,5 @@
 import { SceneObject } from "./SceneObject";
-import { drawObjects, isCollision } from "./GraphicsEngine";
+import { drawObjects, isCollision, CanvasContext } from "./GraphicsEngine";
 import { GameEvent, GameEventHandler } from "./GameEvent";
 
 export class SceneBase implements GameEventHandler {
@@ -15,7 +15,7 @@ export class SceneBase implements GameEventHandler {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasContext) {
         // sort objects by origin point
         this.objects.sort((a: SceneObject, b: SceneObject) => a.position[1] - b.position[1]);
         drawObjects(ctx, this.objects);

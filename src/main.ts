@@ -5,7 +5,7 @@ import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 import { emitEvent, eventLoop } from "./engine/EventLoop";
 import { Scene } from "./engine/Scene";
 import { Cell } from "./engine/Cell";
-import { drawCell, cellStyle } from "./engine/GraphicsEngine";
+import { drawCell, cellStyle, CanvasContext } from "./engine/GraphicsEngine";
 import { hero } from "./world/hero";
 import { PlayerUi } from "./ui/playerUi";
 import { Npc } from "./engine/Npc";
@@ -15,7 +15,7 @@ import { GlitchField } from "./ui/glitchField";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
-const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+const ctx = new CanvasContext(canvas.getContext("2d") as CanvasRenderingContext2D);
 
 class Game implements GameEventHandler {
 
@@ -37,6 +37,7 @@ class Game implements GameEventHandler {
         if (this.mode === "dialog") {
             drawDialog();
         }
+        ctx.draw();
     }
 
     update(ticks: number) {
@@ -53,8 +54,8 @@ const game = new Game();
 
 export const viewWidth = 60;
 export const viewHeight = 30;
-export const leftPad = (ctx.canvas.width - cellStyle.size.width * viewWidth) / 2;
-export const topPad = (ctx.canvas.height - cellStyle.size.height * viewHeight) / 2;
+export const leftPad = (ctx.context.canvas.width - cellStyle.size.width * viewWidth) / 2;
+export const topPad = (ctx.context.canvas.height - cellStyle.size.height * viewHeight) / 2;
 
 const scene = new Scene();
 const heroUi = new PlayerUi(hero);

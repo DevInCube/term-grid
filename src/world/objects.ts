@@ -1,13 +1,7 @@
 import { StaticGameObject } from "./../engine/StaticGameObject";
 import { ObjectSkin } from "../engine/ObjectSkin";
 import { ObjectPhysics } from "../engine/ObjectPhysics";
-import { GameEvent } from "../engine/GameEvent";
-import { Scene, SceneBase } from "../engine/Scene";
-import { SceneObject } from "../engine/SceneObject";
 import { clone } from "../utils/misc";
-import { Npc } from "../engine/Npc";
-import { glitchySprite } from "./sprites/glitchy";
-
 
 export const house = new StaticGameObject([2, 2],
     new ObjectSkin(` /^\\ 
@@ -98,6 +92,5 @@ export const shop = new StaticGameObject([2, 3],
         'T': ['orange', 'brown'],
     }),
     new ObjectPhysics(`       
-       
        
  ..... `), [0, 0]);
