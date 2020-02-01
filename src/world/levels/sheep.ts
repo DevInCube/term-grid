@@ -8,6 +8,7 @@ import { tree } from "../objects";
 import { GameEvent } from "../../engine/GameEvent";
 import { SceneObject } from "../../engine/SceneObject";
 import { sprite } from "../sprites/glitchy";
+import {glitch} from "./glitch";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -111,57 +112,6 @@ if (true) {  // add fence
 
 const tree2 = clone(tree, { position: [7, 9] });
 
-class Glitch extends StaticGameObject {
-    constructor() {
-        super([0, 0],
-            new ObjectSkin(`AA
-A`, `aa
-a`, {
-                'a': ['#f0f', '#0fff'],
-            }),
-            new ObjectPhysics(`.`, ''), [0, 0]);
-        this.parameters["animate"] = true;
-    }
-
-    new() { return new Glitch(); }
-
-    update(ticks: number, scene: Scene) {
-        super.update(ticks, scene);
-        //
-        const o = this;
-        if (o.ticks > 50) {
-            o.ticks = 0;
-            if (o.parameters["animate"]) {
-                function getRandGlitchSym() {
-                    const str = "^%&$#";
-                    const index = Math.floor(Math.random() * str.length);
-                    return str[index];
-                }
-                o.parameters["tick"] = !o.parameters["tick"];
-                o.skin.characters[0] = `${getRandGlitchSym()}${getRandGlitchSym()}`;
-                o.skin.characters[1] = getRandGlitchSym();
-            }
-        }
-    }
-
-    handleEvent(ev: GameEvent) {
-        super.handleEvent(ev);
-        //
-        const o = this;
-        if (ev.type === 'wind_changed') {
-            o.parameters["animate"] = ev.args["to"];
-        } else if (ev.type === 'weather_changed') {
-            if (ev.args.to === 'snow') {
-                o.skin.raw_colors[0][0][0] = 'white';
-            } else {
-                o.skin.raw_colors[0][0][0] = '#0a0';
-            }
-        }
-    }
-};
-
-export const glitch = new Glitch();
-
 const glitchySprite = sprite;
 
 const glitchy = new class extends Npc {
@@ -216,4 +166,4 @@ const glitchy = new class extends Npc {
 export const level = {
     sceneObjects: [...fences, tree2],
     glitches: [glitchy, clone(glitch, { position: [7, 7] })],
-}; 
+};
