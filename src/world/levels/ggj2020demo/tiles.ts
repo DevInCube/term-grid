@@ -22,10 +22,10 @@ ggGGGggg            gwwGggw    gg           g g ggg
 gg  gg gg          gggggwGGGgg                 gg g
 gggggggGG              GGGGgggggGGGgggG            
 gGGGGgggG                       GGggg   GGG        
-gg   gGG    gggg                 gg  g g g gssssssg
-g   gg     gGGgggggg gg gggg      gGGg ggsssssswwws
-   g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwwwwww
-ggsss      gGGgg ggg    sss sssbBbssswwwwwWWWWWWWWw
+gg   gGG    gggg                 gg  g g g gssbsssg
+g   gg     gGGgggggg gg gggg      gGGg ggsssssbwwws
+   g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwbwwww
+ggsss      gGGgg ggg    sss sssbBbssswwwwwWWWWBWWWw
 wwwwwww            wwwwwwwwwwwwBbbwwwwwwwwwWWWWWWWW
 ggggwwww          wwwwwWWWWWWWWbbBWWWWwwwwwwwwwwWWW
 ggggggwwwssssswwwwwWWWWWwsssg sbBbsssswwwwwwwwwWWWW

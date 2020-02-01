@@ -1345,10 +1345,10 @@ ggGGGggg            gwwGggw    gg           g g ggg
 gg  gg gg          gggggwGGGgg                 gg g
 gggggggGG              GGGGgggggGGGgggG            
 gGGGGgggG                       GGggg   GGG        
-gg   gGG    gggg                 gg  g g g gssssssg
-g   gg     gGGgggggg gg gggg      gGGg ggsssssswwws
-   g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwwwwww
-ggsss      gGGgg ggg    sss sssbBbssswwwwwWWWWWWWWw
+gg   gGG    gggg                 gg  g g g gssbsssg
+g   gg     gGGgggggg gg gggg      gGGg ggsssssbwwws
+   g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwbwwww
+ggsss      gGGgg ggg    sss sssbBbssswwwwwWWWWBWWWw
 wwwwwww            wwwwwwwwwwwwBbbwwwwwwwwwWWWWWWWW
 ggggwwww          wwwwwWWWWWWWWbbBWWWWwwwwwwwwwwWWW
 ggggggwwwssssswwwwwWWWWWwsssg sbBbsssswwwwwwwwwWWWW
@@ -1542,7 +1542,7 @@ System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/
 });
 System.register("world/objects/natural", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_23, context_23) {
     var __moduleName = context_23 && context_23.id;
-    var StaticGameObject_5, ObjectSkin_13, ObjectPhysics_10, createUnitSkin, unitPhysics, createUnitStaticObject, flower, wheat, hotspring, duck, bamboo, Tree, tree;
+    var StaticGameObject_5, ObjectSkin_13, ObjectPhysics_10, createUnitSkin, unitPhysics, createUnitStaticObject, flower, wheat, hotspring, duck, bamboo, Tree, tree, SakuraTree, sakura;
     return {
         setters: [
             function (StaticGameObject_5_1) {
@@ -1646,6 +1646,29 @@ o01
             };
             ;
             exports_23("tree", tree = new Tree());
+            SakuraTree = class SakuraTree extends StaticGameObject_5.StaticGameObject {
+                constructor() {
+                    super([2, 3], new ObjectSkin_13.ObjectSkin(` ░░ 
+░░░░
+ ░░
+  █`, ` oo 
+o01o
+ 1S
+  H`, {
+                        'o': ['#c3829e', '#fcd1d7'],
+                        '0': ['#fcd1d7', '#e9b1cd'],
+                        '1': ['#e9b1cd', '#c3829e'],
+                        'S': ['#c3829e', '#562135'],
+                        'H': ['sienna', 'transparent'],
+                    }), new ObjectPhysics_10.ObjectPhysics(`
+    
+    
+ .`, ''), [2, 12]);
+                }
+                new() { return new SakuraTree(); }
+            };
+            ;
+            exports_23("sakura", sakura = new SakuraTree());
         }
     };
 });
@@ -1692,7 +1715,7 @@ System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (
 });
 System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/items", "world/npc/Sheep", "world/objects/artificial", "world/objects/natural", "world/npc/Bee"], function (exports_25, context_25) {
     var __moduleName = context_25 && context_25.id;
-    var misc_3, objects_1, glitch_1, tiles_1, items_1, Sheep_1, artificial_1, natural_1, Bee_1, levelWidth, levelHeight, fences, extraFences, trees, houses, lamps, pillars, arcs, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
+    var misc_3, objects_1, glitch_1, tiles_1, items_1, Sheep_1, artificial_1, natural_1, Bee_1, levelWidth, levelHeight, fences, extraFences, trees, sakuras, houses, lamps, pillars, arcs, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
     return {
         setters: [
             function (misc_3_1) {
@@ -1747,7 +1770,6 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
                 { position: [7, 9] },
                 { position: [27, 19] },
                 { position: [5, 28] },
-                { position: [32, 22] },
                 { position: [34, 18] },
                 { position: [47, 2] },
                 { position: [11, 16] },
@@ -1759,6 +1781,15 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
                 { position: [37, 7] },
                 { position: [42, 9] },
             ].map(x => misc_3.clone(natural_1.tree, x));
+            sakuras = [
+                { position: [37, 22] },
+                { position: [42, 18] },
+                { position: [47, 19] },
+                { position: [40, 24] },
+                { position: [43, 22] },
+                { position: [26, 24] },
+                { position: [32, 20] },
+            ].map(x => misc_3.clone(natural_1.sakura, x));
             houses = [
                 misc_3.clone(objects_1.house, { position: [25, 5] }),
                 misc_3.clone(objects_1.house, { position: [15, 25] }),
@@ -1842,7 +1873,7 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
             exports_25("level", level = {
                 sceneObjects: [
                     ...fences, ...extraFences,
-                    ...trees, ...bamboos,
+                    ...trees, ...sakuras, ...bamboos,
                     ...arcs, ...houses, ...pillars, ...beehives,
                     ...flowers, ...lamps, ...wheats,
                     ...hotsprings,

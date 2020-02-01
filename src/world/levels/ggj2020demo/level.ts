@@ -14,7 +14,7 @@ import { glitchyNpc } from "./npc";
 import { lamp } from "../../items";
 import { Sheep } from "../../npc/Sheep";
 import { hFence, vFence, beehive } from "../../objects/artificial";
-import { tree, duck, wheat, flower, bamboo, hotspring } from "../../objects/natural";
+import { tree, duck, wheat, flower, bamboo, hotspring, sakura } from "../../objects/natural";
 import { bee } from "../../npc/Bee";
 
 const levelWidth = 60;
@@ -43,7 +43,6 @@ const trees = [
     { position: [7, 9] },
     { position: [27, 19] },
     { position: [5, 28] },
-    { position: [32, 22] },
     { position: [34, 18] },
     { position: [47, 2] },
     { position: [11, 16] },
@@ -55,6 +54,16 @@ const trees = [
     { position: [37, 7] },
     { position: [42, 9] },
 ].map(x => clone(tree, x));
+
+const sakuras = [
+    { position: [37, 22] },
+    { position: [42, 18] },
+    { position: [47, 19] },
+    { position: [40, 24] },
+    { position: [43, 22] },
+    { position: [26, 24] },
+    { position: [32, 20] },
+].map(x => clone(sakura, x));
 
 const houses = [
     clone(house, { position: [25, 5] }),
@@ -151,7 +160,7 @@ const hotsprings = [
 export const level = {
     sceneObjects: [
         ...fences, ...extraFences,
-        ...trees, ...bamboos,
+        ...trees, ...sakuras, ...bamboos,
         ...arcs, ...houses, ...pillars, ...beehives,
         ...flowers, ...lamps, ...wheats,
         ...hotsprings,
