@@ -1028,7 +1028,7 @@ oEE`;
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_15, context_15) {
     var __moduleName = context_15 && context_15.id;
-    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers, pillar, arc, duck, wheat;
+    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers, pillar, arc, duck, wheat, beehive, bee;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -1220,7 +1220,13 @@ B   B`, {
             exports_15("duck", duck = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`🦆`, `R`, {
                 'R': ['white', 'transparent'],
             }), new ObjectPhysics_6.ObjectPhysics(` `), [0, 0]));
-            exports_15("wheat", wheat = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`𐅱`, `R`, {
+            exports_15("wheat", wheat = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`♈`, `R`, {
+                'R': ['yellow', 'transparent'],
+            }), new ObjectPhysics_6.ObjectPhysics(` `), [0, 0]));
+            exports_15("beehive", beehive = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`☷`, `R`, {
+                'R': ['black', 'orange'],
+            }), new ObjectPhysics_6.ObjectPhysics(`.`), [0, 0]));
+            exports_15("bee", bee = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`🐝`, `R`, {
                 'R': ['yellow', 'transparent'],
             }), new ObjectPhysics_6.ObjectPhysics(` `), [0, 0]));
         }
@@ -1436,11 +1442,11 @@ System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exp
         ],
         execute: function () {
             exports_19("tiles", tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
-gGGGgggGGGGggggggg  gggggggggggggg gggggggggggg ggg
-ggGgGGGg gg gggggggggggggggg    g g  g  g g gg g gg
-    gg gg gggg gggg gggg ggg    gg g gggg gg ggggg 
-      ggg g       gg    gggg    gg ggggGGGGg gggggg
-                   gg gggggg    gg gggggggggGGGGGgg
+gGGGgggGGGGggggggg  ggggggggggggggGgggggggggggg ggg
+ggGgGGGg gg gggggggggggggggg    gGgGGgGGg g gg g gg
+    gg gg gggg gggg gggg ggg    ggGgggggg gg ggggg 
+      ggg g       gg    gggg    ggGggggGGGGg gggggg
+                   gg gggggg    ggGgggggggggGGGGGgg
 g                     gg        ggggggg gggggggggg
 Gg        ggG    GG         ggggGGG       gggggg  g
 g      ggggg                   g gg   gggg    GGggg
@@ -1540,7 +1546,7 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
 });
 System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/items"], function (exports_21, context_21) {
     var __moduleName = context_21 && context_21.id;
-    var Npc_5, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitch_1, tiles_1, items_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, extraFences, trees, houses, lamps, pillars, arcs, ducks, wheats, flowers, bamboos, level;
+    var Npc_5, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitch_1, tiles_1, items_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, extraFences, trees, houses, lamps, pillars, arcs, ducks, wheats, flowers, bamboos, beehives, bees, level;
     return {
         setters: [
             function (Npc_5_1) {
@@ -1728,18 +1734,31 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
                 misc_3.clone(objects_1.flower, { position: [44, 7] }),
             ];
             bamboos = [
-                misc_3.clone(objects_1.bamboo, { position: [4, 17] }),
-                misc_3.clone(objects_1.bamboo, { position: [6, 19] }),
-                misc_3.clone(objects_1.bamboo, { position: [3, 22] }),
-                misc_3.clone(objects_1.bamboo, { position: [2, 27] }),
-                misc_3.clone(objects_1.bamboo, { position: [1, 15] }),
-            ];
+                { position: [4, 17] },
+                { position: [6, 19] },
+                { position: [3, 22] },
+                { position: [2, 27] },
+                { position: [1, 15] },
+            ].map(x => misc_3.clone(objects_1.bamboo, x));
+            beehives = [
+                { position: [34, 2] },
+                { position: [36, 2] },
+                { position: [34, 4] },
+                { position: [36, 4] },
+                { position: [38, 2] },
+                { position: [38, 4] },
+            ].map(x => misc_3.clone(objects_1.beehive, x));
+            bees = [
+                { position: [35, 2] },
+                { position: [34, 5] },
+                { position: [40, 3] },
+            ].map(x => misc_3.clone(objects_1.bee, x));
             exports_21("level", level = {
                 sceneObjects: [
                     ...fences, ...extraFences,
                     ...trees, ...bamboos,
-                    ...arcs, ...houses, ...pillars,
-                    ...ducks, ...flowers, ...lamps, ...wheats
+                    ...arcs, ...houses, ...pillars, ...beehives,
+                    ...ducks, ...bees, ...flowers, ...lamps, ...wheats
                 ],
                 glitches: [/*glitchyNpc,*/ misc_3.clone(glitch_1.glitch, { position: [7, 7] })],
                 tiles: tiles_1.tiles,

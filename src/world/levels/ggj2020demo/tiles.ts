@@ -1,11 +1,11 @@
 import { Cell } from "../../../engine/Cell";
 
 export const tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
-gGGGgggGGGGggggggg  gggggggggggggg gggggggggggg ggg
-ggGgGGGg gg gggggggggggggggg    g g  g  g g gg g gg
-    gg gg gggg gggg gggg ggg    gg g gggg gg ggggg 
-      ggg g       gg    gggg    gg ggggGGGGg gggggg
-                   gg gggggg    gg gggggggggGGGGGgg
+gGGGgggGGGGggggggg  ggggggggggggggGgggggggggggg ggg
+ggGgGGGg gg gggggggggggggggg    gGgGGgGGg g gg g gg
+    gg gg gggg gggg gggg ggg    ggGgggggg gg ggggg 
+      ggg g       gg    gggg    ggGggggGGGGg gggggg
+                   gg gggggg    ggGgggggggggGGGGGgg
 g                     gg        ggggggg gggggggggg
 Gg        ggG    GG         ggggGGG       gggggg  g
 g      ggggg                   g gg   gggg    GGggg

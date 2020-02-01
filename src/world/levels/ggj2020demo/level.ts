@@ -4,7 +4,7 @@ import { Scene, SceneBase } from "../../../engine/Scene";
 import { StaticGameObject } from "../../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../../utils/misc";
-import { tree, house, pillar, arc, duck, flower, bamboo, wheat } from "../../objects";
+import { tree, house, pillar, arc, duck, flower, bamboo, wheat, beehive, bee } from "../../objects";
 import { GameEvent } from "../../../engine/GameEvent";
 import { SceneObject } from "../../../engine/SceneObject";
 import { glitch } from "../glitch";
@@ -194,19 +194,34 @@ const flowers = [
 ];
 
 const bamboos = [
-    clone(bamboo, { position: [4, 17] }),
-    clone(bamboo, { position: [6, 19] }),
-    clone(bamboo, { position: [3, 22] }),
-    clone(bamboo, { position: [2, 27] }),
-    clone(bamboo, { position: [1, 15] }),
-];
+    { position: [4, 17] },
+    { position: [6, 19] },
+    { position: [3, 22] },
+    { position: [2, 27] },
+    { position: [1, 15] },
+].map(x => clone(bamboo, x));
+
+const beehives = [
+    { position: [34, 2] },
+    { position: [36, 2] },
+    { position: [34, 4] },
+    { position: [36, 4] },
+    { position: [38, 2] },
+    { position: [38, 4] },
+].map(x => clone(beehive, x));
+
+const bees = [
+    { position: [35, 2] },
+    { position: [34, 5] },
+    { position: [40, 3] },
+].map(x => clone(bee, x));
 
 export const level = {
     sceneObjects: [
         ...fences, ...extraFences,
         ...trees, ...bamboos,
-        ...arcs, ...houses, ...pillars,
-        ...ducks, ...flowers, ...lamps, ...wheats],
+        ...arcs, ...houses, ...pillars, ...beehives,
+        ...ducks, ...bees, ...flowers, ...lamps, ...wheats],
     glitches: [/*glitchyNpc,*/ clone(glitch, { position: [7, 7] })],
     tiles: tiles,
 };

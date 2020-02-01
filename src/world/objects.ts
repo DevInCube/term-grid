@@ -214,7 +214,19 @@ export const duck = new StaticGameObject([0, 0],
     new ObjectPhysics(` `), [0, 0]);
 
 export const wheat = new StaticGameObject([0, 0],
-    new ObjectSkin(`𐅱`, `R`, {
+    new ObjectSkin(`♈`, `R`, {
+        'R': ['yellow', 'transparent'],
+    }),
+    new ObjectPhysics(` `), [0, 0]);
+
+export const beehive = new StaticGameObject([0, 0],
+    new ObjectSkin(`☷`, `R`, {
+        'R': ['black', 'orange'],
+    }),
+    new ObjectPhysics(`.`), [0, 0]);
+
+export const bee = new StaticGameObject([0, 0],
+    new ObjectSkin(`🐝`, `R`, {
         'R': ['yellow', 'transparent'],
     }),
     new ObjectPhysics(` `), [0, 0]);
