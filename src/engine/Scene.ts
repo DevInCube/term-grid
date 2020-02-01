@@ -1,47 +1,13 @@
-import { GameEvent, GameEventHandler } from "./GameEvent";
-import { SceneObject } from "./SceneObject";
+import { GameEvent } from "./GameEvent";
 import { viewHeight, viewWidth } from "../main";
 import { Cell } from "./Cell";
 import { emitEvent } from "./EventLoop";
-import { drawCell, isCollision, drawObjects } from "./GraphicsEngine";
+import { drawCell } from "./GraphicsEngine";
 import { Npc } from "./Npc";
 import { Item } from "./Item";
+import { SceneBase } from "./SceneBase";
 
 const defaultLightLevelAtNight = 4;
-
-export class SceneBase implements GameEventHandler {
-    objects: SceneObject[] = [];
-
-    handleEvent(ev: GameEvent): void {
-    }
-
-    update(ticks: number) {
-        for (const obj of this.objects) {
-            if (!obj.enabled) continue;
-            obj.update(ticks, this);
-        }
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        // sort objects by origin point
-        this.objects.sort((a: SceneObject, b: SceneObject) => a.position[1] - b.position[1]);
-        drawObjects(ctx, this.objects);
-    }
-
-    // extra
-    isPositionBlocked(position: [number, number]) {
-        for (let object of this.objects) {
-            if (!object.enabled) continue;
-            const pleft = position[0] - object.position[0] + object.originPoint[0];
-            const ptop = position[1] - object.position[1] + object.originPoint[1];
-            if (isCollision(object, pleft, ptop)) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
 const bedrockCell = new Cell(' ', 'transparent', '#331');
 
 export class Scene extends SceneBase {
@@ -194,7 +160,7 @@ export class Scene extends SceneBase {
 
         const scene = this;
         drawWeather();
-        drawLights();
+        //drawLights();
 
         function drawWeather() {
             for (let y = 0; y < viewHeight; y++) {

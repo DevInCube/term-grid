@@ -653,32 +653,16 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
         }
     };
 });
-System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "engine/EventLoop", "engine/GraphicsEngine", "engine/Npc"], function (exports_12, context_12) {
+System.register("engine/SceneBase", ["engine/GraphicsEngine"], function (exports_12, context_12) {
     var __moduleName = context_12 && context_12.id;
-    var GameEvent_2, main_2, Cell_2, EventLoop_2, GraphicsEngine_1, Npc_2, defaultLightLevelAtNight, SceneBase, bedrockCell, Scene;
+    var GraphicsEngine_1, SceneBase;
     return {
         setters: [
-            function (GameEvent_2_1) {
-                GameEvent_2 = GameEvent_2_1;
-            },
-            function (main_2_1) {
-                main_2 = main_2_1;
-            },
-            function (Cell_2_1) {
-                Cell_2 = Cell_2_1;
-            },
-            function (EventLoop_2_1) {
-                EventLoop_2 = EventLoop_2_1;
-            },
             function (GraphicsEngine_1_1) {
                 GraphicsEngine_1 = GraphicsEngine_1_1;
-            },
-            function (Npc_2_1) {
-                Npc_2 = Npc_2_1;
             }
         ],
         execute: function () {
-            defaultLightLevelAtNight = 4;
             SceneBase = class SceneBase {
                 constructor() {
                     this.objects = [];
@@ -712,8 +696,40 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                 }
             };
             exports_12("SceneBase", SceneBase);
+        }
+    };
+});
+System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "engine/EventLoop", "engine/GraphicsEngine", "engine/Npc", "engine/SceneBase"], function (exports_13, context_13) {
+    var __moduleName = context_13 && context_13.id;
+    var GameEvent_2, main_2, Cell_2, EventLoop_2, GraphicsEngine_2, Npc_2, SceneBase_1, defaultLightLevelAtNight, bedrockCell, Scene;
+    return {
+        setters: [
+            function (GameEvent_2_1) {
+                GameEvent_2 = GameEvent_2_1;
+            },
+            function (main_2_1) {
+                main_2 = main_2_1;
+            },
+            function (Cell_2_1) {
+                Cell_2 = Cell_2_1;
+            },
+            function (EventLoop_2_1) {
+                EventLoop_2 = EventLoop_2_1;
+            },
+            function (GraphicsEngine_2_1) {
+                GraphicsEngine_2 = GraphicsEngine_2_1;
+            },
+            function (Npc_2_1) {
+                Npc_2 = Npc_2_1;
+            },
+            function (SceneBase_1_1) {
+                SceneBase_1 = SceneBase_1_1;
+            }
+        ],
+        execute: function () {
+            defaultLightLevelAtNight = 4;
             bedrockCell = new Cell_2.Cell(' ', 'transparent', '#331');
-            Scene = class Scene extends SceneBase {
+            Scene = class Scene extends SceneBase_1.SceneBase {
                 constructor() {
                     super(...arguments);
                     this.weatherType = 'normal';
@@ -851,18 +867,18 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                     for (let y = 0; y < main_2.viewHeight; y++) {
                         for (let x = 0; x < main_2.viewWidth; x++) {
                             var cell = this.tiles[y] ? this.tiles[y][x] : null;
-                            GraphicsEngine_1.drawCell(ctx, cell ? cell : bedrockCell, x, y);
+                            GraphicsEngine_2.drawCell(ctx, cell ? cell : bedrockCell, x, y);
                         }
                     }
                     super.draw(ctx);
                     const scene = this;
                     drawWeather();
-                    drawLights();
+                    //drawLights();
                     function drawWeather() {
                         for (let y = 0; y < main_2.viewHeight; y++) {
                             for (let x = 0; x < main_2.viewWidth; x++) {
                                 if (scene.weatherLayer[y] && scene.weatherLayer[y][x])
-                                    GraphicsEngine_1.drawCell(ctx, scene.weatherLayer[y][x], x, y);
+                                    GraphicsEngine_2.drawCell(ctx, scene.weatherLayer[y][x], x, y);
                             }
                         }
                     }
@@ -870,18 +886,18 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
                         for (let y = 0; y < main_2.viewHeight; y++) {
                             for (let x = 0; x < main_2.viewWidth; x++) {
                                 const lightLevel = scene.lightLayer[y][x] | 0;
-                                GraphicsEngine_1.drawCell(ctx, new Cell_2.Cell(' ', undefined, `#000${(15 - lightLevel).toString(16)}`), x, y);
+                                GraphicsEngine_2.drawCell(ctx, new Cell_2.Cell(' ', undefined, `#000${(15 - lightLevel).toString(16)}`), x, y);
                             }
                         }
                     }
                 }
             };
-            exports_12("Scene", Scene);
+            exports_13("Scene", Scene);
         }
     };
 });
-System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_13, context_13) {
-    var __moduleName = context_13 && context_13.id;
+System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_14, context_14) {
+    var __moduleName = context_14 && context_14.id;
     var ObjectSkin_6, SpriteInfo, Sprite;
     return {
         setters: [
@@ -959,12 +975,12 @@ System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_
                     return sprite;
                 }
             };
-            exports_13("Sprite", Sprite);
+            exports_14("Sprite", Sprite);
         }
     };
 });
-System.register("world/sprites/glitchy", ["engine/SpriteLoader"], function (exports_14, context_14) {
-    var __moduleName = context_14 && context_14.id;
+System.register("world/sprites/glitchy", ["engine/SpriteLoader"], function (exports_15, context_15) {
+    var __moduleName = context_15 && context_15.id;
     var SpriteLoader_1, glitchySprite_old, glitchySpriteText, glitchySprite;
     return {
         setters: [
@@ -1026,12 +1042,12 @@ color:o,#f000,#faa0
 oEE
 tAA
 oEE`;
-            exports_14("glitchySprite", glitchySprite = SpriteLoader_1.Sprite.parse(glitchySpriteText));
+            exports_15("glitchySprite", glitchySprite = SpriteLoader_1.Sprite.parse(glitchySpriteText));
         }
     };
 });
-System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_15, context_15) {
-    var __moduleName = context_15 && context_15.id;
+System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_16, context_16) {
+    var __moduleName = context_16 && context_16.id;
     var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc, shop;
     return {
         setters: [
@@ -1049,7 +1065,7 @@ System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin"
             }
         ],
         execute: function () {
-            exports_15("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_7.ObjectSkin(` /^\\ 
+            exports_16("house", house = new StaticGameObject_2.StaticGameObject([2, 2], new ObjectSkin_7.ObjectSkin(` /^\\ 
 ==*==
  ▓ ▓ `, ` BBB
 BBSBB
@@ -1077,13 +1093,13 @@ H`, {
                 o.skin.raw_colors[0][0] = [o.parameters["is_on"] ? 'yellow' : 'gray', 'transparent'];
                 o.physics.lights[0] = o.parameters["is_on"] ? 'F' : '0';
             });
-            exports_15("lamps", lamps = [
+            exports_16("lamps", lamps = [
                 misc_2.clone(lamp, { position: [2, 5] }),
             ]);
-            exports_15("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`S`, `V`, {
+            exports_16("chest", chest = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_7.ObjectSkin(`S`, `V`, {
                 V: ['yellow', 'violet'],
             }), new ObjectPhysics_6.ObjectPhysics(`.`, ''), [2, 10]));
-            exports_15("pillar", pillar = new StaticGameObject_2.StaticGameObject([0, 3], new ObjectSkin_7.ObjectSkin(`▄
+            exports_16("pillar", pillar = new StaticGameObject_2.StaticGameObject([0, 3], new ObjectSkin_7.ObjectSkin(`▄
 █
 █
 ▓`, `L
@@ -1097,7 +1113,7 @@ B`, {
  
  
 . `), [0, 0]));
-            exports_15("arc", arc = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▟▄▄▄▙
+            exports_16("arc", arc = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▟▄▄▄▙
 █   █
 █   █
 █   █`, `LLLLL
@@ -1111,7 +1127,7 @@ B   B`, {
      
      
 .   .`), [0, 0]));
-            exports_15("shop", shop = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▄▟▄▄▄▙▄
+            exports_16("shop", shop = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▄▟▄▄▄▙▄
  █   █
  █████`, `LLLLLLL
  H   H
@@ -1127,8 +1143,8 @@ B   B`, {
         }
     };
 });
-System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_16, context_16) {
-    var __moduleName = context_16 && context_16.id;
+System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_17, context_17) {
+    var __moduleName = context_17 && context_17.id;
     var Item_1, ObjectSkin_8, ObjectPhysics_7, lamp, sword;
     return {
         setters: [
@@ -1143,13 +1159,13 @@ System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/Obje
             }
         ],
         execute: function () {
-            exports_16("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(` `, `f`), [0, 0]));
-            exports_16("sword", sword = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🗡`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(), [0, 0]));
+            exports_17("lamp", lamp = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🏮`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(` `, `f`), [0, 0]));
+            exports_17("sword", sword = new Item_1.Item([0, 0], new ObjectSkin_8.ObjectSkin(`🗡`, `.`, { '.': [undefined, 'transparent'] }), new ObjectPhysics_7.ObjectPhysics(), [0, 0]));
         }
     };
 });
-System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_17, context_17) {
-    var __moduleName = context_17 && context_17.id;
+System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_18, context_18) {
+    var __moduleName = context_18 && context_18.id;
     var Npc_3, ObjectSkin_9, hero;
     return {
         setters: [
@@ -1161,7 +1177,7 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exp
             }
         ],
         execute: function () {
-            exports_17("hero", hero = new class extends Npc_3.Npc {
+            exports_18("hero", hero = new class extends Npc_3.Npc {
                 constructor() {
                     super(new ObjectSkin_9.ObjectSkin('🐱', '.', { '.': [undefined, 'transparent'] }), [17, 15]);
                     this.type = "human";
@@ -1177,8 +1193,8 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exp
         }
     };
 });
-System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_18, context_18) {
-    var __moduleName = context_18 && context_18.id;
+System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_19, context_19) {
+    var __moduleName = context_19 && context_19.id;
     var StaticGameObject_3, ObjectSkin_10, ObjectPhysics_8, hero_1, Glitch, glitch;
     return {
         setters: [
@@ -1302,13 +1318,13 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
                     }
                 }
             };
-            exports_18("Glitch", Glitch);
-            exports_18("glitch", glitch = new Glitch());
+            exports_19("Glitch", Glitch);
+            exports_19("glitch", glitch = new Glitch());
         }
     };
 });
-System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exports_19, context_19) {
-    var __moduleName = context_19 && context_19.id;
+System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exports_20, context_20) {
+    var __moduleName = context_20 && context_20.id;
     function parseTiles(str, colors) {
         let common = {};
         return str
@@ -1336,7 +1352,7 @@ System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exp
             }
         ],
         execute: function () {
-            exports_19("tiles", tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
+            exports_20("tiles", tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
 gGGGgggGGGGggggggg  ggggggggggggggGgggggggggggg ggg
 ggGgGGGg gg gggggggggggggggg    gGgGGgGGg g gg g gg
     gg gg gggg gggg gggg ggg    ggGgggggg gg ggggg 
@@ -1377,8 +1393,8 @@ gggggwwwwwwwwwwwww gggg gggggggg  gg  ggssswwwWWWWW`, {
         }
     };
 });
-System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engine/Npc"], function (exports_20, context_20) {
-    var __moduleName = context_20 && context_20.id;
+System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engine/Npc"], function (exports_21, context_21) {
+    var __moduleName = context_21 && context_21.id;
     var glitchy_1, Npc_4, glitchyNpc;
     return {
         setters: [
@@ -1390,7 +1406,7 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
             }
         ],
         execute: function () {
-            exports_20("glitchyNpc", glitchyNpc = new class extends Npc_4.Npc {
+            exports_21("glitchyNpc", glitchyNpc = new class extends Npc_4.Npc {
                 constructor() {
                     super(glitchy_1.glitchySprite.frames["move right"][0], [20, 15]);
                     this.type = "glitchy";
@@ -1439,8 +1455,8 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
         }
     };
 });
-System.register("world/npc/Sheep", ["engine/Npc", "engine/ObjectSkin"], function (exports_21, context_21) {
-    var __moduleName = context_21 && context_21.id;
+System.register("world/npc/Sheep", ["engine/Npc", "engine/ObjectSkin"], function (exports_22, context_22) {
+    var __moduleName = context_22 && context_22.id;
     var Npc_5, ObjectSkin_11, Sheep;
     return {
         setters: [
@@ -1525,12 +1541,12 @@ System.register("world/npc/Sheep", ["engine/Npc", "engine/ObjectSkin"], function
                     }
                 }
             };
-            exports_21("Sheep", Sheep);
+            exports_22("Sheep", Sheep);
         }
     };
 });
-System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_22, context_22) {
-    var __moduleName = context_22 && context_22.id;
+System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_23, context_23) {
+    var __moduleName = context_23 && context_23.id;
     var StaticGameObject_4, ObjectSkin_12, ObjectPhysics_9, vFence, hFence, beehive;
     return {
         setters: [
@@ -1545,16 +1561,16 @@ System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/
             }
         ],
         execute: function () {
-            exports_22("vFence", vFence = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_12.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_9.ObjectPhysics('.'), [0, 0]));
-            exports_22("hFence", hFence = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_12.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_9.ObjectPhysics('.'), [0, 0]));
-            exports_22("beehive", beehive = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_12.ObjectSkin(`☷`, `R`, {
+            exports_23("vFence", vFence = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_12.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_9.ObjectPhysics('.'), [0, 0]));
+            exports_23("hFence", hFence = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_12.ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }), new ObjectPhysics_9.ObjectPhysics('.'), [0, 0]));
+            exports_23("beehive", beehive = new StaticGameObject_4.StaticGameObject([0, 0], new ObjectSkin_12.ObjectSkin(`☷`, `R`, {
                 'R': ['black', 'orange'],
             }), new ObjectPhysics_9.ObjectPhysics(`.`), [0, 0]));
         }
     };
 });
-System.register("world/objects/natural", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_23, context_23) {
-    var __moduleName = context_23 && context_23.id;
+System.register("world/objects/natural", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_24, context_24) {
+    var __moduleName = context_24 && context_24.id;
     var StaticGameObject_5, ObjectSkin_13, ObjectPhysics_10, createUnitSkin, unitPhysics, createUnitStaticObject, flower, wheat, hotspring, duck, bamboo, Tree, tree, SakuraTree, sakura;
     return {
         setters: [
@@ -1574,11 +1590,11 @@ System.register("world/objects/natural", ["engine/StaticGameObject", "engine/Obj
             });
             unitPhysics = new ObjectPhysics_10.ObjectPhysics(` `);
             createUnitStaticObject = (sym, color = 'black') => new StaticGameObject_5.StaticGameObject([0, 0], createUnitSkin(sym, color), unitPhysics);
-            exports_23("flower", flower = createUnitStaticObject(`❁`, 'red'));
-            exports_23("wheat", wheat = createUnitStaticObject(`♈`, 'yellow'));
-            exports_23("hotspring", hotspring = createUnitStaticObject(`♨`, 'lightblue'));
-            exports_23("duck", duck = createUnitStaticObject(`🦆`, 'white'));
-            exports_23("bamboo", bamboo = new StaticGameObject_5.StaticGameObject([0, 4], new ObjectSkin_13.ObjectSkin(`▄
+            exports_24("flower", flower = createUnitStaticObject(`❁`, 'red'));
+            exports_24("wheat", wheat = createUnitStaticObject(`♈`, 'yellow'));
+            exports_24("hotspring", hotspring = createUnitStaticObject(`♨`, 'lightblue'));
+            exports_24("duck", duck = createUnitStaticObject(`🦆`, 'white'));
+            exports_24("bamboo", bamboo = new StaticGameObject_5.StaticGameObject([0, 4], new ObjectSkin_13.ObjectSkin(`▄
 █
 █
 █
@@ -1658,7 +1674,7 @@ o01
                 }
             };
             ;
-            exports_23("tree", tree = new Tree());
+            exports_24("tree", tree = new Tree());
             SakuraTree = class SakuraTree extends StaticGameObject_5.StaticGameObject {
                 constructor() {
                     super([2, 3], new ObjectSkin_13.ObjectSkin(` ░░ 
@@ -1681,12 +1697,12 @@ o01o
                 new() { return new SakuraTree(); }
             };
             ;
-            exports_23("sakura", sakura = new SakuraTree());
+            exports_24("sakura", sakura = new SakuraTree());
         }
     };
 });
-System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (exports_24, context_24) {
-    var __moduleName = context_24 && context_24.id;
+System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (exports_25, context_25) {
+    var __moduleName = context_25 && context_25.id;
     var Npc_6, ObjectSkin_14, Bee, bee;
     return {
         setters: [
@@ -1722,12 +1738,12 @@ System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (
                     }
                 }
             };
-            exports_24("bee", bee = new Bee());
+            exports_25("bee", bee = new Bee());
         }
     };
 });
-System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/items", "world/npc/Sheep", "world/objects/artificial", "world/objects/natural", "world/npc/Bee"], function (exports_25, context_25) {
-    var __moduleName = context_25 && context_25.id;
+System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/items", "world/npc/Sheep", "world/objects/artificial", "world/objects/natural", "world/npc/Bee"], function (exports_26, context_26) {
+    var __moduleName = context_26 && context_26.id;
     var misc_3, objects_1, glitch_1, tiles_1, items_1, Sheep_1, artificial_1, natural_1, Bee_1, levelWidth, levelHeight, fences, extraFences, trees, sakuras, houses, lamps, pillars, arcs, shops, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
     return {
         setters: [
@@ -1886,7 +1902,7 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
                 { position: [21, 15] },
                 { position: [24, 19] },
             ].map(x => misc_3.clone(natural_1.hotspring, x));
-            exports_25("level", level = {
+            exports_26("level", level = {
                 sceneObjects: [
                     ...fences, ...extraFences,
                     ...trees, ...sakuras, ...bamboos,
@@ -1901,13 +1917,13 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
         }
     };
 });
-System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_26, context_26) {
-    var __moduleName = context_26 && context_26.id;
-    var GraphicsEngine_2, Cell_4, main_3, Npc_7, uiBackground, PlayerUi;
+System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_27, context_27) {
+    var __moduleName = context_27 && context_27.id;
+    var GraphicsEngine_3, Cell_4, main_3, Npc_7, uiBackground, PlayerUi;
     return {
         setters: [
-            function (GraphicsEngine_2_1) {
-                GraphicsEngine_2 = GraphicsEngine_2_1;
+            function (GraphicsEngine_3_1) {
+                GraphicsEngine_3 = GraphicsEngine_3_1;
             },
             function (Cell_4_1) {
                 Cell_4 = Cell_4_1;
@@ -1933,16 +1949,16 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                     const top = 0;
                     for (let i = 0; i < uiHeight; i++)
                         for (let j = 0; j < uiWidth; j++) {
-                            GraphicsEngine_2.drawCell(ctx, uiBackground, left + j, top + i);
+                            GraphicsEngine_3.drawCell(ctx, uiBackground, left + j, top + i);
                         }
                     for (let i = 0; i < this.npc.maxHealth; i++) {
-                        GraphicsEngine_2.drawCell(ctx, new Cell_4.Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), left + i, top + 0);
+                        GraphicsEngine_3.drawCell(ctx, new Cell_4.Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), left + i, top + 0);
                     }
                     if (this.objectUnderCursor) {
                         if (this.objectUnderCursor instanceof Npc_7.Npc) {
-                            GraphicsEngine_2.drawObjectAt(ctx, this.objectUnderCursor, [main_3.viewWidth - 1, 0]);
+                            GraphicsEngine_3.drawObjectAt(ctx, this.objectUnderCursor, [main_3.viewWidth - 1, 0]);
                             for (let i = 0; i < this.objectUnderCursor.maxHealth; i++) {
-                                GraphicsEngine_2.drawCell(ctx, new Cell_4.Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), main_3.viewWidth - this.objectUnderCursor.maxHealth + i - 1, 0);
+                                GraphicsEngine_3.drawCell(ctx, new Cell_4.Cell(`♥`, i <= this.objectUnderCursor.health ? 'red' : 'gray', 'transparent'), main_3.viewWidth - this.objectUnderCursor.maxHealth + i - 1, 0);
                             }
                         }
                     }
@@ -1962,17 +1978,17 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
                     }
                 }
             };
-            exports_26("PlayerUi", PlayerUi);
+            exports_27("PlayerUi", PlayerUi);
         }
     };
 });
-System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Scene"], function (exports_27, context_27) {
-    var __moduleName = context_27 && context_27.id;
-    var GraphicsEngine_3, Cell_5, main_4, Scene_1, glitchFieldDefault, GlitchField;
+System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Scene"], function (exports_28, context_28) {
+    var __moduleName = context_28 && context_28.id;
+    var GraphicsEngine_4, Cell_5, main_4, Scene_1, glitchFieldDefault, GlitchField;
     return {
         setters: [
-            function (GraphicsEngine_3_1) {
-                GraphicsEngine_3 = GraphicsEngine_3_1;
+            function (GraphicsEngine_4_1) {
+                GraphicsEngine_4 = GraphicsEngine_4_1;
             },
             function (Cell_5_1) {
                 Cell_5 = Cell_5_1;
@@ -1993,19 +2009,19 @@ System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main
                 draw(ctx) {
                     for (let i = 0; i < main_4.viewHeight; i++)
                         for (let j = 0; j < main_4.viewWidth; j++)
-                            GraphicsEngine_3.drawCell(ctx, glitchFieldDefault, j, i);
+                            GraphicsEngine_4.drawCell(ctx, glitchFieldDefault, j, i);
                     super.draw(ctx);
                 }
                 update(ticks) {
                     super.update(ticks);
                 }
             };
-            exports_27("GlitchField", GlitchField);
+            exports_28("GlitchField", GlitchField);
         }
     };
 });
-System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi", "engine/Npc", "utils/misc", "ui/glitchField"], function (exports_28, context_28) {
-    var __moduleName = context_28 && context_28.id;
+System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi", "engine/Npc", "utils/misc", "ui/glitchField"], function (exports_29, context_29) {
+    var __moduleName = context_29 && context_29.id;
     function getActionUnderCursor() {
         const npc = hero_2.hero;
         for (let object of scene.objects) {
@@ -2049,9 +2065,9 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         for (let y = 0; y < dialogHeight; y++) {
             for (let x = 0; x < dialogWidth; x++) {
                 if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
-                    GraphicsEngine_4.drawCell(ctx, new Cell_6.Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
+                    GraphicsEngine_5.drawCell(ctx, new Cell_6.Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
                 else
-                    GraphicsEngine_4.drawCell(ctx, new Cell_6.Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
+                    GraphicsEngine_5.drawCell(ctx, new Cell_6.Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
             }
         }
     }
@@ -2060,7 +2076,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
-    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_2, Cell_6, GraphicsEngine_4, hero_2, playerUi_1, Npc_8, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
+    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_2, Cell_6, GraphicsEngine_5, hero_2, playerUi_1, Npc_8, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (level_1_1) {
@@ -2081,8 +2097,8 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
             function (Cell_6_1) {
                 Cell_6 = Cell_6_1;
             },
-            function (GraphicsEngine_4_1) {
-                GraphicsEngine_4 = GraphicsEngine_4_1;
+            function (GraphicsEngine_5_1) {
+                GraphicsEngine_5 = GraphicsEngine_5_1;
             },
             function (hero_2_1) {
                 hero_2 = hero_2_1;
@@ -2135,10 +2151,10 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                 }
             };
             game = new Game();
-            exports_28("viewWidth", viewWidth = 60);
-            exports_28("viewHeight", viewHeight = 30);
-            exports_28("leftPad", leftPad = (ctx.canvas.width - GraphicsEngine_4.cellStyle.size.width * viewWidth) / 2);
-            exports_28("topPad", topPad = (ctx.canvas.height - GraphicsEngine_4.cellStyle.size.height * viewHeight) / 2);
+            exports_29("viewWidth", viewWidth = 60);
+            exports_29("viewHeight", viewHeight = 30);
+            exports_29("leftPad", leftPad = (ctx.canvas.width - GraphicsEngine_5.cellStyle.size.width * viewWidth) / 2);
+            exports_29("topPad", topPad = (ctx.canvas.height - GraphicsEngine_5.cellStyle.size.height * viewHeight) / 2);
             scene = new Scene_2.Scene();
             heroUi = new playerUi_1.PlayerUi(hero_2.hero);
             glitchField = new glitchField_1.GlitchField();
@@ -2281,15 +2297,15 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
             };
             canvas.addEventListener("click", ev => {
                 EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "click", {
-                    x: Math.floor((ev.clientX - leftPad) / GraphicsEngine_4.cellStyle.size.width),
-                    y: Math.floor((ev.clientY - topPad) / GraphicsEngine_4.cellStyle.size.height)
+                    x: Math.floor((ev.clientX - leftPad) / GraphicsEngine_5.cellStyle.size.width),
+                    y: Math.floor((ev.clientY - topPad) / GraphicsEngine_5.cellStyle.size.height)
                 }));
             });
         }
     };
 });
-System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_29, context_29) {
-    var __moduleName = context_29 && context_29.id;
+System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_30, context_30) {
+    var __moduleName = context_30 && context_30.id;
     var ObjectSkin_15, EventLoop_4, GameEvent_4, Npc_9, ulan, npcs;
     return {
         setters: [
@@ -2316,14 +2332,14 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
                     object: o,
                 }));
             });
-            exports_29("npcs", npcs = [
+            exports_30("npcs", npcs = [
                 ulan,
             ]);
         }
     };
 });
-System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_30, context_30) {
-    var __moduleName = context_30 && context_30.id;
+System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_31, context_31) {
+    var __moduleName = context_31 && context_31.id;
     var objects_2, misc_5, EventLoop_5, GameEvent_5, npcs_1, introLevel;
     return {
         setters: [
@@ -2344,7 +2360,7 @@ System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/Ev
             }
         ],
         execute: function () {
-            exports_30("introLevel", introLevel = [objects_2.house, objects_2.chest, ...objects_2.lamps, ...npcs_1.npcs]);
+            exports_31("introLevel", introLevel = [objects_2.house, objects_2.chest, ...objects_2.lamps, ...npcs_1.npcs]);
             // scripts
             objects_2.chest.setAction(0, 0, function () {
                 EventLoop_5.emitEvent(new GameEvent_5.GameEvent(objects_2.chest, "add_object", { object: misc_5.createTextObject(`VICTORY!`, 6, 6) }));
