@@ -234,6 +234,8 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
     }
     exports_6("isPositionBehindTheObject", isPositionBehindTheObject);
     function drawCell(ctx, cell, leftPos, topPos, transparent = false, border = [false, false, false, false]) {
+        if (leftPos < 0 || topPos < 0)
+            return;
         const left = main_1.leftPad + leftPos * cellStyle.size.width;
         const top = main_1.topPad + topPos * cellStyle.size.height;
         //
@@ -866,7 +868,7 @@ System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engin
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_13, context_13) {
     var __moduleName = context_13 && context_13.id;
-    var StaticGameObject_2, ObjectSkin_6, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers;
+    var StaticGameObject_2, ObjectSkin_6, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers, pillar, test, roadBrick;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -1027,6 +1029,37 @@ H`, {
             //         }
             //     })
             // }
+            exports_13("pillar", pillar = new StaticGameObject_2.StaticGameObject([0, 3], new ObjectSkin_6.ObjectSkin(`▄
+█
+█
+▓`, `L
+H
+H
+B`, {
+                'L': ['yellow', 'transparent'],
+                'H': ['white', 'transparent'],
+                'B': ['#777', 'transparent'],
+            }), new ObjectPhysics_6.ObjectPhysics(` 
+ 
+ 
+. `), [0, 0]));
+            exports_13("test", test = new StaticGameObject_2.StaticGameObject([0, 3], new ObjectSkin_6.ObjectSkin(`▟▄▄▄▙
+█   █
+█   █
+▓▓▓▓▓`, `LLLLL
+H   H
+H   H
+BBBBB`, {
+                'L': ['orange', 'brown'],
+                'H': ['gold', 'yellow'],
+                'B': ['brown', 'orange'],
+            }), new ObjectPhysics_6.ObjectPhysics(`     
+     
+.....
+.....`), [12, 10]));
+            exports_13("roadBrick", roadBrick = new StaticGameObject_2.StaticGameObject([0, 0], new ObjectSkin_6.ObjectSkin(` `, `R`, {
+                'R': ['transparent', 'darkgray'],
+            }), new ObjectPhysics_6.ObjectPhysics(` `), [0, 0]));
         }
     };
 });
@@ -1363,7 +1396,7 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
 });
 System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/sprites/glitchy", "world/levels/glitch"], function (exports_19, context_19) {
     var __moduleName = context_19 && context_19.id;
-    var Npc_4, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitchy_1, glitch_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, tree2, glitchySprite, glitchy, level;
+    var Npc_4, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitchy_1, glitch_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, trees, glitchySprite, glitchy, level;
     return {
         setters: [
             function (Npc_4_1) {
@@ -1480,7 +1513,14 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                     fences.push(misc_3.clone(vFence, { position: [levelWidth - 20 + 9, y] }));
                 }
             }
-            tree2 = misc_3.clone(objects_1.tree, { position: [7, 9] });
+            trees = [
+                misc_3.clone(objects_1.tree, { position: [7, 9] }),
+                misc_3.clone(objects_1.tree, { position: [27, 19] }),
+                misc_3.clone(objects_1.tree, { position: [5, 28] }),
+                misc_3.clone(objects_1.tree, { position: [32, 22] }),
+                misc_3.clone(objects_1.tree, { position: [34, 18] }),
+                misc_3.clone(objects_1.tree, { position: [47, 2] }),
+            ];
             glitchySprite = glitchy_1.sprite;
             glitchy = new class extends Npc_4.Npc {
                 constructor() {
@@ -1529,7 +1569,7 @@ System.register("world/levels/sheep", ["engine/Npc", "engine/ObjectSkin", "engin
                 }
             };
             exports_19("level", level = {
-                sceneObjects: [...fences, tree2],
+                sceneObjects: [...fences, ...trees, objects_1.test,],
                 glitches: [glitchy, misc_3.clone(glitch_1.glitch, { position: [7, 7] })],
             });
         }

@@ -158,7 +158,7 @@ export function drawCell(
     topPos: number, 
     transparent: boolean = false,
     border: boolean[] = [false, false, false, false]) { 
-        
+    if (leftPos < 0 || topPos < 0) return;
     const left = leftPad + leftPos * cellStyle.size.width;
     const top = topPad + topPos * cellStyle.size.height;
     //

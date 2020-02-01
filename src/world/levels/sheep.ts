@@ -4,7 +4,7 @@ import { Scene, SceneBase } from "../../engine/Scene";
 import { StaticGameObject } from "../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../utils/misc";
-import { tree } from "../objects";
+import { tree, test, roadBrick } from "../objects";
 import { GameEvent } from "../../engine/GameEvent";
 import { SceneObject } from "../../engine/SceneObject";
 import { sprite } from "../sprites/glitchy";
@@ -114,7 +114,14 @@ if (true) {  // add fence
     }
 }
 
-const tree2 = clone(tree, { position: [7, 9] });
+const trees = [
+    clone(tree, { position: [7, 9] }),
+    clone(tree, { position: [27, 19] }),
+    clone(tree, { position: [5, 28] }),
+    clone(tree, { position: [32, 22] }),
+    clone(tree, { position: [34, 18] }),
+    clone(tree, { position: [47, 2] }),
+];
 
 const glitchySprite = sprite;
 
@@ -168,6 +175,6 @@ const glitchy = new class extends Npc {
 };
 
 export const level = {
-    sceneObjects: [...fences, tree2],
+    sceneObjects: [...fences, ...trees, test,],
     glitches: [glitchy, clone(glitch, { position: [7, 7] })],
 };
