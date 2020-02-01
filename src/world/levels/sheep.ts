@@ -1,12 +1,11 @@
-import { Npc } from "../../engine/Npc";
-import { ObjectSkin } from "../../engine/ObjectSkin";
-import { Scene } from "../../engine/Scene";
-import { StaticGameObject } from "../../engine/StaticGameObject";
-import { ObjectPhysics } from "../../engine/ObjectPhysics";
-import { distanceTo, clone } from "../../utils/misc";
-import { tree } from "../objects";
-import { GameEvent } from "../../engine/GameEvent";
-import { SceneObject } from "../../engine/SceneObject";
+import {Npc} from "../../engine/Npc";
+import {ObjectSkin} from "../../engine/ObjectSkin";
+import {Scene} from "../../engine/Scene";
+import {StaticGameObject} from "../../engine/StaticGameObject";
+import {ObjectPhysics} from "../../engine/ObjectPhysics";
+import {clone} from "../../utils/misc";
+import {tree} from "../objects";
+import {glitch, Glitch} from "./glitch";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -55,7 +54,7 @@ class Sheep extends Npc {
                 sheep.parameters["state"] = "feared";
                 sheep.parameters["stress"] = 3;
                 sheep.parameters["enemies"] = enemiesNearby;
-            } else {  // if (fearedSheeps.length) 
+            } else {  // if (fearedSheeps.length)
                 const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
                 //console.log(sheepsStress);
                 sheep.parameters["stress"] = sheepsStress - 1;
@@ -113,58 +112,7 @@ const tree2 = clone(tree, { position: [7, 9] });
 
 
 
-class Glitch extends StaticGameObject {
-    constructor() {
-        super([0, 0],
-            new ObjectSkin(`AA
-A`, `aa
-a`, {
-                'a': ['#f0f', '#0fff'],
-            }),
-            new ObjectPhysics(`.`, ''), [0, 0]);
-        this.parameters["animate"] = true;
-    }
-
-    new() { return new Glitch(); }
-
-    update(ticks: number, scene: Scene) {
-        super.update(ticks, scene);
-        //
-        const o = this;
-        if (o.ticks > 50) {
-            o.ticks = 0;
-            if (o.parameters["animate"]) {
-                function getRandGlitchSym() {
-                    const str = "^%&$#";
-                    const index = Math.floor(Math.random() * str.length);
-                    return str[index];
-                }
-                o.parameters["tick"] = !o.parameters["tick"];
-                o.skin.characters[0] = `${getRandGlitchSym()}${getRandGlitchSym()}`;
-                o.skin.characters[1] = getRandGlitchSym();
-            }
-        }
-    }
-
-    handleEvent(ev: GameEvent) {
-        super.handleEvent(ev);
-        //
-        const o = this;
-        if (ev.type === 'wind_changed') {
-            o.parameters["animate"] = ev.args["to"];
-        } else if (ev.type === 'weather_changed') {
-            if (ev.args.to === 'snow') {
-                o.skin.raw_colors[0][0][0] = 'white';
-            } else {
-                o.skin.raw_colors[0][0][0] = '#0a0';
-            }
-        }
-    }
-};
-
-export const glitch = new Glitch();
-
 export const level = {
     sceneObjects: [...fences, tree2],
     glitches: [clone(glitch, { position: [7, 7] })],
-}; 
+};

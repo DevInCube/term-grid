@@ -87,7 +87,7 @@ document.addEventListener("keypress", function (code) {
     } else if (game.mode === 'dialog') {
         //
     }
-    
+
     onInterval();
 
     function onSceneInput() {
@@ -129,11 +129,11 @@ document.addEventListener("keypress", function (code) {
                 scene.weatherType = 'rain_and_snow';
             } else if (raw_key === '5') {  // debug
                 scene.weatherType = 'mist';
-            } 
+            }
             if (oldWeatherType !== scene.weatherType) {
                 emitEvent(new GameEvent(
-                    "system", 
-                    "weather_changed", 
+                    "system",
+                    "weather_changed",
                     {
                         from: oldWeatherType,
                         to: scene.weatherType,
@@ -143,8 +143,8 @@ document.addEventListener("keypress", function (code) {
             if (raw_key === 'e') {
                 scene.isWindy = !scene.isWindy;
                 emitEvent(new GameEvent(
-                    "system", 
-                    "wind_changed", 
+                    "system",
+                    "wind_changed",
                     {
                         from: !scene.isWindy,
                         to: scene.isWindy,
@@ -155,8 +155,8 @@ document.addEventListener("keypress", function (code) {
                 scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
                 //
                 emitEvent(new GameEvent(
-                    "system", 
-                    "time_changed", 
+                    "system",
+                    "time_changed",
                     {
                         from: scene.timePeriod === 'day' ? 'night' : 'day',
                         to: scene.timePeriod,
@@ -215,7 +215,7 @@ function drawDialog() {
         for (let x = 0; x < dialogWidth; x++) {
             if (x === 0 || x === dialogWidth - 1 || y === 0 || y === dialogHeight - 1)
                 drawCell(ctx, new Cell(' ', 'black', '#555'), x, viewHeight - dialogHeight + y);
-            else 
+            else
                 drawCell(ctx, new Cell(' ', 'white', '#333'), x, viewHeight - dialogHeight + y);
         }
     }
@@ -225,7 +225,7 @@ const ticksPerStep = 33;
 
 function onInterval() {
     game.update(ticksPerStep);
-    eventLoop([game, scene, ...scene.objects]);
+    eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
     game.draw();
 }
 
@@ -260,4 +260,12 @@ window.command = new class {
         }
     }
 }
+
+canvas.addEventListener("click", ev => {
+    emitEvent(new GameEvent("system", "click", {
+        x: Math.floor((ev.clientX - leftPad) / cellStyle.size.width),
+        y: Math.floor((ev.clientY - topPad) / cellStyle.size.height)
+    }));
+});
+
 
