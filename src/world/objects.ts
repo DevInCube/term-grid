@@ -85,3 +85,19 @@ B   B`, {
      
      
 .   .`), [0, 0]);
+
+export const shop = new StaticGameObject([2, 3],
+    new ObjectSkin(`▄▟▄▄▄▙▄
+ █   █
+ █████`, `LLLLLLL
+ H   H
+ BTTTB`, {
+        'L': ['lightgray', 'brown'],
+        'H': ['gray', 'transparent'],
+        'B': ['brown', 'transparent'],
+        'T': ['orange', 'brown'],
+    }),
+    new ObjectPhysics(`       
+       
+       
+ ..... `), [0, 0]);

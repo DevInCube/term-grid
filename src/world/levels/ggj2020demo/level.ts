@@ -3,7 +3,7 @@ import { SceneBase } from "../../../engine/Scene";
 import { StaticGameObject } from "../../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../../utils/misc";
-import { house, pillar, arc } from "../../objects";
+import { house, pillar, arc, shop } from "../../objects";
 import { GameEvent } from "../../../engine/GameEvent";
 import { SceneObject } from "../../../engine/SceneObject";
 import { glitch } from "../glitch";
@@ -90,6 +90,10 @@ const arcs = [
     clone(arc, { position: [32, 25] }),
 ]
 
+const shops = [
+    {position: [18, 10]}
+].map(x => clone(shop, x));
+
 const ducks = [
     { position: [40, 10] },
     { position: [38, 12] },
@@ -161,7 +165,7 @@ export const level = {
     sceneObjects: [
         ...fences, ...extraFences,
         ...trees, ...sakuras, ...bamboos,
-        ...arcs, ...houses, ...pillars, ...beehives,
+        ...arcs, ...shops, ...houses, ...pillars, ...beehives,
         ...flowers, ...lamps, ...wheats,
         ...hotsprings,
         ...ducks, ...bees, ...sheepList,

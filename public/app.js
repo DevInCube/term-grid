@@ -1032,7 +1032,7 @@ oEE`;
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_15, context_15) {
     var __moduleName = context_15 && context_15.id;
-    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc;
+    var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc, shop;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -1111,6 +1111,19 @@ B   B`, {
      
      
 .   .`), [0, 0]));
+            exports_15("shop", shop = new StaticGameObject_2.StaticGameObject([2, 3], new ObjectSkin_7.ObjectSkin(`▄▟▄▄▄▙▄
+ █   █
+ █████`, `LLLLLLL
+ H   H
+ BTTTB`, {
+                'L': ['lightgray', 'brown'],
+                'H': ['gray', 'transparent'],
+                'B': ['brown', 'transparent'],
+                'T': ['orange', 'brown'],
+            }), new ObjectPhysics_6.ObjectPhysics(`       
+       
+       
+ ..... `), [0, 0]));
         }
     };
 });
@@ -1715,7 +1728,7 @@ System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (
 });
 System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/items", "world/npc/Sheep", "world/objects/artificial", "world/objects/natural", "world/npc/Bee"], function (exports_25, context_25) {
     var __moduleName = context_25 && context_25.id;
-    var misc_3, objects_1, glitch_1, tiles_1, items_1, Sheep_1, artificial_1, natural_1, Bee_1, levelWidth, levelHeight, fences, extraFences, trees, sakuras, houses, lamps, pillars, arcs, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
+    var misc_3, objects_1, glitch_1, tiles_1, items_1, Sheep_1, artificial_1, natural_1, Bee_1, levelWidth, levelHeight, fences, extraFences, trees, sakuras, houses, lamps, pillars, arcs, shops, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
     return {
         setters: [
             function (misc_3_1) {
@@ -1811,6 +1824,9 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
                 misc_3.clone(objects_1.arc, { position: [16, 16] }),
                 misc_3.clone(objects_1.arc, { position: [32, 25] }),
             ];
+            shops = [
+                { position: [18, 10] }
+            ].map(x => misc_3.clone(objects_1.shop, x));
             ducks = [
                 { position: [40, 10] },
                 { position: [38, 12] },
@@ -1874,7 +1890,7 @@ System.register("world/levels/ggj2020demo/level", ["utils/misc", "world/objects"
                 sceneObjects: [
                     ...fences, ...extraFences,
                     ...trees, ...sakuras, ...bamboos,
-                    ...arcs, ...houses, ...pillars, ...beehives,
+                    ...arcs, ...shops, ...houses, ...pillars, ...beehives,
                     ...flowers, ...lamps, ...wheats,
                     ...hotsprings,
                     ...ducks, ...bees, ...sheepList,
