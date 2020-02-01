@@ -12,6 +12,7 @@ import { PlayerUi } from "./ui/playerUi";
 import { Npc } from "./engine/Npc";
 import { clone } from "./utils/misc";
 import { GlitchField } from "./ui/glitchField";
+import { Sprite } from "./engine/SpriteLoader";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -260,4 +261,3 @@ window.command = new class {
         }
     }
 }
-

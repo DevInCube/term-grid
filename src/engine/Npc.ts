@@ -5,7 +5,7 @@ import { distanceTo } from "../utils/misc";
 import { Item } from "./Item";
 import { emitEvent } from "./EventLoop";
 import { GameEvent } from "./GameEvent";
-import { Scene } from "./Scene";
+import { Scene, SceneBase } from "./Scene";
 
 export class Npc extends SceneObject {
     type: string = "undefined";
@@ -39,7 +39,7 @@ export class Npc extends SceneObject {
 
     new() { return new Npc(); }
 
-    update(ticks: number, scene: Scene) {
+    update(ticks: number, scene: SceneBase) {
         super.update(ticks, scene);
         this.moveTick += ticks;
         this.attackTick += ticks;
@@ -121,7 +121,7 @@ export class Npc extends SceneObject {
         }
     }
 
-    approach(scene: Scene, target: SceneObject) {
+    approach(scene: SceneBase, target: SceneObject) {
         const possibleDirs: { direction: [number, number], available?: boolean, distance?: number }[] = [
             { direction: [-1, 0] },
             { direction: [+1, 0] },
