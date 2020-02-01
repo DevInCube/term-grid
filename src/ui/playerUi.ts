@@ -1,6 +1,6 @@
 import { drawCell, drawObjects, drawObjectAt } from "../engine/GraphicsEngine";
 import { Cell } from "../engine/Cell";
-import { viewWidth } from "../main";
+import { viewWidth, viewHeight } from "../main";
 import { Npc } from "../engine/Npc";
 import { createTextObject } from "../utils/misc";
 import { SceneObject } from "../engine/SceneObject";
@@ -13,11 +13,16 @@ export class PlayerUi {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        for (let i = 0; i < viewWidth; i++) {
-            drawCell(ctx, new Cell(' ', 'white', 'black'), i, 0);
-        }
+        const uiHeight = viewHeight;
+        const uiWidth = 10;
+        const left = viewWidth - uiWidth;
+        const top = 0;
+        for (let i = 0; i < uiHeight; i++)
+            for (let j = 0; j < uiWidth; j++) {
+                drawCell(ctx, new Cell(' ', 'white', '#003'), left + j, top + i);
+            }
         for (let i = 0; i < this.npc.maxHealth; i++) {
-            drawCell(ctx, new Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), i, 0);
+            drawCell(ctx, new Cell(`♥`, i <= this.npc.health ? 'red' : 'gray', 'transparent'), left + i, top + 0);
         }
         if (this.objectUnderCursor) {
             if (this.objectUnderCursor instanceof Npc) {
@@ -34,11 +39,11 @@ export class PlayerUi {
         for (let o of scene.objects) {
             if (!o.enabled) continue;
             if (o instanceof Npc) {
-                if (o.position[0] === this.npc.cursorPosition[0] 
+                if (o.position[0] === this.npc.cursorPosition[0]
                     && o.position[1] === this.npc.cursorPosition[1]) {
-                        this.objectUnderCursor = o;
-                        break;
-                    }
+                    this.objectUnderCursor = o;
+                    break;
+                }
             }
         }
     }

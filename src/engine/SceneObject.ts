@@ -1,11 +1,10 @@
 import { GameEvent, GameEventHandler } from "./GameEvent";
 import { ObjectSkin } from "./ObjectSkin";
 import { ObjectPhysics } from "./ObjectPhysics";
-import { Scene } from "./Scene";
-import { deepCopy } from "../utils/misc";
+import { SceneBase } from "./Scene";
 
 export type GameObjectAction = (obj: SceneObject) => void;
-export type UpdateHandler = (ticks: number, obj: SceneObject, scene: Scene) => void;
+export type UpdateHandler = (ticks: number, obj: SceneObject, scene: SceneBase) => void;
 export type GameObjectEventHandler = (obj: SceneObject, ev: GameEvent) => void;
 
 export interface Drawable {
@@ -37,7 +36,7 @@ export class SceneObject implements GameEventHandler {
 
     handleEvent(ev: GameEvent) { }
 
-    update(ticks: number, scene: Scene) { 
+    update(ticks: number, scene: SceneBase) { 
         this.ticks += ticks;
     }
 }

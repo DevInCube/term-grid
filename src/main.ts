@@ -1,16 +1,17 @@
-import { sheepLevel } from "./world/levels/sheep";
+import { level } from "./world/levels/sheep";
 import { lamp, sword } from "./world/items";
 import { GameEvent, GameEventHandler } from "./engine/GameEvent";
 import { GameObjectAction, SceneObject } from "./engine/SceneObject";
 import { emitEvent, eventLoop } from "./engine/EventLoop";
 import { Scene } from "./engine/Scene";
 import { Cell } from "./engine/Cell";
-import { drawCell } from "./engine/GraphicsEngine";
+import { drawCell, cellStyle } from "./engine/GraphicsEngine";
 import { ObjectSkin } from "./engine/ObjectSkin";
 import { hero } from "./world/hero";
 import { PlayerUi } from "./ui/playerUi";
 import { Npc } from "./engine/Npc";
 import { clone } from "./utils/misc";
+import { GlitchField } from "./ui/glitchField";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 canvas.width = canvas.clientWidth;
@@ -33,6 +34,7 @@ class Game implements GameEventHandler {
     draw() {
         scene.draw(ctx);
         heroUi.draw(ctx);
+        glitchField.draw(ctx);
         if (this.mode === "dialog") {
             drawDialog();
         }
@@ -41,19 +43,26 @@ class Game implements GameEventHandler {
     update(ticks: number) {
         heroUi.update(ticks, scene);
         if (this.mode === "scene")
+        {
             scene.update(ticks);
+            glitchField.update(ticks);
+        }
     }
 }
 
 const game = new Game();
 
+export const viewWidth = 60;
+export const viewHeight = 30;
+export const leftPad = (ctx.canvas.width - cellStyle.size.width * viewWidth) / 2;
+export const topPad = (ctx.canvas.height - cellStyle.size.height * viewHeight) / 2;
+
 const scene = new Scene();
-scene.objects = sheepLevel;
+const heroUi = new PlayerUi(hero);
+const glitchField = new GlitchField();
 
-export const viewWidth = 20;
-export const viewHeight = 20;
-
-let heroUi = new PlayerUi(hero);
+scene.objects = level.sceneObjects;
+glitchField.objects = level.glitches;
 
 scene.objects.push(hero);
 

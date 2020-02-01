@@ -19,12 +19,12 @@ const hFence = new StaticGameObject(
     new ObjectPhysics('.'),
     [0, 0]);
 
-const sheeps: Npc[] = [];
-const wolves: Npc[] = [];
 const fences: StaticGameObject[] = [];
 
+
+
 class Sheep extends Npc {
-    type = "sheep";
+    type = "glitch";
     maxHealth = 1;
     health = 1;
 
@@ -97,8 +97,6 @@ class Sheep extends Npc {
     }
 }
 
-const sheep = new Sheep();
-
 if (true) {  // add fence
     for (let x = 1; x < 19; x++) {
         fences.push(clone(hFence, { position: [x, 1] }));
@@ -110,68 +108,63 @@ if (true) {  // add fence
     }
 }
 
-if (true) {  // random sheeps
-    for (let y = 2; y < 17; y++) {
-        const parts = 4;
-        for (let p = 0; p < parts; p++) {
-            const x = 1 + (16 / parts * p) + (Math.random() * (16 / parts) + 1) | 0;
-            const newSheep = clone(sheep, { position: [x, y] });
-            sheeps.push(newSheep);
-        }
-    }
-}
 
-const wolf = new class extends Npc {
-    type = "wolf";
-    moveSpeed = 4;
+const tree2 = clone(tree, { position: [7, 9] });
 
+
+
+class Glitch extends StaticGameObject {
     constructor() {
-        super(new ObjectSkin(`🐺`, `.`, {
-            '.': [undefined, 'transparent'],
-        }), [15, 15]);
+        super([0, 0],
+            new ObjectSkin(`AA
+A`, `aa
+a`, {
+                'a': ['#f0f', '#0fff'],
+            }),
+            new ObjectPhysics(`.`, ''), [0, 0]);
+        this.parameters["animate"] = true;
     }
+
+    new() { return new Glitch(); }
 
     update(ticks: number, scene: Scene) {
         super.update(ticks, scene);
         //
-        const wolf = this;
-        wolf.direction = [0, 0];
-        //
-        const prayList = getPrayNearby(this, 6);
-        if (!wolf.parameters["target"] && prayList.length) {
-            wolf.parameters["target"] = prayList[0];
-        }
-        const target = wolf.parameters["target"];
-        if (target) {
-            if (wolf.distanceTo(target) <= 1) {
-                wolf.attack(target);
-            }
-            wolf.approach(scene, target);
-        }
-
-        function getPrayNearby(self: Npc, radius: number) {
-            const enemies = [];
-            for (const object of scene.objects) {
-                if (!object.enabled) continue;
-                if (object === self) continue;  // self check
-                if (object instanceof Npc && object.type === "sheep") {
-                    if (wolf.distanceTo(object) < radius) {
-                        enemies.push(object);
-                    }
+        const o = this;
+        if (o.ticks > 50) {
+            o.ticks = 0;
+            if (o.parameters["animate"]) {
+                function getRandGlitchSym() {
+                    const str = "^%&$#";
+                    const index = Math.floor(Math.random() * str.length);
+                    return str[index];
                 }
+                o.parameters["tick"] = !o.parameters["tick"];
+                o.skin.characters[0] = `${getRandGlitchSym()}${getRandGlitchSym()}`;
+                o.skin.characters[1] = getRandGlitchSym();
             }
-            return enemies;
         }
     }
 
-    handleEvent(ev: GameEvent): void {
+    handleEvent(ev: GameEvent) {
         super.handleEvent(ev);
-        if (ev.type === "death" && ev.args.object === this.parameters["target"]) {
-            this.parameters["target"] = null;
+        //
+        const o = this;
+        if (ev.type === 'wind_changed') {
+            o.parameters["animate"] = ev.args["to"];
+        } else if (ev.type === 'weather_changed') {
+            if (ev.args.to === 'snow') {
+                o.skin.raw_colors[0][0][0] = 'white';
+            } else {
+                o.skin.raw_colors[0][0][0] = '#0a0';
+            }
         }
     }
 };
-wolves.push(wolf);
 
-const tree2 = clone(tree, { position: [7, 9] });
-export const sheepLevel = [...sheeps, ...wolves, ...fences, tree2];
+export const glitch = new Glitch();
+
+export const level = {
+    sceneObjects: [...fences, tree2],
+    glitches: [clone(glitch, { position: [7, 7] })],
+}; 

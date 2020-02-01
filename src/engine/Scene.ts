@@ -9,8 +9,28 @@ import { Item } from "./Item";
 
 const defaultLightLevelAtNight = 4;
 
-export class Scene implements GameEventHandler {
+export class SceneBase implements GameEventHandler {
     objects: SceneObject[] = [];
+
+    handleEvent(ev: GameEvent): void {
+    }
+
+    update(ticks: number) {
+        for (const obj of this.objects) {
+            if (!obj.enabled) continue;
+            obj.update(ticks, this);
+        }
+    }
+
+    draw(ctx: CanvasRenderingContext2D) {
+        // sort objects by origin point
+        this.objects.sort((a: SceneObject, b: SceneObject) => a.position[1] - b.position[1]);
+        drawObjects(ctx, this.objects);
+    }
+}
+
+export class Scene extends SceneBase {
+
     weatherType = 'normal';
     weatherTicks: number = 0;
     temperature = 7;  // 0-15 @todo add effects
@@ -22,23 +42,21 @@ export class Scene implements GameEventHandler {
     globalLightLevel: number = 0;
 
     handleEvent(ev: GameEvent): void {
+        super.handleEvent(ev);
         if (ev.type === "user_action" && ev.args.subtype === "npc_talk") {
-            emitEvent(new GameEvent(this, "switch_mode", {from: "scene", to: "dialog"}));
+            emitEvent(new GameEvent(this, "switch_mode", { from: "scene", to: "dialog" }));
         }
     }
-    
+
     update(ticks: number) {
         this.weatherTicks += ticks;
         // update all enabled objects
-        for (const obj of this.objects) {
-            if (!obj.enabled) continue;
-            obj.update(ticks, this);
-        }
-        
+        super.update(ticks);
+
         const scene = this;
         updateWeather();
         updateLights();
-        
+
         function updateWeather() {
             if (scene.weatherType === 'rain') {
                 scene.dayLightLevel = 12;
@@ -104,7 +122,7 @@ export class Scene implements GameEventHandler {
                 }
             }
             const lightObjects = [
-                ...scene.objects, 
+                ...scene.objects,
                 ...scene.objects
                     .filter(x => (x instanceof Npc) && x.objectInMainHand)
                     .map((x: Npc) => <Item>x.objectInMainHand),
@@ -126,15 +144,13 @@ export class Scene implements GameEventHandler {
                 }
             }
 
-            function spreadPoint(array: number[][], x: number, y: number)
-            {
+            function spreadPoint(array: number[][], x: number, y: number) {
                 if (array[y][x] - 2 <= defaultLightLevelAtNight) return;
                 for (let i = x - 1; i < x + 2; i++)
                     for (let j = y - 1; j < y + 2; j++)
-                        if ((i === x || j === y) && !(i === x && j === y) 
+                        if ((i === x || j === y) && !(i === x && j === y)
                             && (i >= 0 && i < 20 && j >= 0 && j < 20)
-                            && array[j][i] + 1 < array[y][x])
-                        {
+                            && array[j][i] + 1 < array[y][x]) {
                             array[j][i] = array[y][x] - 2;
                             spreadPoint(array, i, j);
                         }
@@ -149,8 +165,7 @@ export class Scene implements GameEventHandler {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        // sort objects by origin point
-        this.objects.sort((a: SceneObject, b: SceneObject) => a.position[1] - b.position[1]);
+
         // bedrock
         for (let y = 0; y < viewHeight; y++) {
             for (let x = 0; x < viewWidth; x++) {
@@ -158,7 +173,7 @@ export class Scene implements GameEventHandler {
             }
         }
 
-        drawObjects(ctx, this.objects);
+        super.draw(ctx);
 
         const scene = this;
         drawWeather();
@@ -188,7 +203,7 @@ export class Scene implements GameEventHandler {
             if (!object.enabled) continue;
             const pleft = position[0] - object.position[0] + object.originPoint[0];
             const ptop = position[1] - object.position[1] + object.originPoint[1];
-            if (isCollision(object, pleft, ptop)) { 
+            if (isCollision(object, pleft, ptop)) {
                 return true;
             }
         }

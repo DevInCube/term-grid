@@ -1,22 +1,24 @@
 import { SceneObject } from "./SceneObject";
 import { Cell } from "./Cell";
 import { Npc } from "./Npc";
+import { viewWidth, viewHeight, leftPad, topPad } from "../main";
 
 export class GraphicsEngine {
     
 }
 
 export const cellStyle = {
-    borderColor: "#111f",
+    borderColor: "#1114",
     borderWidth: 0.5,
     default: {
         textColor: '#fff',
         backgroundColor: '#335'
     },
     size: {
-        width: 32,
-        height: 32,
+        width: 24,
+        height: 24,
     },
+    charSize: 20,
 };
 
 export function drawObjects(ctx: CanvasRenderingContext2D, objects: SceneObject[]) {
@@ -52,7 +54,7 @@ function drawNpcCursor(ctx: CanvasRenderingContext2D, npc: Npc) {
     ctx.globalAlpha = 1;
     ctx.strokeStyle = 'yellow';
     ctx.lineWidth = 2;
-    ctx.strokeRect(left, top, cellStyle.size.width, cellStyle.size.height);
+    ctx.strokeRect(leftPad + left, topPad + top, cellStyle.size.width, cellStyle.size.height);
 }
 
 export function drawObjectAt(ctx: CanvasRenderingContext2D, obj: SceneObject, position: [number ,number]) {
@@ -149,7 +151,6 @@ export function isPositionBehindTheObject(object: SceneObject, left: number, top
     return cchar !== emptyCollisionChar || !!color[0] || !!color[1];
 }
 
-
 export function drawCell(
     ctx: CanvasRenderingContext2D,
     cell: Cell, 
@@ -158,14 +159,14 @@ export function drawCell(
     transparent: boolean = false,
     border: boolean[] = [false, false, false, false]) { 
         
-    const left = leftPos * cellStyle.size.width;
-    const top = topPos * cellStyle.size.height;
+    const left = leftPad + leftPos * cellStyle.size.width;
+    const top = topPad + topPos * cellStyle.size.height;
     //
     ctx.globalAlpha = transparent ? 0.2 : 1;
     ctx.strokeStyle = cellStyle.borderColor;
     ctx.fillStyle = cell.backgroundColor;
     ctx.fillRect(left, top, cellStyle.size.width, cellStyle.size.height);
-    ctx.font = "26px monospace";
+    ctx.font = `${cellStyle.charSize}px monospace`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     // ctx.globalAlpha = 1;
