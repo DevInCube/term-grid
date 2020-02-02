@@ -1,21 +1,104 @@
 import { ObjectSkin } from "../../../engine/ObjectSkin";
-import { SceneBase } from "../../../engine/Scene";
 import { StaticGameObject } from "../../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../../utils/misc";
 import { house, pillar, arc, shop } from "../../objects";
-import { GameEvent } from "../../../engine/GameEvent";
-import { SceneObject } from "../../../engine/SceneObject";
-import { glitch } from "../glitch";
-import { viewWidth } from "../../../main";
-import { Cell } from "../../../engine/Cell";
+import { glitch1 } from "../glitch";
 import { tiles } from "./tiles";
-import { glitchyNpc } from "./npc";
-import { lamp } from "../../items";
-import { Sheep } from "../../npc/Sheep";
-import { hFence, vFence, beehive } from "../../objects/artificial";
-import { tree, duck, wheat, flower, bamboo, hotspring, sakura } from "../../objects/natural";
-import { bee } from "../../npc/Bee";
+import {bamboo, duck, flower, hotspring, sakura, tree, wheat} from "../../objects/natural";
+import {Npc} from "../../../engine/Npc";
+import {bee} from "../../npc/Bee";
+import {lamp} from "../../items";
+import {Scene} from "../../../engine/Scene";
+import {beehive} from "../../objects/artificial";
+
+const vFence = new StaticGameObject(
+    [0, 0],
+    new ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }),
+    new ObjectPhysics('.'),
+    [0, 0]);
+const hFence = new StaticGameObject(
+    [0, 0],
+    new ObjectSkin(`☗`, '.', { '.': ['Sienna', 'transparent'] }),
+    new ObjectPhysics('.'),
+    [0, 0]);
+
+
+
+
+class Sheep extends Npc {
+    type = "glitch";
+    maxHealth = 1;
+    health = 1;
+
+    constructor() {
+        super(new ObjectSkin(`🐑`, `.`, {
+            '.': [undefined, 'transparent'],
+        }), [0, 0]);
+    }
+
+    new() {
+        return new Sheep();
+    }
+
+    update(ticks: number, scene: Scene) {
+        super.update(ticks, scene);
+        //
+        const sheep = this;
+        const state = sheep.parameters["state"];
+        if (!state) {
+            //sheep.parameters["state"] = (Math.random() * 2 | 0) === 0 ? "wandering" : "still";
+        }
+        sheep.direction = [0, 0];
+        //
+        let enemiesNearby = this.getMobsNearby(scene, 5, x => x.type !== 'sheep');
+        const fearedSheeps = this.getMobsNearby(scene, 2, x => x.type === "sheep" && (x.parameters["stress"] | 0) > 0);
+        if (enemiesNearby.length || fearedSheeps.length) {
+            if (enemiesNearby.length) {
+                sheep.parameters["state"] = "feared";
+                sheep.parameters["stress"] = 3;
+                sheep.parameters["enemies"] = enemiesNearby;
+            } else {  // if (fearedSheeps.length)
+                const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
+                //console.log(sheepsStress);
+                sheep.parameters["stress"] = sheepsStress - 1;
+                if (sheep.parameters["stress"] === 0) {
+                    sheep.parameters["state"] = "still";
+                    sheep.parameters["enemies"] = [];
+                } else {
+                    sheep.parameters["state"] = "feared_2";
+                    sheep.parameters["enemies"] = fearedSheeps[0].parameters["enemies"];
+                    enemiesNearby = fearedSheeps[0].parameters["enemies"];
+                }
+            }
+
+        } else {
+            sheep.parameters["state"] = "wandering";
+            sheep.parameters["stress"] = 0;
+            sheep.parameters["enemies"] = [];
+        }
+
+        if (state === "wandering") {
+            this.moveRandomly();
+        }
+
+        if (!scene.isPositionBlocked(sheep.cursorPosition)) {
+            sheep.move();
+        } else if (sheep.parameters["stress"] > 0) {
+            this.runAway(scene, enemiesNearby);
+        }
+
+        if (sheep.parameters["state"] === "feared") {
+            sheep.skin.raw_colors[0][0] = [undefined, "#FF000055"];
+        } else if (sheep.parameters["stress"] > 1) {
+            sheep.skin.raw_colors[0][0] = [undefined, "#FF8C0055"];
+        } else if (sheep.parameters["stress"] > 0) {
+            sheep.skin.raw_colors[0][0] = [undefined, "#FFFF0055"];
+        } else {
+            sheep.skin.raw_colors[0][0] = [undefined, "transparent"];
+        }
+    }
+}
 
 const levelWidth = 60;
 const levelHeight = 30;
@@ -170,6 +253,6 @@ export const level = {
         ...hotsprings,
         ...ducks, ...bees, ...sheepList,
     ],
-    glitches: [/*glitchyNpc,*/ clone(glitch, { position: [7, 7] })],
+    glitches: [/*glitchyNpc,*/ clone(glitch1, { position: [7, 7] })],
     tiles: tiles,
 };

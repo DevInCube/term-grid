@@ -1,5 +1,5 @@
 import { GameEvent } from "../../../engine/GameEvent";
-import { SceneBase } from "../../../engine/Scene";
+import { SceneBase } from "../../../engine/SceneBase";
 import { glitchySprite } from "../../sprites/glitchy";
 import { Npc } from "../../../engine/Npc";
 

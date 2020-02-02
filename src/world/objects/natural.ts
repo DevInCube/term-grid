@@ -2,7 +2,7 @@ import { StaticGameObject } from "../../engine/StaticGameObject";
 import { ObjectSkin } from "../../engine/ObjectSkin";
 import { ObjectPhysics } from "../../engine/ObjectPhysics";
 import { GameEvent } from "../../engine/GameEvent";
-import { SceneBase } from "../../engine/Scene";
+import {SceneBase} from "../../engine/SceneBase";
 
 const createUnitSkin = (sym: string, color: string = 'black') => new ObjectSkin(sym, `u`, {
     u: [color, 'transparent'],

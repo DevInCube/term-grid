@@ -5,59 +5,20 @@ import {Scene} from "../../engine/Scene";
 import {GameEvent} from "../../engine/GameEvent";
 import {hero} from "../hero";
 
-export class Glitch extends StaticGameObject {
+type Frame = Array<Array<{ c: string, f: string, b: string }>>;
+type FrameAnimation = { [key: number]: Frame };
+
+export class SimpleGlitch extends StaticGameObject {
 
     isDestroyed = false;
 
-    hiddenFrames = {
-        450: [
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: ' ', f: '#0000', b: '#0000'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: ' ', f: '#0000', b: '#0000'}]
-        ],
-    } as { [key: number]: {c: string, f: string, b: string}[][] };
-
-    idleFrames = {
-        450: [
-            [{c: '$', f: '#0f0', b: '#f0f'}, {c: '@', f: '#0f0', b: '#f0f'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
-        ],
-        500: [
-            [{c: 'z', f: '#f0f', b: '#0ff'}, {c: '@', f: '#0f0', b: '#f0f'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
-        ],
-        530: [
-            [{c: 'z', f: '#0f0', b: '#f0f'}, {c: '@', f: '#0f0', b: '#f0f'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: 'x', f: '#0f0', b: '#f0f'}]
-        ],
-        950: [
-            [{c: 's', f: '#0f0', b: '#f0f'}, {c: '@', f: '#0f0', b: '#f0f'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
-        ],
-    } as { [key: number]: {c: string, f: string, b: string}[][] };
-
-
-    clickFrames = {
-        450: [
-            [{c: '$', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
-        ],
-        500: [
-            [{c: 'z', f: '#f0f', b: '#0ff'}, {c: '+', f: '#0f0', b: '#f0a'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
-        ],
-        530: [
-            [{c: 'z', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: 'x', f: '#0f0', b: '#f0f'}]
-        ],
-        950: [
-            [{c: 's', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
-            [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
-        ],
-    } as { [key: number]: {c: string, f: string, b: string}[][] };
-
-    frames = this.clickFrames;
-
-    constructor() {
+    constructor(
+        public hiddenFrames: FrameAnimation,
+        public idleFrames: FrameAnimation,
+        public clickFrames: FrameAnimation,
+        public trigger: { x: number, y: number },
+        public button: { x: number, y: number },
+    ) {
         super([0, 0],
             new ObjectSkin(`AA
  A`, `aa
@@ -68,9 +29,7 @@ export class Glitch extends StaticGameObject {
         this.parameters["animate"] = true;
     }
 
-    new() {
-        return new Glitch();
-    }
+    frames: FrameAnimation;
 
     getFrame() {
         const keys = Object.keys(this.frames).map(k => Number(k)).sort();
@@ -96,17 +55,20 @@ export class Glitch extends StaticGameObject {
             if (this.isDestroyed) {
                 return this.hiddenFrames;
             }
-            if (hero.position[0] === 10 && hero.position[1] === 10) {
+            if (hero.position[0] === this.trigger.x
+                && hero.position[1] === this.trigger.y
+            ) {
                 return this.clickFrames;
             }
-            if (hero.position[0] >= 10 - 2 && hero.position[0] <= 10 + 2
-                && hero.position[1] >= 10 - 2 && hero.position[1] <= 10 + 2
+            if (hero.position[0] >= this.trigger.x - 2
+                && hero.position[0] <= this.trigger.x + 2
+                && hero.position[1] >= this.trigger.y - 2
+                && hero.position[1] <= this.trigger.y + 2
             ) {
                 return this.idleFrames;
             }
             return this.hiddenFrames;
         })();
-
 
 
         const frame = this.getFrame();
@@ -125,12 +87,67 @@ export class Glitch extends StaticGameObject {
         super.handleEvent(ev);
         //
         if (ev.type === "click") {
-            if (this.frames === this.clickFrames && ev.args.x === 8 && ev.args.y === 7) {
+            if (this.frames === this.clickFrames
+                && ev.args.x === this.button.x && ev.args.y === this.button.y
+            ) {
                 this.isDestroyed = true;
             }
         }
     }
 }
 
-export const glitch = new Glitch();
+export const glitch1 = new class Glitch1 extends SimpleGlitch {
+    constructor() {
+        super(
+            {
+                450: [
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: ' ', f: '#0000', b: '#0000'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: ' ', f: '#0000', b: '#0000'}]
+                ],
+            } as { [key: number]: { c: string, f: string, b: string }[][] },
+            {
+                450: [
+                    [{c: '$', f: '#0f0', b: '#f0f'}, {c: '@', f: '#0f0', b: '#f0f'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
+                ],
+                500: [
+                    [{c: 'z', f: '#f0f', b: '#0ff'}, {c: '@', f: '#0f0', b: '#f0f'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
+                ],
+                530: [
+                    [{c: 'z', f: '#0f0', b: '#f0f'}, {c: '@', f: '#0f0', b: '#f0f'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: 'x', f: '#0f0', b: '#f0f'}]
+                ],
+                950: [
+                    [{c: 's', f: '#0f0', b: '#f0f'}, {c: '@', f: '#0f0', b: '#f0f'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
+                ],
+            } as { [key: number]: { c: string, f: string, b: string }[][] },
+            {
+                450: [
+                    [{c: '$', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
+                ],
+                500: [
+                    [{c: 'z', f: '#f0f', b: '#0ff'}, {c: '+', f: '#0f0', b: '#f0a'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
+                ],
+                530: [
+                    [{c: 'z', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: 'x', f: '#0f0', b: '#f0f'}]
+                ],
+                950: [
+                    [{c: 's', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
+                    [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
+                ],
+            } as { [key: number]: { c: string, f: string, b: string }[][] },
+            { x: 37, y: 3 },
+            { x: 8, y: 7 },
+        );
+    }
+
+    new() {
+        return new Glitch1();
+    }
+};
 
