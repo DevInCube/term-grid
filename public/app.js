@@ -1,6 +1,6 @@
 System.register("engine/GameEvent", [], function (exports_1, context_1) {
-    var __moduleName = context_1 && context_1.id;
     var GameEvent;
+    var __moduleName = context_1 && context_1.id;
     return {
         setters: [],
         execute: function () {
@@ -16,8 +16,8 @@ System.register("engine/GameEvent", [], function (exports_1, context_1) {
     };
 });
 System.register("engine/ObjectSkin", [], function (exports_2, context_2) {
-    var __moduleName = context_2 && context_2.id;
     var ObjectSkin;
+    var __moduleName = context_2 && context_2.id;
     return {
         setters: [],
         execute: function () {
@@ -51,8 +51,8 @@ System.register("engine/ObjectSkin", [], function (exports_2, context_2) {
     };
 });
 System.register("engine/ObjectPhysics", [], function (exports_3, context_3) {
-    var __moduleName = context_3 && context_3.id;
     var ObjectPhysics;
+    var __moduleName = context_3 && context_3.id;
     return {
         setters: [],
         execute: function () {
@@ -67,8 +67,8 @@ System.register("engine/ObjectPhysics", [], function (exports_3, context_3) {
     };
 });
 System.register("engine/Cell", [], function (exports_4, context_4) {
-    var __moduleName = context_4 && context_4.id;
     var Cell;
+    var __moduleName = context_4 && context_4.id;
     return {
         setters: [],
         execute: function () {
@@ -84,6 +84,7 @@ System.register("engine/Cell", [], function (exports_4, context_4) {
     };
 });
 System.register("engine/EventLoop", [], function (exports_5, context_5) {
+    var events;
     var __moduleName = context_5 && context_5.id;
     function eventLoop(handlers) {
         while (events.length > 0) {
@@ -101,7 +102,6 @@ System.register("engine/EventLoop", [], function (exports_5, context_5) {
         console.log("event: ", ev);
     }
     exports_5("emitEvent", emitEvent);
-    var events;
     return {
         setters: [],
         execute: function () {
@@ -110,6 +110,7 @@ System.register("engine/EventLoop", [], function (exports_5, context_5) {
     };
 });
 System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], function (exports_6, context_6) {
+    var Cell_1, Npc_1, main_1, GraphicsEngine, cellStyle, emptyCollisionChar;
     var __moduleName = context_6 && context_6.id;
     function drawObjects(ctx, objects) {
         for (let object of objects) {
@@ -278,7 +279,6 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
         }
     }
     exports_6("drawCell", drawCell);
-    var Cell_1, Npc_1, main_1, GraphicsEngine, cellStyle, emptyCollisionChar;
     return {
         setters: [
             function (Cell_1_1) {
@@ -313,8 +313,8 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "engine/Npc", "main"], 
     };
 });
 System.register("engine/Item", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_7, context_7) {
-    var __moduleName = context_7 && context_7.id;
     var SceneObject_1, ObjectSkin_1, ObjectPhysics_1, Item;
+    var __moduleName = context_7 && context_7.id;
     return {
         setters: [
             function (SceneObject_1_1) {
@@ -341,8 +341,8 @@ System.register("engine/Item", ["engine/SceneObject", "engine/ObjectSkin", "engi
     };
 });
 System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "engine/EventLoop", "engine/GraphicsEngine", "engine/Npc"], function (exports_8, context_8) {
-    var __moduleName = context_8 && context_8.id;
     var GameEvent_1, main_2, Cell_2, EventLoop_1, GraphicsEngine_1, Npc_2, defaultLightLevelAtNight, SceneBase, bedrockCell, Scene;
+    var __moduleName = context_8 && context_8.id;
     return {
         setters: [
             function (GameEvent_1_1) {
@@ -568,8 +568,8 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
     };
 });
 System.register("engine/SceneObject", ["engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_9, context_9) {
-    var __moduleName = context_9 && context_9.id;
     var ObjectSkin_2, ObjectPhysics_2, SceneObject;
+    var __moduleName = context_9 && context_9.id;
     return {
         setters: [
             function (ObjectSkin_2_1) {
@@ -608,8 +608,8 @@ System.register("engine/SceneObject", ["engine/ObjectSkin", "engine/ObjectPhysic
     };
 });
 System.register("engine/StaticGameObject", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_10, context_10) {
-    var __moduleName = context_10 && context_10.id;
     var SceneObject_2, ObjectSkin_3, ObjectPhysics_3, StaticGameObject;
+    var __moduleName = context_10 && context_10.id;
     return {
         setters: [
             function (SceneObject_2_1) {
@@ -634,6 +634,7 @@ System.register("engine/StaticGameObject", ["engine/SceneObject", "engine/Object
     };
 });
 System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics"], function (exports_11, context_11) {
+    var ObjectSkin_4, StaticGameObject_1, ObjectPhysics_4;
     var __moduleName = context_11 && context_11.id;
     function distanceTo(a, b) {
         return Math.sqrt((a[0] - b[0]) ** 2 +
@@ -681,7 +682,6 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
         throw new Error("Unable to copy obj! Its type isn't supported.");
     }
     exports_11("deepCopy", deepCopy);
-    var ObjectSkin_4, StaticGameObject_1, ObjectPhysics_4;
     return {
         setters: [
             function (ObjectSkin_4_1) {
@@ -699,8 +699,8 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
     };
 });
 System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc", "engine/EventLoop", "engine/GameEvent"], function (exports_12, context_12) {
-    var __moduleName = context_12 && context_12.id;
     var SceneObject_3, ObjectSkin_5, ObjectPhysics_5, misc_1, EventLoop_2, GameEvent_2, Npc;
+    var __moduleName = context_12 && context_12.id;
     return {
         setters: [
             function (SceneObject_3_1) {
@@ -877,8 +877,8 @@ System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engin
     };
 });
 System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_13, context_13) {
-    var __moduleName = context_13 && context_13.id;
     var ObjectSkin_6, SpriteInfo, Sprite;
+    var __moduleName = context_13 && context_13.id;
     return {
         setters: [
             function (ObjectSkin_6_1) {
@@ -960,8 +960,8 @@ System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_
     };
 });
 System.register("world/sprites/glitchy", ["engine/SpriteLoader"], function (exports_14, context_14) {
-    var __moduleName = context_14 && context_14.id;
     var SpriteLoader_1, glitchySprite_old, glitchySpriteText, glitchySprite;
+    var __moduleName = context_14 && context_14.id;
     return {
         setters: [
             function (SpriteLoader_1_1) {
@@ -1027,8 +1027,8 @@ oEE`;
     };
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_15, context_15) {
-    var __moduleName = context_15 && context_15.id;
     var StaticGameObject_2, ObjectSkin_7, ObjectPhysics_6, misc_2, house, Tree, tree, trees, bamboo, lamp, lamps, chest, flower, flowers, pillar, arc, duck;
+    var __moduleName = context_15 && context_15.id;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -1139,7 +1139,7 @@ D`, {
  
  
 .`, ``), [0, 0]));
-            if (true) {
+            if (true) { // random trees
                 for (let y = 6; y < 18; y++) {
                     const x = (Math.random() * 8 + 1) | 0;
                     trees.push(misc_2.clone(bamboo, { position: [x, y] }));
@@ -1224,8 +1224,8 @@ B   B`, {
     };
 });
 System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_16, context_16) {
-    var __moduleName = context_16 && context_16.id;
     var Item_1, ObjectSkin_8, ObjectPhysics_7, lamp, sword;
+    var __moduleName = context_16 && context_16.id;
     return {
         setters: [
             function (Item_1_1) {
@@ -1245,8 +1245,8 @@ System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/Obje
     };
 });
 System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_17, context_17) {
-    var __moduleName = context_17 && context_17.id;
     var Npc_3, ObjectSkin_9, hero;
+    var __moduleName = context_17 && context_17.id;
     return {
         setters: [
             function (Npc_3_1) {
@@ -1274,8 +1274,8 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exp
     };
 });
 System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_18, context_18) {
+    var StaticGameObject_3, ObjectSkin_10, ObjectPhysics_8, hero_1, SimpleGlitch, glitch1;
     var __moduleName = context_18 && context_18.id;
-    var StaticGameObject_3, ObjectSkin_10, ObjectPhysics_8, hero_1, Glitch, glitch;
     return {
         setters: [
             function (StaticGameObject_3_1) {
@@ -1292,61 +1292,26 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
             }
         ],
         execute: function () {
-            Glitch = class Glitch extends StaticGameObject_3.StaticGameObject {
-                constructor() {
+            SimpleGlitch = class SimpleGlitch extends StaticGameObject_3.StaticGameObject {
+                constructor(hiddenFrames, idleFrames, clickFrames) {
                     super([0, 0], new ObjectSkin_10.ObjectSkin(`AA
  A`, `aa
  a`, {
                         'a': ['#f0f', '#0fff'],
                     }), new ObjectPhysics_8.ObjectPhysics(`.`, ''), [0, 0]);
+                    this.hiddenFrames = hiddenFrames;
+                    this.idleFrames = idleFrames;
+                    this.clickFrames = clickFrames;
                     this.isDestroyed = false;
-                    this.hiddenFrames = {
-                        450: [
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }]
-                        ],
+                    this.trigger = {
+                        x: 37,
+                        y: 5,
                     };
-                    this.idleFrames = {
-                        450: [
-                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        500: [
-                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        530: [
-                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
-                        ],
-                        950: [
-                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
+                    this.button = {
+                        x: 8,
+                        y: 7,
                     };
-                    this.clickFrames = {
-                        450: [
-                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        500: [
-                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                        530: [
-                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
-                        ],
-                        950: [
-                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
-                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
-                        ],
-                    };
-                    this.frames = this.clickFrames;
                     this.parameters["animate"] = true;
-                }
-                new() {
-                    return new Glitch();
                 }
                 getFrame() {
                     const keys = Object.keys(this.frames).map(k => Number(k)).sort();
@@ -1369,11 +1334,14 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
                         if (this.isDestroyed) {
                             return this.hiddenFrames;
                         }
-                        if (hero_1.hero.position[0] === 10 && hero_1.hero.position[1] === 10) {
+                        if (hero_1.hero.position[0] === this.trigger.x
+                            && hero_1.hero.position[1] === this.trigger.y) {
                             return this.clickFrames;
                         }
-                        if (hero_1.hero.position[0] >= 10 - 2 && hero_1.hero.position[0] <= 10 + 2
-                            && hero_1.hero.position[1] >= 10 - 2 && hero_1.hero.position[1] <= 10 + 2) {
+                        if (hero_1.hero.position[0] >= this.trigger.x - 2
+                            && hero_1.hero.position[0] <= this.trigger.x + 2
+                            && hero_1.hero.position[1] >= this.trigger.y - 2
+                            && hero_1.hero.position[1] <= this.trigger.y + 2) {
                             return this.idleFrames;
                         }
                         return this.hiddenFrames;
@@ -1392,18 +1360,66 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
                     super.handleEvent(ev);
                     //
                     if (ev.type === "click") {
-                        if (this.frames === this.clickFrames && ev.args.x === 8 && ev.args.y === 7) {
+                        if (this.frames === this.clickFrames
+                            && ev.args.x === this.button.x && ev.args.y === this.button.y) {
                             this.isDestroyed = true;
                         }
                     }
                 }
             };
-            exports_18("Glitch", Glitch);
-            exports_18("glitch", glitch = new Glitch());
+            exports_18("SimpleGlitch", SimpleGlitch);
+            exports_18("glitch1", glitch1 = new class Glitch1 extends SimpleGlitch {
+                constructor() {
+                    super({
+                        450: [
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: ' ', f: '#0000', b: '#0000' }]
+                        ],
+                    }, {
+                        450: [
+                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        500: [
+                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        530: [
+                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
+                        ],
+                        950: [
+                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '@', f: '#0f0', b: '#f0f' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                    }, {
+                        450: [
+                            [{ c: '$', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        500: [
+                            [{ c: 'z', f: '#f0f', b: '#0ff' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                        530: [
+                            [{ c: 'z', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: 'x', f: '#0f0', b: '#f0f' }]
+                        ],
+                        950: [
+                            [{ c: 's', f: '#0f0', b: '#f0f' }, { c: '+', f: '#0f0', b: '#f0a' }],
+                            [{ c: ' ', f: '#0000', b: '#0000' }, { c: '@', f: '#0f0', b: '#f0f' }]
+                        ],
+                    });
+                }
+                new() {
+                    return new Glitch1();
+                }
+            });
         }
     };
 });
 System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exports_19, context_19) {
+    var Cell_3, tiles;
     var __moduleName = context_19 && context_19.id;
     function parseTiles(str, colors) {
         let common = {};
@@ -1424,7 +1440,6 @@ System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exp
                 : (common[s] = new Cell_3.Cell(' ', 'transparent', colors[s]));
         }
     }
-    var Cell_3, tiles;
     return {
         setters: [
             function (Cell_3_1) {
@@ -1474,8 +1489,8 @@ gggggwwwwwwwwwwwww gggg gggggggg  gg  ggssswwwWWWWW`, {
     };
 });
 System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engine/Npc"], function (exports_20, context_20) {
-    var __moduleName = context_20 && context_20.id;
     var glitchy_1, Npc_4, glitchyNpc;
+    var __moduleName = context_20 && context_20.id;
     return {
         setters: [
             function (glitchy_1_1) {
@@ -1536,8 +1551,8 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
     };
 });
 System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/levels/ggj2020demo/npc"], function (exports_21, context_21) {
-    var __moduleName = context_21 && context_21.id;
     var Npc_5, ObjectSkin_11, StaticGameObject_4, ObjectPhysics_9, misc_3, objects_1, glitch_1, tiles_1, npc_1, vFence, hFence, fences, Sheep, levelWidth, levelHeight, trees, houses, pillars, arcs, ducks, flowers, bamboos, level;
+    var __moduleName = context_21 && context_21.id;
     return {
         setters: [
             function (Npc_5_1) {
@@ -1602,7 +1617,7 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
                             sheep.parameters["stress"] = 3;
                             sheep.parameters["enemies"] = enemiesNearby;
                         }
-                        else {
+                        else { // if (fearedSheeps.length)
                             const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
                             //console.log(sheepsStress);
                             sheep.parameters["stress"] = sheepsStress - 1;
@@ -1647,7 +1662,7 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
             };
             levelWidth = 60;
             levelHeight = 30;
-            if (true) {
+            if (true) { // add fence
                 for (let x = 0; x < levelWidth; x++) {
                     fences.push(misc_3.clone(hFence, { position: [x, 0] }));
                     fences.push(misc_3.clone(hFence, { position: [x, levelHeight - 1] }));
@@ -1707,15 +1722,15 @@ System.register("world/levels/ggj2020demo/level", ["engine/Npc", "engine/ObjectS
                     ...arcs, ...houses, ...pillars,
                     ...ducks, ...flowers
                 ],
-                glitches: [npc_1.glitchyNpc, misc_3.clone(glitch_1.glitch, { position: [7, 7] })],
+                glitches: [npc_1.glitchyNpc, misc_3.clone(glitch_1.glitch1, { position: [7, 7] })],
                 tiles: tiles_1.tiles,
             });
         }
     };
 });
 System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_22, context_22) {
-    var __moduleName = context_22 && context_22.id;
     var GraphicsEngine_2, Cell_4, main_3, Npc_6, uiBackground, PlayerUi;
+    var __moduleName = context_22 && context_22.id;
     return {
         setters: [
             function (GraphicsEngine_2_1) {
@@ -1779,8 +1794,8 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
     };
 });
 System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Scene"], function (exports_23, context_23) {
-    var __moduleName = context_23 && context_23.id;
     var GraphicsEngine_3, Cell_5, main_4, Scene_1, glitchFieldDefault, GlitchField;
+    var __moduleName = context_23 && context_23.id;
     return {
         setters: [
             function (GraphicsEngine_3_1) {
@@ -1817,6 +1832,7 @@ System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main
     };
 });
 System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi", "engine/Npc", "utils/misc", "ui/glitchField"], function (exports_24, context_24) {
+    var level_1, items_1, GameEvent_3, EventLoop_3, Scene_2, Cell_6, GraphicsEngine_4, hero_2, playerUi_1, Npc_7, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     var __moduleName = context_24 && context_24.id;
     function getActionUnderCursor() {
         const npc = hero_2.hero;
@@ -1872,7 +1888,6 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
-    var level_1, items_1, GameEvent_3, EventLoop_3, Scene_2, Cell_6, GraphicsEngine_4, hero_2, playerUi_1, Npc_7, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (level_1_1) {
@@ -2015,19 +2030,19 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                     else {
                         // debug keys
                         const oldWeatherType = scene.weatherType;
-                        if (raw_key === '1') {
+                        if (raw_key === '1') { // debug
                             scene.weatherType = 'normal';
                         }
-                        else if (raw_key === '2') {
+                        else if (raw_key === '2') { // debug
                             scene.weatherType = 'rain';
                         }
-                        else if (raw_key === '3') {
+                        else if (raw_key === '3') { // debug
                             scene.weatherType = 'snow';
                         }
-                        else if (raw_key === '4') {
+                        else if (raw_key === '4') { // debug
                             scene.weatherType = 'rain_and_snow';
                         }
-                        else if (raw_key === '5') {
+                        else if (raw_key === '5') { // debug
                             scene.weatherType = 'mist';
                         }
                         if (oldWeatherType !== scene.weatherType) {
@@ -2045,7 +2060,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                             }));
                         }
                         //
-                        if (raw_key === 'q') {
+                        if (raw_key === 'q') { // debug
                             scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
                             //
                             EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
@@ -2101,8 +2116,8 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
     };
 });
 System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_25, context_25) {
-    var __moduleName = context_25 && context_25.id;
     var ObjectSkin_12, EventLoop_4, GameEvent_4, Npc_8, ulan, npcs;
+    var __moduleName = context_25 && context_25.id;
     return {
         setters: [
             function (ObjectSkin_12_1) {
@@ -2135,8 +2150,8 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
     };
 });
 System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_26, context_26) {
-    var __moduleName = context_26 && context_26.id;
     var objects_2, misc_5, EventLoop_5, GameEvent_5, npcs_1, introLevel;
+    var __moduleName = context_26 && context_26.id;
     return {
         setters: [
             function (objects_2_1) {

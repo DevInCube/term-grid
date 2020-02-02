@@ -7,7 +7,7 @@ import { distanceTo, clone } from "../../../utils/misc";
 import { tree, house, pillar, arc, duck, flower, bamboo } from "../../objects";
 import { GameEvent } from "../../../engine/GameEvent";
 import { SceneObject } from "../../../engine/SceneObject";
-import { glitch } from "../glitch";
+import { glitch1 } from "../glitch";
 import { viewWidth } from "../../../main";
 import { Cell } from "../../../engine/Cell";
 import { tiles } from "./tiles";
@@ -172,6 +172,6 @@ export const level = {
         ...trees, ...bamboos,
         ...arcs, ...houses, ...pillars,
         ...ducks, ...flowers],
-    glitches: [glitchyNpc, clone(glitch, { position: [7, 7] })],
+    glitches: [glitchyNpc, clone(glitch1, { position: [7, 7] })],
     tiles: tiles,
 };
