@@ -5,7 +5,8 @@ import { distanceTo } from "../utils/misc";
 import { Item } from "./Item";
 import { emitEvent } from "./EventLoop";
 import { GameEvent } from "./GameEvent";
-import { Scene, SceneBase } from "./Scene";
+import { Scene } from "./Scene";
+import {SceneBase} from "./SceneBase";
 
 export class Npc extends SceneObject {
     type: string = "undefined";

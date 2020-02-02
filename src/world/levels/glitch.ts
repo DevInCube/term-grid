@@ -12,21 +12,12 @@ export class SimpleGlitch extends StaticGameObject {
 
     isDestroyed = false;
 
-
-    trigger = {
-        x: 37,
-        y: 5,
-    };
-
-    button = {
-        x: 8,
-        y: 7,
-    };
-
     constructor(
         public hiddenFrames: FrameAnimation,
         public idleFrames: FrameAnimation,
         public clickFrames: FrameAnimation,
+        public trigger: { x: number, y: number },
+        public button: { x: number, y: number },
     ) {
         super([0, 0],
             new ObjectSkin(`AA
@@ -149,8 +140,10 @@ export const glitch1 = new class Glitch1 extends SimpleGlitch {
                     [{c: 's', f: '#0f0', b: '#f0f'}, {c: '+', f: '#0f0', b: '#f0a'}],
                     [{c: ' ', f: '#0000', b: '#0000'}, {c: '@', f: '#0f0', b: '#f0f'}]
                 ],
-            } as { [key: number]: { c: string, f: string, b: string }[][] }
-        )
+            } as { [key: number]: { c: string, f: string, b: string }[][] },
+            { x: 37, y: 3 },
+            { x: 8, y: 7 },
+        );
     }
 
     new() {

@@ -1,16 +1,16 @@
 import { ObjectSkin } from "../../../engine/ObjectSkin";
-import { SceneBase } from "../../../engine/Scene";
 import { StaticGameObject } from "../../../engine/StaticGameObject";
 import { ObjectPhysics } from "../../../engine/ObjectPhysics";
 import { distanceTo, clone } from "../../../utils/misc";
 import { house, pillar, arc, shop } from "../../objects";
-import { GameEvent } from "../../../engine/GameEvent";
-import { SceneObject } from "../../../engine/SceneObject";
 import { glitch1 } from "../glitch";
-import { viewWidth } from "../../../main";
-import { Cell } from "../../../engine/Cell";
 import { tiles } from "./tiles";
-import { glitchyNpc } from "./npc";
+import {bamboo, duck, flower, hotspring, sakura, tree, wheat} from "../../objects/natural";
+import {Npc} from "../../../engine/Npc";
+import {bee} from "../../npc/Bee";
+import {lamp} from "../../items";
+import {Scene} from "../../../engine/Scene";
+import {beehive} from "../../objects/artificial";
 
 const vFence = new StaticGameObject(
     [0, 0],
@@ -23,7 +23,6 @@ const hFence = new StaticGameObject(
     new ObjectPhysics('.'),
     [0, 0]);
 
-const fences: StaticGameObject[] = [];
 
 
 
