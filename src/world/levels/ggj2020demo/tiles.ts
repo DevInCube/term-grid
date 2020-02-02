@@ -1,31 +1,31 @@
 import { Cell } from "../../../engine/Cell";
 
-export const tiles = parseTiles(`gggggggGGggggggggggggggggggGGgggg ggggggggGGgg ggG
-gggggggGGGGggggggg  gggggggggggggg gggggggggggg ggg
-gggggg g gg gggggggggggggggg g  g g  g  g g gg g gg
-gg  gg gg gggg gggg gggg gg gg ggg g gggg gg ggggg 
-g ggg ggg g       gg    gg  gg ggg ggggGGGGg gggggg
-ggg                gg ggggg gggggg gggggggggGGGGGgg
-g                     ggGGGGgggg ggggggg gggggggggg
-gggg      ggG    GG   gg    ggg GGG       gggggg  g
-g      ggggg           g     g g gg   gggg    GGggg
-gg      ggGG   gg     gG    gGg GGssssssss  ggggggg
-g     gggg                       ssswwwWWWssgggGGgg
+export const tiles = parseTiles(`gggggggGGggggggGGggGgggggggGGgggg ggggggggGGgg ggG
+gGGGgggGGGGggggggg  ggggggggggggggGgggggggggggg ggg
+ggGgGGGg gg gggggggggggggggg    gGgGGgGGg g gg g gg
+    gg gg gggg gggg gggg ggg    ggGgggggg gg ggggg 
+      ggg g       gg    gggg    ggGggggGGGGg gggggg
+                   gg gggggg    ggGgggggggggGGGGGgg
+g                     gg        ggggggg gggggggggg
+Gg        ggG    GG         ggggGGG       gggggg  g
+g      ggggg                   g gg   gggg    GGggg
+Gg      ggGG   gg     gG        GGssssssss  ggggggg
+G     gggg                       ssswwwWWWssgggGGgg
 g                                 bbbBBWWwwwsgggggg
 g           g        g             sswwwwWwsggg ggg
 g                                    ssssssgg   ggg
-   gggg    gg      gggggg             ggggggg ggggg
-g        GGGGG     gGGGGGGgg gggg          gGG  ggg
-gg       ggggg     gGgggGGGggg gggg     ggggGGGGggg
-ggg    gg            GGGgggg ggg gg     gg g gGG gg
-gggggggg            ggGGgg     gg           g g ggg
-gg  gg gg          ggggg GGGgg              g  gg g
-gggggggGG              GGGGgggggGGGgggG       ggGGg
-gGGGGgggG                       GGggg   GGG   gGGgg
-gg   gGG    gggg                 gg  g g g gssssssg
-g   gg     gGGgggggg gg gggg      gGGg ggsssssswwws
-   g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwwwwww
-ggsss      gGGgg ggg    sss sssbBbssswwwwwWWWWWWWWw
+           gg      gggggg             ggggggg ggggg
+g g      GGGGG     gGWwGWGgg gggg          gGG  ggg
+gg g     ggggg     gGggwGGwggg gggg     ggggGGGGggg
+ggggg  gg            GwGgwgg ggg gg     gg g gGG gg
+ggGGGggg            gwwGggw    gg           g g ggg
+gg  gg gg          gggggwGGGgg                 gg g
+gggggggGG              GGGGgggggGGGgggG            
+gGGGGgggG                       GGggg   GGG        
+gg   gGG    gggg                 gg  g g g gssbsssg
+g   gg     gGGgggggg gg gggg      gGGg ggsssssbwwws
+   g gg     ggGGgGGg  gg g  g g     ggGGgwwwwwbwwww
+ggsss      gGGgg ggg    sss sssbBbssswwwwwWWWWBWWWw
 wwwwwww            wwwwwwwwwwwwBbbwwwwwwwwwWWWWWWWW
 ggggwwww          wwwwwWWWWWWWWbbBWWWWwwwwwwwwwwWWW
 ggggggwwwssssswwwwwWWWWWwsssg sbBbsssswwwwwwwwwWWWW

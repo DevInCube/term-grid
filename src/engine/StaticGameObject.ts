@@ -8,7 +8,7 @@ export class StaticGameObject extends SceneObject {
         originPoint: [number, number],
         skin: ObjectSkin,
         physics: ObjectPhysics,
-        position: [number, number]) {
+        position: [number, number] = [0, 0]) {
         super(originPoint, skin, physics, position);
     }
 
