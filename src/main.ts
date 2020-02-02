@@ -198,10 +198,8 @@ function getNpcUnderCursor(npc: Npc): SceneObject | undefined {
         if (!object.enabled) continue;
         if (!(object instanceof Npc)) continue;
         //
-        const left = npc.cursorPosition[0];
-        const top = npc.cursorPosition[1];
-        //
-        if (object.position[0] === left && object.position[1] === top) {
+        if (object.position[0] === npc.cursorPosition[0] 
+            && object.position[1] === npc.cursorPosition[1]) {
             return object;
         }
     }

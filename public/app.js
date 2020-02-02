@@ -1,6 +1,6 @@
 System.register("engine/ObjectSkin", [], function (exports_1, context_1) {
-    var ObjectSkin;
     var __moduleName = context_1 && context_1.id;
+    var ObjectSkin;
     return {
         setters: [],
         execute: function () {
@@ -38,8 +38,8 @@ System.register("engine/ObjectSkin", [], function (exports_1, context_1) {
     };
 });
 System.register("engine/GameEvent", [], function (exports_2, context_2) {
-    var GameEvent;
     var __moduleName = context_2 && context_2.id;
+    var GameEvent;
     return {
         setters: [],
         execute: function () {
@@ -55,8 +55,8 @@ System.register("engine/GameEvent", [], function (exports_2, context_2) {
     };
 });
 System.register("engine/ObjectPhysics", [], function (exports_3, context_3) {
-    var ObjectPhysics;
     var __moduleName = context_3 && context_3.id;
+    var ObjectPhysics;
     return {
         setters: [],
         execute: function () {
@@ -71,8 +71,8 @@ System.register("engine/ObjectPhysics", [], function (exports_3, context_3) {
     };
 });
 System.register("engine/Cell", [], function (exports_4, context_4) {
-    var Cell;
     var __moduleName = context_4 && context_4.id;
+    var Cell;
     return {
         setters: [],
         execute: function () {
@@ -88,7 +88,6 @@ System.register("engine/Cell", [], function (exports_4, context_4) {
     };
 });
 System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics"], function (exports_5, context_5) {
-    var ObjectSkin_1, StaticGameObject_1, ObjectPhysics_1;
     var __moduleName = context_5 && context_5.id;
     function distanceTo(a, b) {
         return Math.sqrt((a[0] - b[0]) ** 2 +
@@ -136,6 +135,7 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
         throw new Error("Unable to copy obj! Its type isn't supported.");
     }
     exports_5("deepCopy", deepCopy);
+    var ObjectSkin_1, StaticGameObject_1, ObjectPhysics_1;
     return {
         setters: [
             function (ObjectSkin_1_1) {
@@ -153,8 +153,8 @@ System.register("utils/misc", ["engine/ObjectSkin", "engine/StaticGameObject", "
     };
 });
 System.register("engine/Item", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_6, context_6) {
-    var SceneObject_1, ObjectSkin_2, ObjectPhysics_2, Item;
     var __moduleName = context_6 && context_6.id;
+    var SceneObject_1, ObjectSkin_2, ObjectPhysics_2, Item;
     return {
         setters: [
             function (SceneObject_1_1) {
@@ -181,7 +181,6 @@ System.register("engine/Item", ["engine/SceneObject", "engine/ObjectSkin", "engi
     };
 });
 System.register("engine/EventLoop", [], function (exports_7, context_7) {
-    var events;
     var __moduleName = context_7 && context_7.id;
     function eventLoop(handlers) {
         while (events.length > 0) {
@@ -199,6 +198,7 @@ System.register("engine/EventLoop", [], function (exports_7, context_7) {
         console.log("event: ", ev);
     }
     exports_7("emitEvent", emitEvent);
+    var events;
     return {
         setters: [],
         execute: function () {
@@ -207,8 +207,8 @@ System.register("engine/EventLoop", [], function (exports_7, context_7) {
     };
 });
 System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "engine/EventLoop", "engine/GraphicsEngine", "engine/Npc", "engine/SceneBase"], function (exports_8, context_8) {
-    var GameEvent_1, main_1, Cell_1, EventLoop_1, GraphicsEngine_1, Npc_1, SceneBase_1, defaultLightLevelAtNight, bedrockCell, Scene;
     var __moduleName = context_8 && context_8.id;
+    var GameEvent_1, main_1, Cell_1, EventLoop_1, GraphicsEngine_1, Npc_1, SceneBase_1, defaultLightLevelAtNight, bedrockCell, Scene;
     return {
         setters: [
             function (GameEvent_1_1) {
@@ -404,8 +404,8 @@ System.register("engine/Scene", ["engine/GameEvent", "main", "engine/Cell", "eng
     };
 });
 System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc", "engine/EventLoop", "engine/GameEvent"], function (exports_9, context_9) {
-    var SceneObject_2, ObjectSkin_3, ObjectPhysics_3, misc_1, EventLoop_2, GameEvent_2, Npc;
     var __moduleName = context_9 && context_9.id;
+    var SceneObject_2, ObjectSkin_3, ObjectPhysics_3, misc_1, EventLoop_2, GameEvent_2, Npc;
     return {
         setters: [
             function (SceneObject_2_1) {
@@ -582,7 +582,6 @@ System.register("engine/Npc", ["engine/SceneObject", "engine/ObjectSkin", "engin
     };
 });
 System.register("engine/GraphicsEngine", ["engine/Cell", "main"], function (exports_10, context_10) {
-    var Cell_2, main_2, GraphicsEngine, CanvasContext, cellStyle, emptyCollisionChar;
     var __moduleName = context_10 && context_10.id;
     function drawObjects(ctx, objects) {
         for (let object of objects) {
@@ -719,6 +718,7 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "main"], function (expo
         ctx.add([topPos, leftPos], { cell, transparent, border });
     }
     exports_10("drawCell", drawCell);
+    var Cell_2, main_2, GraphicsEngine, CanvasContext, cellStyle, emptyCollisionChar;
     return {
         setters: [
             function (Cell_2_1) {
@@ -841,8 +841,8 @@ System.register("engine/GraphicsEngine", ["engine/Cell", "main"], function (expo
     };
 });
 System.register("engine/SceneBase", ["engine/GraphicsEngine"], function (exports_11, context_11) {
-    var GraphicsEngine_2, SceneBase;
     var __moduleName = context_11 && context_11.id;
+    var GraphicsEngine_2, SceneBase;
     return {
         setters: [
             function (GraphicsEngine_2_1) {
@@ -887,8 +887,8 @@ System.register("engine/SceneBase", ["engine/GraphicsEngine"], function (exports
     };
 });
 System.register("engine/SceneObject", ["engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_12, context_12) {
-    var ObjectSkin_4, ObjectPhysics_4, SceneObject;
     var __moduleName = context_12 && context_12.id;
+    var ObjectSkin_4, ObjectPhysics_4, SceneObject;
     return {
         setters: [
             function (ObjectSkin_4_1) {
@@ -927,8 +927,8 @@ System.register("engine/SceneObject", ["engine/ObjectSkin", "engine/ObjectPhysic
     };
 });
 System.register("engine/StaticGameObject", ["engine/SceneObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_13, context_13) {
-    var SceneObject_3, ObjectSkin_5, ObjectPhysics_5, StaticGameObject;
     var __moduleName = context_13 && context_13.id;
+    var SceneObject_3, ObjectSkin_5, ObjectPhysics_5, StaticGameObject;
     return {
         setters: [
             function (SceneObject_3_1) {
@@ -953,8 +953,8 @@ System.register("engine/StaticGameObject", ["engine/SceneObject", "engine/Object
     };
 });
 System.register("world/objects", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "utils/misc"], function (exports_14, context_14) {
-    var StaticGameObject_2, ObjectSkin_6, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc, shop;
     var __moduleName = context_14 && context_14.id;
+    var StaticGameObject_2, ObjectSkin_6, ObjectPhysics_6, misc_2, house, lamp, lamps, chest, pillar, arc, shop;
     return {
         setters: [
             function (StaticGameObject_2_1) {
@@ -1049,8 +1049,8 @@ B   B`, {
     };
 });
 System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_15, context_15) {
-    var Item_1, ObjectSkin_7, ObjectPhysics_7, lamp, sword;
     var __moduleName = context_15 && context_15.id;
+    var Item_1, ObjectSkin_7, ObjectPhysics_7, lamp, sword;
     return {
         setters: [
             function (Item_1_1) {
@@ -1070,8 +1070,8 @@ System.register("world/items", ["engine/Item", "engine/ObjectSkin", "engine/Obje
     };
 });
 System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exports_16, context_16) {
-    var Npc_2, ObjectSkin_8, hero;
     var __moduleName = context_16 && context_16.id;
+    var Npc_2, ObjectSkin_8, hero;
     return {
         setters: [
             function (Npc_2_1) {
@@ -1099,8 +1099,8 @@ System.register("world/hero", ["engine/Npc", "engine/ObjectSkin"], function (exp
     };
 });
 System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics", "world/hero"], function (exports_17, context_17) {
-    var StaticGameObject_3, ObjectSkin_9, ObjectPhysics_8, hero_1, SimpleGlitch, glitch1;
     var __moduleName = context_17 && context_17.id;
+    var StaticGameObject_3, ObjectSkin_9, ObjectPhysics_8, hero_1, SimpleGlitch, glitch1;
     return {
         setters: [
             function (StaticGameObject_3_1) {
@@ -1238,7 +1238,6 @@ System.register("world/levels/glitch", ["engine/StaticGameObject", "engine/Objec
     };
 });
 System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exports_18, context_18) {
-    var Cell_3, tiles;
     var __moduleName = context_18 && context_18.id;
     function parseTiles(str, colors) {
         let common = {};
@@ -1259,6 +1258,7 @@ System.register("world/levels/ggj2020demo/tiles", ["engine/Cell"], function (exp
                 : (common[s] = new Cell_3.Cell(' ', 'transparent', colors[s]));
         }
     }
+    var Cell_3, tiles;
     return {
         setters: [
             function (Cell_3_1) {
@@ -1308,8 +1308,8 @@ gggggwwwwwwwwwwwww gggg gggggggg  gg  ggssswwwWWWWW`, {
     };
 });
 System.register("world/objects/natural", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_19, context_19) {
-    var StaticGameObject_4, ObjectSkin_10, ObjectPhysics_9, createUnitSkin, unitPhysics, createUnitStaticObject, flower, wheat, hotspring, duck, bamboo, Tree, tree, SakuraTree, sakura;
     var __moduleName = context_19 && context_19.id;
+    var StaticGameObject_4, ObjectSkin_10, ObjectPhysics_9, createUnitSkin, unitPhysics, createUnitStaticObject, flower, wheat, hotspring, duck, bamboo, Tree, tree, SakuraTree, sakura;
     return {
         setters: [
             function (StaticGameObject_4_1) {
@@ -1440,8 +1440,8 @@ o01o
     };
 });
 System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (exports_20, context_20) {
-    var Npc_3, ObjectSkin_11, Bee, bee;
     var __moduleName = context_20 && context_20.id;
+    var Npc_3, ObjectSkin_11, Bee, bee;
     return {
         setters: [
             function (Npc_3_1) {
@@ -1481,8 +1481,8 @@ System.register("world/npc/Bee", ["engine/Npc", "engine/ObjectSkin"], function (
     };
 });
 System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/ObjectSkin", "engine/ObjectPhysics"], function (exports_21, context_21) {
-    var StaticGameObject_5, ObjectSkin_12, ObjectPhysics_10, vFence, hFence, beehive;
     var __moduleName = context_21 && context_21.id;
+    var StaticGameObject_5, ObjectSkin_12, ObjectPhysics_10, vFence, hFence, beehive;
     return {
         setters: [
             function (StaticGameObject_5_1) {
@@ -1505,8 +1505,8 @@ System.register("world/objects/artificial", ["engine/StaticGameObject", "engine/
     };
 });
 System.register("world/levels/ggj2020demo/level", ["engine/ObjectSkin", "engine/StaticGameObject", "engine/ObjectPhysics", "utils/misc", "world/objects", "world/levels/glitch", "world/levels/ggj2020demo/tiles", "world/objects/natural", "engine/Npc", "world/npc/Bee", "world/items", "world/objects/artificial"], function (exports_22, context_22) {
-    var ObjectSkin_13, StaticGameObject_6, ObjectPhysics_11, misc_3, objects_1, glitch_1, tiles_1, natural_1, Npc_4, Bee_1, items_1, artificial_1, vFence, hFence, Sheep, levelWidth, levelHeight, fences, extraFences, trees, sakuras, houses, lamps, pillars, arcs, shops, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
     var __moduleName = context_22 && context_22.id;
+    var ObjectSkin_13, StaticGameObject_6, ObjectPhysics_11, misc_3, objects_1, glitch_1, tiles_1, natural_1, Npc_4, Bee_1, items_1, artificial_1, vFence, hFence, Sheep, levelWidth, levelHeight, fences, extraFences, trees, sakuras, houses, lamps, pillars, arcs, shops, ducks, sheep, sheepList, wheats, flowers, bamboos, beehives, bees, hotsprings, level;
     return {
         setters: [
             function (ObjectSkin_13_1) {
@@ -1579,7 +1579,7 @@ System.register("world/levels/ggj2020demo/level", ["engine/ObjectSkin", "engine/
                             sheep.parameters["stress"] = 3;
                             sheep.parameters["enemies"] = enemiesNearby;
                         }
-                        else { // if (fearedSheeps.length)
+                        else {
                             const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
                             //console.log(sheepsStress);
                             sheep.parameters["stress"] = sheepsStress - 1;
@@ -1625,7 +1625,7 @@ System.register("world/levels/ggj2020demo/level", ["engine/ObjectSkin", "engine/
             levelWidth = 60;
             levelHeight = 30;
             fences = [];
-            if (true) { // add fence
+            if (true) {
                 for (let x = 0; x < levelWidth; x++) {
                     fences.push(misc_3.clone(hFence, { position: [x, 0] }));
                     fences.push(misc_3.clone(hFence, { position: [x, levelHeight - 1] }));
@@ -1764,8 +1764,8 @@ System.register("world/levels/ggj2020demo/level", ["engine/ObjectSkin", "engine/
     };
 });
 System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/Npc"], function (exports_23, context_23) {
-    var GraphicsEngine_3, Cell_4, main_3, Npc_5, uiBackground, PlayerUi;
     var __moduleName = context_23 && context_23.id;
+    var GraphicsEngine_3, Cell_4, main_3, Npc_5, uiBackground, PlayerUi;
     return {
         setters: [
             function (GraphicsEngine_3_1) {
@@ -1829,8 +1829,8 @@ System.register("ui/playerUi", ["engine/GraphicsEngine", "engine/Cell", "main", 
     };
 });
 System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main", "engine/SceneBase"], function (exports_24, context_24) {
-    var GraphicsEngine_4, Cell_5, main_4, SceneBase_2, glitchFieldDefault, GlitchField;
     var __moduleName = context_24 && context_24.id;
+    var GraphicsEngine_4, Cell_5, main_4, SceneBase_2, glitchFieldDefault, GlitchField;
     return {
         setters: [
             function (GraphicsEngine_4_1) {
@@ -1867,7 +1867,6 @@ System.register("ui/glitchField", ["engine/GraphicsEngine", "engine/Cell", "main
     };
 });
 System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engine/GameEvent", "engine/EventLoop", "engine/Scene", "engine/Cell", "engine/GraphicsEngine", "world/hero", "ui/playerUi", "engine/Npc", "utils/misc", "ui/glitchField"], function (exports_25, context_25) {
-    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_1, Cell_6, GraphicsEngine_5, hero_2, playerUi_1, Npc_6, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     var __moduleName = context_25 && context_25.id;
     function getActionUnderCursor() {
         const npc = hero_2.hero;
@@ -1896,10 +1895,8 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
             if (!(object instanceof Npc_6.Npc))
                 continue;
             //
-            const left = npc.cursorPosition[0];
-            const top = npc.cursorPosition[1];
-            //
-            if (object.position[0] === left && object.position[1] === top) {
+            if (object.position[0] === npc.cursorPosition[0]
+                && object.position[1] === npc.cursorPosition[1]) {
                 return object;
             }
         }
@@ -1923,6 +1920,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
         EventLoop_3.eventLoop([game, scene, ...scene.objects, glitchField, ...glitchField.objects]);
         game.draw();
     }
+    var level_1, items_2, GameEvent_3, EventLoop_3, Scene_1, Cell_6, GraphicsEngine_5, hero_2, playerUi_1, Npc_6, misc_4, glitchField_1, canvas, ctx, Game, game, viewWidth, viewHeight, leftPad, topPad, scene, heroUi, glitchField, ticksPerStep;
     return {
         setters: [
             function (level_1_1) {
@@ -2066,19 +2064,19 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                     else {
                         // debug keys
                         const oldWeatherType = scene.weatherType;
-                        if (raw_key === '1') { // debug
+                        if (raw_key === '1') {
                             scene.weatherType = 'normal';
                         }
-                        else if (raw_key === '2') { // debug
+                        else if (raw_key === '2') {
                             scene.weatherType = 'rain';
                         }
-                        else if (raw_key === '3') { // debug
+                        else if (raw_key === '3') {
                             scene.weatherType = 'snow';
                         }
-                        else if (raw_key === '4') { // debug
+                        else if (raw_key === '4') {
                             scene.weatherType = 'rain_and_snow';
                         }
-                        else if (raw_key === '5') { // debug
+                        else if (raw_key === '5') {
                             scene.weatherType = 'mist';
                         }
                         if (oldWeatherType !== scene.weatherType) {
@@ -2096,7 +2094,7 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
                             }));
                         }
                         //
-                        if (raw_key === 'q') { // debug
+                        if (raw_key === 'q') {
                             scene.timePeriod = scene.timePeriod === 'day' ? 'night' : 'day';
                             //
                             EventLoop_3.emitEvent(new GameEvent_3.GameEvent("system", "time_changed", {
@@ -2152,8 +2150,8 @@ System.register("main", ["world/levels/ggj2020demo/level", "world/items", "engin
     };
 });
 System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_26, context_26) {
-    var ObjectSkin_14, SpriteInfo, Sprite;
     var __moduleName = context_26 && context_26.id;
+    var ObjectSkin_14, SpriteInfo, Sprite;
     return {
         setters: [
             function (ObjectSkin_14_1) {
@@ -2235,8 +2233,8 @@ System.register("engine/SpriteLoader", ["engine/ObjectSkin"], function (exports_
     };
 });
 System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/GameEvent", "engine/Npc"], function (exports_27, context_27) {
-    var ObjectSkin_15, EventLoop_4, GameEvent_4, Npc_7, ulan, npcs;
     var __moduleName = context_27 && context_27.id;
+    var ObjectSkin_15, EventLoop_4, GameEvent_4, Npc_7, ulan, npcs;
     return {
         setters: [
             function (ObjectSkin_15_1) {
@@ -2269,8 +2267,8 @@ System.register("world/npcs", ["engine/ObjectSkin", "engine/EventLoop", "engine/
     };
 });
 System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/EventLoop", "engine/GameEvent", "world/npcs"], function (exports_28, context_28) {
-    var objects_2, misc_5, EventLoop_5, GameEvent_5, npcs_1, introLevel;
     var __moduleName = context_28 && context_28.id;
+    var objects_2, misc_5, EventLoop_5, GameEvent_5, npcs_1, introLevel;
     return {
         setters: [
             function (objects_2_1) {
@@ -2299,8 +2297,8 @@ System.register("world/levels/intro", ["world/objects", "utils/misc", "engine/Ev
     };
 });
 System.register("world/sprites/glitchy", ["engine/SpriteLoader"], function (exports_29, context_29) {
-    var SpriteLoader_1, glitchySprite_old, glitchySpriteText, glitchySprite;
     var __moduleName = context_29 && context_29.id;
+    var SpriteLoader_1, glitchySprite_old, glitchySpriteText, glitchySprite;
     return {
         setters: [
             function (SpriteLoader_1_1) {
@@ -2366,8 +2364,8 @@ oEE`;
     };
 });
 System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engine/Npc"], function (exports_30, context_30) {
-    var glitchy_1, Npc_8, glitchyNpc;
     var __moduleName = context_30 && context_30.id;
+    var glitchy_1, Npc_8, glitchyNpc;
     return {
         setters: [
             function (glitchy_1_1) {
@@ -2428,8 +2426,8 @@ System.register("world/levels/ggj2020demo/npc", ["world/sprites/glitchy", "engin
     };
 });
 System.register("world/npc/Sheep", ["engine/Npc", "engine/ObjectSkin"], function (exports_31, context_31) {
-    var Npc_9, ObjectSkin_16, Sheep;
     var __moduleName = context_31 && context_31.id;
+    var Npc_9, ObjectSkin_16, Sheep;
     return {
         setters: [
             function (Npc_9_1) {
@@ -2470,7 +2468,7 @@ System.register("world/npc/Sheep", ["engine/Npc", "engine/ObjectSkin"], function
                             sheep.parameters["stress"] = 3;
                             sheep.parameters["enemies"] = enemiesNearby;
                         }
-                        else { // if (fearedSheeps.length)
+                        else {
                             const sheepsStress = Math.max(...fearedSheeps.map(x => x.parameters["stress"] | 0));
                             //console.log(sheepsStress);
                             sheep.parameters["stress"] = sheepsStress - 1;
